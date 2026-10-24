@@ -255,7 +255,7 @@ export async function handleClickPrepare(body: ClickPrepareRequestBody): Promise
     secretKey,
     merchantTransId,
     amount,
-    action,
+    (action ?? '').toString(),
     signTime
   );
 
@@ -389,7 +389,7 @@ export async function handleClickComplete(body: ClickCompleteRequestBody): Promi
     merchantTransId,
     merchantPrepareId,
     amount,
-    action,
+    (action ?? '').toString(),
     signTime
   );
 

@@ -21,6 +21,7 @@ import {
   isFirebaseAdminInitialized,
   NAMED_DATABASE_ID,
   PROJECT_ID,
+  adminDb,
 } from './firebaseAdmin.js';
 import { AdFormData } from './adGenerator.js';
 
@@ -74,7 +75,7 @@ app.get('/debug-db', requireFirebaseAuth, async (req: AuthenticatedRequest, res:
     const collections = await adminDb.listCollections();
     res.json({
         success: true,
-        collections: collections.map(c => c.id),
+        collections: collections.map((c: any) => c.id),
         projectId: PROJECT_ID,
         databaseId: NAMED_DATABASE_ID
     });
