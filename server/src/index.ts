@@ -13,6 +13,11 @@ import {
   PLAN_DAILY_LIMITS,
 } from './quotaService.js';
 import {
+  createOrder,
+  handleClickPrepare,
+  handleClickComplete,
+} from './clickService.js';
+import {
   isFirebaseAdminInitialized,
   NAMED_DATABASE_ID,
   PROJECT_ID,
@@ -62,6 +67,76 @@ app.get('/', (req: Request, res: Response) => {
       </body>
     </html>
   `);
+});
+
+app.get('/debug-db', requireFirebaseAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const collections = await adminDb.listCollections();
+    res.json({
+        success: true,
+        collections: collections.map(c => c.id),
+        projectId: PROJECT_ID,
+        databaseId: NAMED_DATABASE_ID
+    });
+  } catch (err: any) {
+    res.status(500).json({ 
+      success: false,
+      error: err.message, 
+      databaseId: NAMED_DATABASE_ID,
+      projectId: PROJECT_ID
+    });
+  }
+});
+
+/**
+ * Click Payment API Routes
+ */
+
+app.post('/api/payment/click/create-order', requireFirebaseAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user?.uid;
+  if (!userId) return res.status(401).json({ success: false, error: 'unauthenticated' });
+  
+  const { plan } = req.body;
+  if (plan !== 'pro' && plan !== 'ultra') {
+    return res.status(400).json({ success: false, error: 'invalid_plan' });
+  }
+
+  try {
+    const order = await createOrder(userId, req.user?.email || null, plan);
+    res.json({ success: true, ...order });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: 'internal', message: err.message });
+  }
+});
+
+app.post('/api/payment/click/prepare', express.urlencoded({ extended: true }), async (req: Request, res: Response) => {
+  const result = await handleClickPrepare(req.body);
+  res.json(result);
+});
+
+app.post('/api/payment/click/complete', express.urlencoded({ extended: true }), async (req: Request, res: Response) => {
+  if (String(req.body.action) === '2') {
+    console.warn('[Click] action=2 (Cancel) received but not implemented.');
+    return res.json({ error: 0, error_note: 'Not implemented' });
+  }
+  const result = await handleClickComplete(req.body);
+  res.json(result);
+});
+
+app.get('/api/payment/click/status/:orderId', requireFirebaseAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user?.uid;
+  const { orderId } = req.params;
+  try {
+    const orderRef = adminDb.collection('orders').doc(orderId);
+    const snap = await orderRef.get();
+    if (!snap.exists || snap.data()?.userId !== userId) {
+      return res.status(404).json({ success: false, error: 'not_found' });
+    }
+    const data = snap.data() as any;
+    res.json({ success: true, status: data.status, plan: data.plan });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: 'internal' });
+  }
 });
 
 /**

@@ -20,6 +20,7 @@ import {
   Firestore 
 } from 'firebase/firestore';
 import { getFunctions, Functions } from 'firebase/functions';
+import { emitError } from '../utils/errorBus';
 
 // Import provisioned config directly from root
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -100,6 +101,14 @@ try {
 
 export { app, auth, db, functions, googleProvider, isConfigured };
 
+export function logFirestoreOp(operationType: OperationType, path: string | null) {
+  const currentAuth = auth ? auth.currentUser : null;
+  console.log(`[Firestore Operation] ${operationType.toUpperCase()} at ${path}`, {
+    userId: currentAuth?.uid,
+    databaseId: firebaseConfig.firestoreDatabaseId,
+  });
+}
+
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const currentAuth = auth ? auth.currentUser : null;
   const errInfo: FirestoreErrorInfo = {
@@ -119,7 +128,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path,
   };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  emitError(errInfo);
 }
 
 export const checkFirebaseStatus = (): FirebaseConfigStatus => {

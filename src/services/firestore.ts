@@ -17,7 +17,7 @@ import {
   limit,
 } from 'firebase/firestore';
 import { User } from 'firebase/auth';
-import { db, handleFirestoreError, OperationType } from './firebase';
+import { db, handleFirestoreError, OperationType, logFirestoreOp } from './firebase';
 import {
   UserProfile,
   DailyUsageDoc,
@@ -40,6 +40,7 @@ export const getTodayDateKey = (): string => {
  */
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   const docPath = `users/${userId}`;
+  logFirestoreOp(OperationType.GET, docPath);
   try {
     const docRef = doc(db, 'users', userId);
     const snap = await getDoc(docRef);
@@ -64,6 +65,7 @@ export async function syncUserProfile(user: User): Promise<UserProfile> {
 
   try {
     const docRef = doc(db, 'users', user.uid);
+    logFirestoreOp(OperationType.GET, docPath);
     const snap = await getDoc(docRef);
 
     if (!snap.exists()) {
@@ -123,6 +125,7 @@ export async function getTodayAdUsage(userId: string): Promise<DailyUsageDoc> {
 
   try {
     const docRef = doc(db, 'users', userId, 'usage', dateKey);
+    logFirestoreOp(OperationType.GET, docPath);
     const snap = await getDoc(docRef);
 
     if (snap.exists()) {
@@ -148,54 +151,7 @@ export async function getTodayAdUsage(userId: string): Promise<DailyUsageDoc> {
   }
 }
 
-/**
- * Record an ad-generation event in Firestore
- * Note: While tracked in Firestore, client-side requests remain subject to backend verification
- */
-export async function recordAdGeneration(userId: string): Promise<DailyUsageDoc> {
-  const dateKey = getTodayDateKey();
-  const docPath = `users/${userId}/usage/${dateKey}`;
-  const nowIso = new Date().toISOString();
 
-  try {
-    const docRef = doc(db, 'users', userId, 'usage', dateKey);
-    const snap = await getDoc(docRef);
-
-    let updatedUsage: DailyUsageDoc;
-    if (snap.exists()) {
-      const data = snap.data() as DailyUsageDoc;
-      updatedUsage = {
-        ...data,
-        adCount: (data.adCount || 0) + 1,
-        lastGeneratedAt: nowIso,
-      };
-      await updateDoc(docRef, {
-        adCount: updatedUsage.adCount,
-        lastGeneratedAt: nowIso,
-      });
-    } else {
-      updatedUsage = {
-        id: dateKey,
-        userId,
-        date: dateKey,
-        adCount: 1,
-        lastGeneratedAt: nowIso,
-      };
-      await setDoc(docRef, updatedUsage);
-    }
-
-    return updatedUsage;
-  } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, docPath);
-    return {
-      id: dateKey,
-      userId,
-      date: dateKey,
-      adCount: 1,
-      lastGeneratedAt: nowIso,
-    };
-  }
-}
 
 /**
  * Ad Drafts CRUD
@@ -204,6 +160,7 @@ export async function getUserAdDrafts(userId: string): Promise<AdDraftDoc[]> {
   const collectionPath = `users/${userId}/adDrafts`;
   try {
     const colRef = collection(db, 'users', userId, 'adDrafts');
+    logFirestoreOp(OperationType.LIST, collectionPath);
     const snap = await getDocs(colRef);
     const drafts: AdDraftDoc[] = [];
     snap.forEach((docSnap) => {
@@ -220,6 +177,7 @@ export async function saveAdDraft(userId: string, draft: Omit<AdDraftDoc, 'userI
   const docPath = `users/${userId}/adDrafts/${draft.id}`;
   try {
     const docRef = doc(db, 'users', userId, 'adDrafts', draft.id);
+    logFirestoreOp(OperationType.WRITE, docPath);
     const payload: AdDraftDoc = {
       ...draft,
       userId,
@@ -232,6 +190,7 @@ export async function saveAdDraft(userId: string, draft: Omit<AdDraftDoc, 'userI
 
 export async function deleteAdDraft(userId: string, draftId: string): Promise<void> {
   const docPath = `users/${userId}/adDrafts/${draftId}`;
+  logFirestoreOp(OperationType.DELETE, docPath);
   try {
     const docRef = doc(db, 'users', userId, 'adDrafts', draftId);
     await deleteDoc(docRef);
@@ -278,6 +237,7 @@ export async function saveCalculation(
 
 export async function deleteCalculation(userId: string, calcId: string): Promise<void> {
   const docPath = `users/${userId}/calculations/${calcId}`;
+  logFirestoreOp(OperationType.DELETE, docPath);
   try {
     const docRef = doc(db, 'users', userId, 'calculations', calcId);
     await deleteDoc(docRef);
@@ -324,6 +284,7 @@ export async function saveCustomTemplate(
 
 export async function deleteCustomTemplate(userId: string, templateId: string): Promise<void> {
   const docPath = `users/${userId}/customTemplates/${templateId}`;
+  logFirestoreOp(OperationType.DELETE, docPath);
   try {
     const docRef = doc(db, 'users', userId, 'customTemplates', templateId);
     await deleteDoc(docRef);

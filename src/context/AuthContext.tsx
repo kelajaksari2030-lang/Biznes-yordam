@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider, isConfigured, checkFirebaseStatus, FirebaseConfigStatus } from '../services/firebase';
-import { syncUserProfile, getTodayAdUsage, recordAdGeneration } from '../services/firestore';
+import { syncUserProfile, getTodayAdUsage } from '../services/firestore';
 import { PLANS, PlanEntitlements } from '../config/plans';
 import { UserProfile, DailyUsageDoc } from '../types/firestore';
 
@@ -17,7 +17,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
   clearAuthError: () => void;
-  recordAdGenerated: () => Promise<number>;
+
   updateDailyUsageCount: (count: number) => void;
   refreshProfileAndUsage: () => Promise<void>;
 }
@@ -156,17 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [user]);
 
-  const recordAdGenerated = async (): Promise<number> => {
-    if (!user) return 0;
-    try {
-      const updated = await recordAdGeneration(user.uid);
-      setDailyUsage(updated);
-      return updated.adCount;
-    } catch (error) {
-      console.warn('Direct client usage write disabled by security rules (backend authoritative):', error);
-      return (dailyUsage?.adCount || 0) + 1;
-    }
-  };
+
 
   const clearAuthError = () => setAuthError(null);
 
@@ -184,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithGoogle,
         signOutUser,
         clearAuthError,
-        recordAdGenerated,
+
         updateDailyUsageCount,
         refreshProfileAndUsage,
       }}

@@ -52,11 +52,12 @@ try {
         credential,
         projectId: PROJECT_ID,
       });
+      console.log('✅ Firebase Admin initialized with explicit credentials.');
       isFirebaseAdminInitialized = true;
     } else {
       // Fallback: Default initialization (e.g. for local testing or GCP ADC)
       console.warn(
-        '⚠️ Warning: No explicit Firebase Admin credentials found in environment. Initializing default app.'
+        '⚠️ Warning: No explicit Firebase Admin credentials found in environment. Initializing default app (might lack permissions).'
       );
       app = initializeApp({
         projectId: PROJECT_ID,

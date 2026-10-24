@@ -13,6 +13,8 @@ import { ProfitCalculator } from './components/ProfitCalculator';
 import { CustomerReplies } from './components/CustomerReplies';
 import { Footer } from './components/Footer';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DiagnosticProvider } from './context/DiagnosticContext';
+import { DiagnosticPanel } from './components/DiagnosticPanel';
 import { SignInScreen } from './components/SignInScreen';
 import { AccountStatusModal } from './components/AccountStatusModal';
 import { PricingModal } from './components/PricingModal';
@@ -96,6 +98,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#F8F4ED] text-[#34221A] flex flex-col font-sans">
+      <DiagnosticPanel />
       {/* Top Navbar & Mobile Bottom Tab Bar */}
       <Navbar 
         activeTab={activeTab} 
@@ -134,7 +137,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <DiagnosticProvider>
+        <AppContent />
+      </DiagnosticProvider>
     </AuthProvider>
   );
 }

@@ -99,5 +99,10 @@ service cloud.firestore {
         allow delete: if isOwner(userId) && isValidId(templateId);
       }
     }
+
+    // Orders (Access restricted to owner)
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
   }
 }

@@ -19,6 +19,8 @@ import { AdFormData, AdDraft, PlatformType, ToneType, AdStyleVariant } from '../
 import { useAuth } from '../context/AuthContext';
 import { getUserAdDrafts, saveAdDraft, deleteAdDraft } from '../services/firestore';
 import { requestAdGenerationFromBackend } from '../services/adBackendService';
+import { emitError } from '../utils/errorBus';
+import { OperationType } from '../services/firebase';
 
 const AUDIENCE_SUGGESTIONS = [
   'Barcha qiziquvchilar',
@@ -52,9 +54,8 @@ export const AdGenerator: React.FC = () => {
     contactInfo: '📞 Telefon: +998 (90) 123-45-67\n📩 Admin: @menejer_savdo',
   });
 
-  const [generatedDraft, setGeneratedDraft] = useState<string>(() => {
-    return `✨ SIFATLI MAHSULOT — QULAY NARXDA!\n\nSalom aziz do'stlar! Sizga Erkaklar va yoshlar orasida katta talabga ega bo'lgan Erkaklar klassik soatini taqdim etamiz.\n\nNima uchun bu aynan sizga kerak?\n  ✅ O'zbekiston bo'ylab tezkor yetkazib berish\n  ✅ 1 yillik rasmiy kafolat\n  ✅ 100% suv o'tkazmaydigan po'lat korpus\n\n🎁 Maxsus taklif: Bugun buyurtma berganlarga 20% chegirma va sovg'a qutisi!\n\n📦 To'lov usullari: Payme, Click yoki naqd (yetkazilganda).\n📍 Kafolatlangan asl mahsulot.\n\nSavollaringiz bormi yoki buyurtma bermoqchimisiz?\n📞 Telefon: +998 (90) 123-45-67\n📩 Admin: @menejer_savdo`;
-  });
+  const [generatedDraft, setGeneratedDraft] = useState<string>('');
+  const [hasGenerated, setHasGenerated] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -151,6 +152,12 @@ export const AdGenerator: React.FC = () => {
 
       if (result.error) {
         setGenerationError(result.error.message);
+        emitError({
+          error: `Backend Error (${result.error.code}): ${result.error.message}`,
+          operationType: OperationType.WRITE,
+          path: '/api/generate-ad',
+          authInfo: { userId: user?.uid },
+        });
       } else if (result.data) {
         setGeneratedDraft(result.data.adText);
         updateDailyUsageCount(result.data.adCount);

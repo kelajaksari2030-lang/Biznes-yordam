@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, CheckCircle2, Sparkles, Clock, Info } from 'lucide-react';
 import { PLANS } from '../config/plans';
 import { useAuth } from '../context/AuthContext';
+import { initiateClickPayment } from '../services/payment';
 
 interface PricingModalProps {
   isOpen: boolean;
@@ -9,8 +10,56 @@ interface PricingModalProps {
 }
 
 export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
-  const { currentPlan } = useAuth();
+  const { currentPlan, user } = useAuth();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [errorPlan, setErrorPlan] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!orderId) return;
+    const interval = setInterval(async () => {
+      try {
+        const token = await user?.getIdToken();
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/payment/click/status/${orderId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          if (data.status === 'paid') {
+            setPaymentStatus('To\'lov muvaffaqiyatli amalga oshirildi!');
+            setOrderId(null);
+          } else if (data.status === 'cancelled') {
+            setPaymentStatus('To\'lov bekor qilindi.');
+            setOrderId(null);
+          }
+        }
+      } catch (err) {
+        console.error('Polling error', err);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [orderId, user]);
+
+  const handlePayment = async (plan: 'pro' | 'ultra') => {
+    if (!user) {
+      setErrorPlan('To\'lov qilish uchun tizimga kirishingiz kerak.');
+      return;
+    }
+    setLoadingPlan(plan);
+    setErrorPlan(null);
+    try {
+      const token = await user.getIdToken();
+      const { paymentUrl, orderId } = await initiateClickPayment(plan, token);
+      setOrderId(orderId);
+      setPaymentStatus('To\'lov tizimiga yo\'naltirilmoqda...');
+      window.location.href = paymentUrl;
+    } catch (err: any) {
+      setErrorPlan(err.message || 'To\'lovni boshlashda xatolik yuz berdi.');
+      setLoadingPlan(null);
+    }
+  };
 
   // Prevent background body scroll chaining while modal is active
   useEffect(() => {
@@ -49,6 +98,11 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
         aria-labelledby="pricing-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
+        {paymentStatus && (
+           <div className="p-4 bg-green-50 text-green-800 text-center font-bold">
+             {paymentStatus}
+           </div>
+        )}
         {/* Sticky/Fixed Header - Always stays at top, X close button always accessible */}
         <div className="shrink-0 px-6 sm:px-8 pt-6 pb-4 border-b border-[#EFE8DE] flex items-start justify-between gap-4 bg-white z-10">
           <div>
@@ -188,12 +242,13 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               </div>
 
               <button
-                disabled
-                className="w-full py-2.5 px-4 text-xs font-medium text-[#8D786D] bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl flex items-center justify-center gap-1.5 cursor-not-allowed"
+                onClick={() => handlePayment('pro')}
+                disabled={loadingPlan === 'pro'}
+                className="w-full py-3 px-4 bg-[#D0AE70] hover:bg-[#B8985D] text-white rounded-xl font-bold transition-colors btn-tactile disabled:opacity-50"
               >
-                <Clock className="w-3.5 h-3.5" />
-                <span>To'lov tizimi kutilmoqda</span>
+                {loadingPlan === 'pro' ? 'Kutilmoqda...' : 'Click orqali to\'lash'}
               </button>
+              {errorPlan === 'pro' && <p className="text-xs text-red-600 mt-2">{errorPlan}</p>}
             </div>
 
             {/* Ultra Plan */}
@@ -241,12 +296,13 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               </div>
 
               <button
-                disabled
-                className="w-full py-2.5 px-4 text-xs font-medium text-[#8D786D] bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl flex items-center justify-center gap-1.5 cursor-not-allowed"
+                onClick={() => handlePayment('ultra')}
+                disabled={loadingPlan === 'ultra'}
+                className="w-full py-3 px-4 bg-[#493329] hover:bg-[#3B2A22] text-white rounded-xl font-bold transition-colors btn-tactile disabled:opacity-50"
               >
-                <Clock className="w-3.5 h-3.5" />
-                <span>To'lov tizimi kutilmoqda</span>
+                {loadingPlan === 'ultra' ? 'Kutilmoqda...' : 'Click orqali to\'lash'}
               </button>
+              {errorPlan === 'ultra' && <p className="text-xs text-red-600 mt-2">{errorPlan}</p>}
             </div>
           </div>
         </div>
