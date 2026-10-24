@@ -1,0 +1,6 @@
+{
+  "name": "BiznesYordam",
+  "description": "O'zbekistondagi kichik biznes egalari uchun reklama matnlari yaratish, mahsulot foydasi va marjasini hisoblash hamda mijozlarga tayyor javoblar to'plami.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

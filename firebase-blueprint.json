@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Foydalanuvchi hisobi, obuna holati va ma'lumotlari",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "currentPlan": { "type": "string", "enum": ["free", "pro", "ultra"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "none", "pending", "expired"] },
+        "planExpiresAt": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "currentPlan"]
+    },
+    "DailyUsage": {
+      "title": "DailyUsage",
+      "description": "Foydalanuvchining kunlik reklama matnlari generatsiyasi hisobi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 32 },
+        "adCount": { "type": "number" },
+        "lastGeneratedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "date", "adCount"]
+    },
+    "AdDraft": {
+      "title": "AdDraft",
+      "description": "Foydalanuvchi tomonidan yaratilgan va saqlangan reklama qoralamasi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "productName": { "type": "string", "maxLength": 256 },
+        "platform": { "type": "string", "enum": ["telegram", "instagram"] },
+        "content": { "type": "string", "maxLength": 10000 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "title", "platform", "content"]
+    },
+    "SavedCalculation": {
+      "title": "SavedCalculation",
+      "description": "Foydalanuvchi tomonidan saqlangan mahsulot tannarxi va foyda hisob-kitobi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 256 },
+        "date": { "type": "string", "maxLength": 64 },
+        "purchaseCost": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "quantity": { "type": "number" },
+        "extraCostPerItem": { "type": "number" },
+        "fixedCosts": { "type": "number" },
+        "netProfit": { "type": "number" },
+        "marginPercent": { "type": "number" },
+        "markupPercent": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "name", "purchaseCost", "sellingPrice", "netProfit"]
+    },
+    "CustomTemplate": {
+      "title": "CustomTemplate",
+      "description": "Foydalanuvchi tomonidan yaratilgan maxsus mijoz javobi shabloni",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "category": { "type": "string", "maxLength": 64 },
+        "template": { "type": "string", "maxLength": 5000 },
+        "description": { "type": "string", "maxLength": 512 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "title", "category", "template"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Foydalanuvchi shaxsiy profili, obuna holati va sozlamalari"
+    },
+    "/users/{userId}/usage/{dateId}": {
+      "schema": "DailyUsage",
+      "description": "Foydalanuvchining ma'lum kungi reklama yaratish ko'rsatkichi"
+    },
+    "/users/{userId}/adDrafts/{draftId}": {
+      "schema": "AdDraft",
+      "description": "Foydalanuvchining shaxsiy reklama matnlari qoralamalari"
+    },
+    "/users/{userId}/calculations/{calcId}": {
+      "schema": "SavedCalculation",
+      "description": "Foydalanuvchining shaxsiy saqlangan moliyaviy hisobotlari"
+    },
+    "/users/{userId}/customTemplates/{templateId}": {
+      "schema": "CustomTemplate",
+      "description": "Foydalanuvchining shaxsiy javob shablonlari"
+    }
+  }
+}

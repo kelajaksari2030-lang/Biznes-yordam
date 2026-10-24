@@ -1,0 +1,103 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Connection probe test document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // User document rules (Profile, Subscription & Subcollections)
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false; // Users cannot list other users
+
+      // On registration, users can create their own profile with 'free' plan only
+      // Pro and Ultra plans can ONLY be provisioned by a trusted server/admin
+      allow create: if isOwner(userId) && isValidId(userId)
+        && incoming().uid == userId
+        && incoming().currentPlan == 'free'
+        && incoming().keys().hasAll(['uid', 'email', 'currentPlan'])
+        && incoming().keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'currentPlan', 'subscriptionStatus', 'planExpiresAt', 'createdAt', 'updatedAt']);
+
+      // Profile updates cannot alter currentPlan or subscriptionStatus to prevent client privilege escalation
+      allow update: if isOwner(userId) && isValidId(userId)
+        && incoming().uid == userId
+        && incoming().currentPlan == existing().currentPlan
+        && (!('subscriptionStatus' in existing()) || incoming().subscriptionStatus == existing().subscriptionStatus)
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt']);
+
+      allow delete: if false;
+
+      // Daily Usage Tracking for ad generations (strictly authoritative backend / Admin SDK only)
+      match /usage/{dateId} {
+        allow get, list: if isOwner(userId);
+        allow write: if false; // Disallow all client writes. Quota is updated only via backend transaction.
+      }
+
+      // User's saved Ad drafts
+      match /adDrafts/{draftId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(draftId)
+          && incoming().userId == userId
+          && incoming().keys().hasAll(['id', 'userId', 'title', 'platform', 'content'])
+          && incoming().content is string && incoming().content.size() <= 10000;
+        allow update: if isOwner(userId) && isValidId(draftId)
+          && incoming().userId == userId
+          && incoming().content is string && incoming().content.size() <= 10000;
+        allow delete: if isOwner(userId) && isValidId(draftId);
+      }
+
+      // User's saved calculations
+      match /calculations/{calcId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(calcId)
+          && incoming().userId == userId
+          && incoming().keys().hasAll(['id', 'userId', 'name', 'purchaseCost', 'sellingPrice', 'netProfit']);
+        allow update: if isOwner(userId) && isValidId(calcId)
+          && incoming().userId == userId;
+        allow delete: if isOwner(userId) && isValidId(calcId);
+      }
+
+      // User's custom reply templates
+      match /customTemplates/{templateId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(templateId)
+          && incoming().userId == userId
+          && incoming().keys().hasAll(['id', 'userId', 'title', 'category', 'template'])
+          && incoming().template is string && incoming().template.size() <= 5000;
+        allow update: if isOwner(userId) && isValidId(templateId)
+          && incoming().userId == userId
+          && incoming().template is string && incoming().template.size() <= 5000;
+        allow delete: if isOwner(userId) && isValidId(templateId);
+      }
+    }
+  }
+}
