@@ -22,8 +22,19 @@ import {
 import { getFunctions, Functions } from 'firebase/functions';
 import { emitError } from '../utils/errorBus';
 
-// Import provisioned config directly from root
-import firebaseConfig from '../../firebase-applet-config.json';
+// Import provisioned config directly from root as default fallback
+import appletConfig from '../../firebase-applet-config.json';
+
+// Support Vite environment variables for production deployments (e.g. Render)
+export const firebaseConfig = {
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || appletConfig.apiKey,
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || appletConfig.authDomain,
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || appletConfig.projectId,
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || appletConfig.appId,
+  firestoreDatabaseId: (import.meta.env.VITE_FIRESTORE_DATABASE_ID as string) || appletConfig.firestoreDatabaseId,
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || appletConfig.storageBucket,
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || appletConfig.messagingSenderId,
+};
 
 export enum OperationType {
   CREATE = 'create',
