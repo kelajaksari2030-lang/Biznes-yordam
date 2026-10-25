@@ -25,16 +25,32 @@ import { emitError } from '../utils/errorBus';
 // Import provisioned config directly from root as default fallback
 import appletConfig from '../../firebase-applet-config.json';
 
+// Helper to sanitize Vite environment variables and ignore empty/undefined strings
+const getValidEnvStr = (val: unknown): string => {
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed && trimmed !== 'undefined' && trimmed !== 'null' && trimmed !== 'YOUR_API_KEY') {
+      return trimmed;
+    }
+  }
+  return '';
+};
+
 // Support Vite environment variables for production deployments (e.g. Render)
 export const firebaseConfig = {
-  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || appletConfig.apiKey,
-  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || appletConfig.authDomain,
-  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || appletConfig.projectId,
-  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || appletConfig.appId,
-  firestoreDatabaseId: (import.meta.env.VITE_FIRESTORE_DATABASE_ID as string) || appletConfig.firestoreDatabaseId,
-  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || appletConfig.storageBucket,
-  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || appletConfig.messagingSenderId,
+  apiKey: getValidEnvStr(import.meta.env.VITE_FIREBASE_API_KEY) || appletConfig.apiKey,
+  authDomain: getValidEnvStr(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN) || appletConfig.authDomain,
+  projectId: getValidEnvStr(import.meta.env.VITE_FIREBASE_PROJECT_ID) || appletConfig.projectId,
+  appId: getValidEnvStr(import.meta.env.VITE_FIREBASE_APP_ID) || appletConfig.appId,
+  firestoreDatabaseId: getValidEnvStr(import.meta.env.VITE_FIRESTORE_DATABASE_ID) || getValidEnvStr(import.meta.env.VITE_FIREBASE_DATABASE_ID) || appletConfig.firestoreDatabaseId,
+  storageBucket: getValidEnvStr(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET) || appletConfig.storageBucket,
+  messagingSenderId: getValidEnvStr(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID) || appletConfig.messagingSenderId,
 };
+
+if (typeof window !== 'undefined') {
+  const maskedKey = firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 6)}...` : 'MISSING';
+  console.log(`[Firebase Service] Initialized for project: "${firebaseConfig.projectId}", authDomain: "${firebaseConfig.authDomain}", apiKey: "${maskedKey}"`);
+}
 
 export enum OperationType {
   CREATE = 'create',

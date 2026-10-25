@@ -101,12 +101,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // onAuthStateChanged handles user state & profile sync
     } catch (error: any) {
       console.error('Google Sign-in error:', error);
-      if (error?.code === 'auth/popup-closed-by-user') {
+      const code = error?.code || '';
+      const msg = error?.message || '';
+
+      if (code === 'auth/popup-closed-by-user') {
         setAuthError('Kirish oynasi yopildi. Qaytadan urinib ko\'ring.');
-      } else if (error?.code === 'auth/configuration-not-found' || error?.code === 'auth/operation-not-allowed') {
-        setAuthError('Firebase konsolida Google provayderi yoqilmagan. Iltimos, Firebase Auth sozlamalarini tekshiring.');
+      } else if (code === 'auth/popup-blocked') {
+        setAuthError('Brauzeringiz pop-up oynasini blokladi. Iltimos, brauzer sozlamalarida pop-up oynalarga ruxsat bering.');
+      } else if (code === 'auth/configuration-not-found' || code === 'auth/operation-not-allowed') {
+        setAuthError('Firebase konsolida Google provayderi yoqilmagan. Iltimos, Firebase Console -> Authentication -> Sign-in method bo\'limida Google provayderini faollashtiring.');
+      } else if (code === 'auth/api-key-not-valid' || msg.includes('api-key-not-valid')) {
+        setAuthError('Firebase API kaliti yaroqsiz yoki cheklangan. Iltimos, Firebase Console -> Project settings bo\'limidan haqiqiy Web API Key oling.');
+      } else if (code === 'auth/unauthorized-domain' || msg.includes('unauthorized-domain')) {
+        setAuthError('Ushbu domen Firebase Authorized Domains ro\'yxatida mavjud emas. Iltimos, Firebase Console -> Authentication -> Settings bo\'limiga domeningizni qo\'shing.');
+      } else if (code === 'auth/network-request-failed' || msg.includes('network-request-failed')) {
+        setAuthError('Tarmoq ulanishida xatolik yuz berdi. Iltimos, internet ulanishingizni va brauzer blokrovchilarini (AdBlock) tekshiring.');
       } else {
-        setAuthError(error?.message || 'Google orqali kirishda xatolik yuz berdi.');
+        setAuthError(msg || 'Google orqali kirishda xatolik yuz berdi.');
       }
     } finally {
       setLoading(false);
