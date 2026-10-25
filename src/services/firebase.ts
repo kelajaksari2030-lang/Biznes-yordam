@@ -36,16 +36,20 @@ const getValidEnvStr = (val: unknown): string => {
   return '';
 };
 
-// Support Vite environment variables for production deployments (e.g. Render)
+export const TARGET_PROJECT_ID = 'gen-lang-client-0498548617';
+export const TARGET_DATABASE_ID = 'ai-studio-biznesyordam-e0d6389f-9af4-4469-a3e0-1826035a54fd';
+
+// Support Vite environment variables for production deployments while locking Project and Database IDs
 export const firebaseConfig = {
   apiKey: getValidEnvStr(import.meta.env.VITE_FIREBASE_API_KEY) || appletConfig.apiKey,
-  authDomain: getValidEnvStr(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN) || appletConfig.authDomain,
-  projectId: getValidEnvStr(import.meta.env.VITE_FIREBASE_PROJECT_ID) || appletConfig.projectId,
+  authDomain: `${TARGET_PROJECT_ID}.firebaseapp.com`,
+  projectId: TARGET_PROJECT_ID,
   appId: getValidEnvStr(import.meta.env.VITE_FIREBASE_APP_ID) || appletConfig.appId,
-  firestoreDatabaseId: getValidEnvStr(import.meta.env.VITE_FIRESTORE_DATABASE_ID) || getValidEnvStr(import.meta.env.VITE_FIREBASE_DATABASE_ID) || appletConfig.firestoreDatabaseId,
-  storageBucket: getValidEnvStr(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET) || appletConfig.storageBucket,
+  firestoreDatabaseId: TARGET_DATABASE_ID,
+  storageBucket: `${TARGET_PROJECT_ID}.firebasestorage.app`,
   messagingSenderId: getValidEnvStr(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID) || appletConfig.messagingSenderId,
 };
+
 
 if (typeof window !== 'undefined') {
   const maskedKey = firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 6)}...` : 'MISSING';
@@ -138,8 +142,13 @@ export function logFirestoreOp(operationType: OperationType, path: string | null
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const currentAuth = auth ? auth.currentUser : null;
+  const errMsg = error instanceof Error ? error.message : String(error);
+  const isOffline = errMsg.toLowerCase().includes('client is offline') || 
+                    errMsg.toLowerCase().includes('unavailable') || 
+                    errMsg.toLowerCase().includes('network-request-failed');
+
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: errMsg,
     authInfo: {
       userId: currentAuth?.uid,
       email: currentAuth?.email,
@@ -154,9 +163,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path,
   };
+
+  if (isOffline) {
+    console.warn(`[Firestore Offline Notice] ${operationType.toUpperCase()} at ${path || 'unknown'}: ${errMsg}`);
+    return;
+  }
+
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   emitError(errInfo);
 }
+
 
 export const checkFirebaseStatus = (): FirebaseConfigStatus => {
   return {

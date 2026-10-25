@@ -50,8 +50,8 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
     setLoadingPlan(plan);
     setErrorPlan(null);
     try {
-      const token = await user.getIdToken();
-      const { paymentUrl, orderId } = await initiateClickPayment(plan, token);
+      const token = await user.getIdToken(true);
+      const { paymentUrl, orderId } = await initiateClickPayment(plan, token, user);
       setOrderId(orderId);
       setPaymentStatus('To\'lov tizimiga yo\'naltirilmoqda...');
       window.location.href = paymentUrl;

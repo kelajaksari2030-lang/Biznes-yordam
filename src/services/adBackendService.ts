@@ -75,7 +75,7 @@ export async function requestAdGenerationFromBackend(
 
   let idToken: string;
   try {
-    idToken = await currentUser.getIdToken();
+    idToken = await currentUser.getIdToken(true);
   } catch (tokenErr) {
     console.error('Failed to retrieve Firebase ID token:', tokenErr);
     return {
@@ -129,16 +129,40 @@ async function callRenderBackend(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 70000); // 70s timeout for cold start
 
+  let response: Response;
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify(formData),
-      signal: controller.signal,
-    });
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(formData),
+        signal: controller.signal,
+      });
+    } catch (firstFetchErr: any) {
+      // If network fetch failed (e.g. Render free tier cold start waking up), wait 5s and retry once
+      if (firstFetchErr.name !== 'AbortError') {
+        console.warn('First fetch to Render backend failed (cold start?). Retrying in 5 seconds...', firstFetchErr);
+        if (onStatusMessage) {
+          onStatusMessage("Render bepul serveri uyg'onmoqda (~15-20s)... Qayta bog'lanilmoqda.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify(formData),
+          signal: controller.signal,
+        });
+      } else {
+        throw firstFetchErr;
+      }
+    }
+
 
     clearTimeout(sleepTimer);
     clearTimeout(timeoutId);
@@ -160,6 +184,43 @@ async function callRenderBackend(
     }
 
     if (response.status === 401) {
+      const currentUser = auth?.currentUser;
+      if (currentUser) {
+        try {
+          console.warn('Backend returned 401. Force refreshing ID token and retrying...');
+          const freshToken = await currentUser.getIdToken(true);
+          const retryResponse = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${freshToken}`,
+            },
+            body: JSON.stringify(formData),
+            signal: controller.signal,
+          });
+          const retryJson = await retryResponse.json();
+
+          if (retryResponse.ok && retryJson.success) {
+            return {
+              data: {
+                success: true,
+                adText: retryJson.adText,
+                adCount: retryJson.adCount,
+                dailyLimit: retryJson.dailyLimit,
+                remaining: retryJson.remaining,
+                plan: retryJson.plan,
+                date: retryJson.date,
+              },
+            };
+          }
+          if (retryJson.message) {
+            json.message = retryJson.message;
+          }
+        } catch (refreshErr) {
+          console.error('Failed to retry with fresh token:', refreshErr);
+        }
+      }
+
       return {
         error: {
           code: 'unauthenticated',
@@ -167,6 +228,7 @@ async function callRenderBackend(
         },
       };
     }
+
 
     if (response.status === 429) {
       return {
@@ -189,12 +251,38 @@ async function callRenderBackend(
       };
     }
 
+    if (
+      json.error === 'credentials_missing' ||
+      (json.message && json.message.includes('Could not load the default credentials'))
+    ) {
+      return {
+        error: {
+          code: 'service_unavailable',
+          message:
+            "Render backend serverida Firebase Service Account kaliti kiritilmagan. Iltimos, Render Dashboard ➔ Environment bo'limiga FIREBASE_SERVICE_ACCOUNT_KEY ni qo'shing.",
+        },
+      };
+    }
+
+    if (json.error === 'permission_denied') {
+      return {
+        error: {
+          code: 'service_unavailable',
+          message:
+            json.message ||
+            "Firebase Firestore ruxsat xatosi (PERMISSION_DENIED). Xizmat hisobingizga Google Cloud Console -> IAM bo'limida 'Cloud Datastore User' rolini berish talab etiladi.",
+        },
+      };
+    }
+
     return {
       error: {
         code: 'unknown',
         message: json.message || `Server xatosi (${response.status})`,
       },
     };
+
+
   } catch (err: any) {
     clearTimeout(sleepTimer);
     clearTimeout(timeoutId);

@@ -116,6 +116,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAuthError('Ushbu domen Firebase Authorized Domains ro\'yxatida mavjud emas. Iltimos, Firebase Console -> Authentication -> Settings bo\'limiga domeningizni qo\'shing.');
       } else if (code === 'auth/network-request-failed' || msg.includes('network-request-failed')) {
         setAuthError('Tarmoq ulanishida xatolik yuz berdi. Iltimos, internet ulanishingizni va brauzer blokrovchilarini (AdBlock) tekshiring.');
+      } else if (code === 'auth/invalid-continue-uri' || msg.includes('invalid-continue-uri')) {
+        setAuthError('Firebase Authentication: continue-uri (qaytish manzili) yaroqsiz yoki Firebase Console -> Authentication -> Settings -> Authorized domains ro\'yxatiga kiritilmagan. Iltimos, domenni Authorized domains ro\'yxatiga qo\'shing.');
       } else {
         setAuthError(msg || 'Google orqali kirishda xatolik yuz berdi.');
       }

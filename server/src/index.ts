@@ -22,7 +22,9 @@ import {
   NAMED_DATABASE_ID,
   PROJECT_ID,
   adminDb,
+  serviceAccountEmail,
 } from './firebaseAdmin.js';
+
 import { AdFormData } from './adGenerator.js';
 
 dotenv.config();
@@ -34,11 +36,17 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 // Middlewares
 app.use(
   cors({
-    origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN.split(','),
+    origin: (origin, callback) => {
+      // Allow all requesting origins (AI Studio Preview, Render Static Site, etc.)
+      return callback(null, true);
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
 app.use(express.json());
+
 
 // Health Check & Status Endpoint (Useful for Render health checks and wake-up verification)
 app.get('/health', (req: Request, res: Response) => {
@@ -210,14 +218,44 @@ app.post(
         });
       }
 
-      console.error('Ad generation processing error:', error);
+      const errMsg = error?.message || String(error);
+      const errCode = error?.code;
+      console.error(`Ad generation processing error [Code ${errCode}]:`, errMsg);
+
+      if (errMsg.includes('Could not load the default credentials')) {
+        return res.status(500).json({
+          success: false,
+          error: 'credentials_missing',
+          message:
+            "Render backend serverida Firebase Service Account kaliti topilmadi. Iltimos, Render Dashboard ➔ Environment bo'limiga FIREBASE_SERVICE_ACCOUNT_KEY ni kiriting.",
+        });
+      }
+
+      if (errCode === 7 || errMsg.includes('PERMISSION_DENIED') || errMsg.includes('permission')) {
+        console.error(
+          `[Firestore 7 PERMISSION_DENIED] Service Account "${serviceAccountEmail}" does not have write/read permissions on database "${NAMED_DATABASE_ID}" in project "${PROJECT_ID}". Check IAM roles in Google Cloud Console.`
+        );
+        return res.status(500).json({
+          success: false,
+          error: 'permission_denied',
+          message: `Firebase Firestore ruxsat xatosi (Code 7 PERMISSION_DENIED). "${serviceAccountEmail}" xizmat hisobi "${PROJECT_ID}" loyihasidagi "${NAMED_DATABASE_ID}" ma'lumotlar bazasiga kirish huquqiga ega emas. Google Cloud Console -> IAM bo'limida ushbu hisobga 'Cloud Datastore User' yoki 'Firebase Admin' rolini bering.`,
+          details: {
+            serviceAccountEmail,
+            projectId: PROJECT_ID,
+            databaseId: NAMED_DATABASE_ID,
+          },
+        });
+      }
+
+
       return res.status(500).json({
         success: false,
         error: 'internal',
         message:
-          error?.message ||
+          errMsg ||
           "Serverda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.",
       });
+
     }
   }
 );

@@ -3,20 +3,40 @@
  * Handles interaction with the secure backend payment order endpoint.
  */
 
+import { User } from 'firebase/auth';
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:10000';
 
 export async function initiateClickPayment(
   plan: 'pro' | 'ultra',
-  token: string
+  token: string,
+  user?: User | null
 ): Promise<{ paymentUrl: string; orderId: string }> {
-  const response = await fetch(`${BACKEND_URL}/api/payment/click/create-order`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ plan }),
-  });
+  const endpoint = `${BACKEND_URL}/api/payment/click/create-order`;
+
+  const makeRequest = async (authToken: string) => {
+    return fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ plan }),
+    });
+  };
+
+  let response = await makeRequest(token);
+
+  // If 401 unauthenticated and user is available, force refresh token and retry once
+  if (response.status === 401 && user) {
+    try {
+      console.warn('Click payment order returned 401. Attempting force ID token refresh...');
+      const freshToken = await user.getIdToken(true);
+      response = await makeRequest(freshToken);
+    } catch (refreshErr) {
+      console.error('Payment token refresh failed:', refreshErr);
+    }
+  }
 
   const data = await response.json();
 
@@ -30,3 +50,4 @@ export async function initiateClickPayment(
 
   return { paymentUrl: data.paymentUrl, orderId: data.orderId };
 }
+
