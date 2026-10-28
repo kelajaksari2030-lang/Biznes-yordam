@@ -6,6 +6,13 @@
 import { adminDb } from './firebaseAdmin.js';
 import { AdFormData, generateAdText } from './adGenerator.js';
 
+export const ADMIN_EMAIL = 'kelajaksari2030@gmail.com';
+
+export function isAdminUser(email?: string | null): boolean {
+  if (!email || typeof email !== 'string') return false;
+  return email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
+
 export const TIMEZONE = 'Asia/Tashkent';
 
 export const PLAN_DAILY_LIMITS = {
@@ -61,38 +68,51 @@ export interface QuotaGenerationResult {
  */
 export async function enforceQuotaAndGenerateAd(
   userId: string,
-  formData: AdFormData
+  formData: AdFormData & { simulatedTier?: string }
 ): Promise<QuotaGenerationResult> {
   const dateKey = getTashkentDateKey(new Date());
-
   const userDocRef = adminDb.collection('users').doc(userId);
-  const usageDocRef = userDocRef.collection('usage').doc(dateKey);
 
   const quotaResult = await adminDb.runTransaction(async (transaction) => {
     // 1. Authoritative User Profile read (single source of truth)
     const userSnap = await transaction.get(userDocRef);
 
     let userPlan: PlanType = 'free';
+    let limit: number = PLAN_DAILY_LIMITS.free;
+    let targetUsageDateKey = dateKey;
+
     if (userSnap.exists) {
       const profile = userSnap.data();
+      const email = profile?.email;
       const plan = profile?.currentPlan;
-      if (
+      const isAdmin = isAdminUser(email);
+      const requestedSimulatedTier = formData?.simulatedTier;
+
+      if (isAdmin && ['free', 'pro', 'ultra'].includes(requestedSimulatedTier || '')) {
+        userPlan = requestedSimulatedTier as PlanType;
+        limit = PLAN_DAILY_LIMITS[userPlan];
+        targetUsageDateKey = `simulated_${requestedSimulatedTier}_${dateKey}`;
+      } else if (isAdmin) {
+        userPlan = 'ultra';
+        limit = 999999;
+      } else if (
         (plan === 'pro' || plan === 'ultra') &&
         profile?.subscriptionStatus !== 'expired'
       ) {
         userPlan = plan;
+        limit = PLAN_DAILY_LIMITS[userPlan];
       }
     }
 
-    const limit = PLAN_DAILY_LIMITS[userPlan];
+    const usageDocRef = userDocRef.collection('usage').doc(targetUsageDateKey);
 
-    // 2. Authoritative Usage Document read for today
+    // 2. Authoritative Usage Document read
     const usageSnap = await transaction.get(usageDocRef);
     const currentCount = usageSnap.exists ? usageSnap.data()?.adCount || 0 : 0;
 
     // 3. Quota check
     if (currentCount >= limit) {
-      throw new QuotaExceededError(currentCount, limit, userPlan, dateKey);
+      throw new QuotaExceededError(currentCount, limit, userPlan, targetUsageDateKey);
     }
 
     // 4. Atomic Increment
@@ -106,9 +126,9 @@ export async function enforceQuotaAndGenerateAd(
       });
     } else {
       transaction.set(usageDocRef, {
-        id: dateKey,
+        id: targetUsageDateKey,
         userId,
-        date: dateKey,
+        date: targetUsageDateKey,
         adCount: newCount,
         lastGeneratedAt: nowIso,
       });

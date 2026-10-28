@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx tests/quota.test.ts",
+    "test": "tsx tests/quota.test.ts && tsx tests/today_navigator.test.ts && tsx tests/navigation.test.ts && tsx tests/business_profile.test.ts && tsx tests/crm_inventory.test.ts && tsx tests/orders.test.ts && tsx tests/finance.test.ts && tsx tests/pro_features.test.ts",
     "build:server": "cd server && tsc"
   },
   "dependencies": {

@@ -11,6 +11,7 @@
 
 import { AdFormData } from '../types';
 import { generateAdText } from '../data/adTemplates';
+import { isAdminUser } from '../config/plans';
 
 export const TIMEZONE = 'Asia/Tashkent';
 
@@ -83,7 +84,7 @@ export interface TransactionalStore {
 }
 
 export interface StoreTransaction {
-  getUserProfile(userId: string): Promise<{ currentPlan?: string; subscriptionStatus?: string } | null>;
+  getUserProfile(userId: string): Promise<{ currentPlan?: string; subscriptionStatus?: string; email?: string | null } | null>;
   getDailyUsage(userId: string, dateKey: string): Promise<{ adCount?: number } | null>;
   incrementDailyUsage(
     userId: string,
@@ -151,19 +152,33 @@ export async function executeQuotaEnforcedAdGeneration(
     // A. Read user profile from authoritative Firestore collection (/users/{uid})
     const userDoc = await transaction.getUserProfile(userId);
     
-    // Default strictly to 'free'. Never trust client inputs.
+    // Default strictly to 'free'. Never trust client inputs for standard users.
     let userPlan: PlanType = 'free';
-    if (userDoc?.currentPlan === 'pro' || userDoc?.currentPlan === 'ultra') {
-      // Check subscription status
+    let limit = PLAN_DAILY_LIMITS.free;
+    let targetUsageDateKey = dateKey;
+
+    const isAdmin = isAdminUser(userDoc?.email);
+    const requestedSimulatedTier = rawFormData?.simulatedTier;
+
+    if (isAdmin && ['free', 'pro', 'ultra'].includes(requestedSimulatedTier)) {
+      // Verified Admin simulation mode: use isolated simulated usage counter so real admin quota remains pristine
+      userPlan = requestedSimulatedTier as PlanType;
+      limit = PLAN_DAILY_LIMITS[userPlan];
+      targetUsageDateKey = `simulated_${requestedSimulatedTier}_${dateKey}`;
+    } else if (isAdmin) {
+      // Real Admin mode: unlimited quota
+      userPlan = 'ultra';
+      limit = 999999;
+    } else if (userDoc?.currentPlan === 'pro' || userDoc?.currentPlan === 'ultra') {
+      // Standard user: read strictly from Firestore profile
       if (userDoc.subscriptionStatus !== 'expired') {
         userPlan = userDoc.currentPlan;
+        limit = PLAN_DAILY_LIMITS[userPlan];
       }
     }
 
-    const limit = PLAN_DAILY_LIMITS[userPlan];
-
-    // B. Read today's usage document (/users/{uid}/usage/{dateKey})
-    const usageDoc = await transaction.getDailyUsage(userId, dateKey);
+    // B. Read usage document (/users/{uid}/usage/{targetUsageDateKey})
+    const usageDoc = await transaction.getDailyUsage(userId, targetUsageDateKey);
     const currentCount = usageDoc?.adCount ?? 0;
 
     // C. Atomic quota limit gate
@@ -176,14 +191,14 @@ export async function executeQuotaEnforcedAdGeneration(
           dailyLimit: limit,
           remaining: 0,
           plan: userPlan,
-          date: dateKey,
+          date: targetUsageDateKey,
         }
       );
     }
 
-    // D. Increment usage count atomically
+    // D. Increment usage count atomically for targetUsageDateKey
     const newCount = currentCount + 1;
-    await transaction.incrementDailyUsage(userId, dateKey, newCount, !!usageDoc);
+    await transaction.incrementDailyUsage(userId, targetUsageDateKey, newCount, !!usageDoc);
 
     return {
       adCount: newCount,

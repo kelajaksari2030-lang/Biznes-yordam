@@ -3,10 +3,7 @@ import {
   ShieldCheck, 
   AlertCircle, 
   Info, 
-  ExternalLink, 
   CheckCircle2, 
-  Zap, 
-  Sparkles,
   ChevronDown,
   ChevronUp,
   Lock
@@ -23,28 +20,28 @@ export const SignInScreen: React.FC = () => {
       <div className="max-w-xl w-full space-y-8">
         {/* Brand & Welcome Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#493329] border border-[#6B5041] text-[#D0AE70] shadow-card font-serif text-2xl font-bold mb-1">
-            B
+          <div className="inline-flex items-center justify-center h-14 px-5 rounded-2xl bg-[#173B35] border border-[#112521] text-[#F5B85C] shadow-card text-2xl font-extrabold tracking-wider mb-1">
+            BESTO
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#493329]">
-            Biznes<span className="text-[#D0AE70]">Yordam</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#173B35]">
+            BESTO
           </h1>
-          <p className="text-sm sm:text-base text-[#6B5549] max-w-md mx-auto leading-relaxed">
-            Kichik biznes egalari uchun reklama matnlari, mahsulot sof foydasi hisobi va mijozlar bilan tezkor muloqot tizimi.
+          <p className="text-sm sm:text-base text-[#173B35]/80 max-w-md mx-auto leading-relaxed font-medium">
+            Biznesingizni boshqaring. O‘sishni oldindan ko‘ring.
           </p>
         </div>
 
         {/* Main Sign-In Card */}
-        <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-6">
-          <div className="space-y-2 border-b border-[#EFE8DE] pb-4">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#795640]">
-              <Lock className="w-3.5 h-3.5 text-[#D0AE70]" />
+        <div className="bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-6">
+          <div className="space-y-2 border-b border-[#E0ECE8] pb-4">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#173B35]">
+              <Lock className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Avtorizatsiya talabi</span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#493329]">
+            <h2 className="text-lg sm:text-xl font-bold text-[#173B35]">
               Google hisobingiz orqali kiring
             </h2>
-            <p className="text-xs text-[#6B5549] leading-relaxed">
+            <p className="text-xs text-[#173B35]/70 leading-relaxed">
               Ilovadan to'liq foydalanish (shu jumladan Bepul tarif) uchun xavfsiz Firebase Authentication orqali tizimga kirish talab etiladi.
             </p>
           </div>
@@ -70,26 +67,26 @@ export const SignInScreen: React.FC = () => {
 
           {/* Configuration Status Banner */}
           {isConfigured ? (
-            <div className="p-3.5 bg-[#FAF6F0] border border-[#E8D6B7] rounded-2xl text-xs text-[#6B5549] flex items-center justify-between gap-3">
+            <div className="p-3.5 bg-[#F6F8F7] border border-[#D7F0E5] rounded-2xl text-xs text-[#173B35] flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#D0AE70] shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-[#173B35] shrink-0" />
                 <span>
-                  Firebase loyihasi ulangan: <strong className="text-[#493329] font-mono">{configStatus.projectId}</strong>
+                  Firebase loyihasi ulangan: <strong className="text-[#173B35] font-mono">{configStatus.projectId}</strong>
                 </span>
               </div>
-              <span className="text-[10px] font-semibold text-[#34221A] bg-[#D0AE70] px-2 py-0.5 rounded-full shrink-0">
+              <span className="text-[10px] font-semibold text-[#173B35] bg-[#D7F0E5] px-2.5 py-0.5 rounded-full shrink-0">
                 Faol
               </span>
             </div>
           ) : (
-            <div className="p-4 bg-[#FAF6F0] border border-[#E8D6B7] rounded-2xl text-xs text-[#6B5549] space-y-3">
+            <div className="p-4 bg-[#F6F8F7] border border-[#D7F0E5] rounded-2xl text-xs text-[#173B35] space-y-3">
               <div className="flex items-start gap-2.5">
-                <Info className="w-4 h-4 text-[#795640] shrink-0 mt-0.5" />
+                <Info className="w-4 h-4 text-[#173B35] shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <span className="font-bold text-[#493329] block">
+                  <span className="font-bold text-[#173B35] block">
                     Firebase Authentication sozlamalari kutilmoqda
                   </span>
-                  <p className="leading-relaxed text-[11px] text-[#795640]">
+                  <p className="leading-relaxed text-[11px] text-[#173B35]/80">
                     Ilovada haqiqiy Firebase loyihasi kalitlari hali to'liq ulanmagan. Tizim xavfsizlik qoidalariga binoan soxta kirishni simulyatsiya qilmaydi.
                   </p>
                 </div>
@@ -98,27 +95,27 @@ export const SignInScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowSetupSteps(!showSetupSteps)}
-                className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-xl border border-[#E6DCD1] text-xs font-semibold text-[#493329] hover:bg-[#F2ECE1] transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-xl border border-[#D7F0E5] text-xs font-semibold text-[#173B35] hover:bg-[#D7F0E5]/30 transition-colors"
               >
                 <span>Ulash bo'yicha aniq yo'riqnomani {showSetupSteps ? 'yopish' : 'ko\'rish'}</span>
                 {showSetupSteps ? (
-                  <ChevronUp className="w-4 h-4 text-[#795640]" />
+                  <ChevronUp className="w-4 h-4 text-[#173B35]" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-[#795640]" />
+                  <ChevronDown className="w-4 h-4 text-[#173B35]" />
                 )}
               </button>
 
               {showSetupSteps && (
-                <div className="p-3 bg-white rounded-xl border border-[#EFE8DE] space-y-2 pt-3">
-                  <span className="text-[11px] font-bold text-[#493329] block">
+                <div className="p-3 bg-white rounded-xl border border-[#E0ECE8] space-y-2 pt-3">
+                  <span className="text-[11px] font-bold text-[#173B35] block">
                     Talab qilinadigan sozlash bosqichlari:
                   </span>
-                  <ol className="list-decimal pl-4 space-y-1.5 text-[11px] text-[#6B5549] leading-relaxed">
+                  <ol className="list-decimal pl-4 space-y-1.5 text-[11px] text-[#173B35]/80 leading-relaxed">
                     {configStatus.setupSteps.map((step, idx) => (
                       <li key={idx}>{step}</li>
                     ))}
                   </ol>
-                  <p className="text-[10px] text-[#8D786D] italic pt-1 border-t border-[#EFE8DE]">
+                  <p className="text-[10px] text-[#173B35]/60 italic pt-1 border-t border-[#E0ECE8]">
                     Kerakli o'zgaruvchilar: VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID.
                   </p>
                 </div>
@@ -131,11 +128,7 @@ export const SignInScreen: React.FC = () => {
             <button
               onClick={signInWithGoogle}
               disabled={loading}
-              className={`w-full min-h-[52px] px-6 py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-3 transition-all btn-tactile shadow-xs ${
-                isConfigured
-                  ? 'bg-[#493329] hover:bg-[#3D2A22] text-[#F8F4ED] border border-[#644738] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]'
-                  : 'bg-[#493329] hover:bg-[#3D2A22] text-[#F8F4ED] border border-[#644738]'
-              }`}
+              className="w-full min-h-[52px] px-6 py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-3 transition-all bg-[#173B35] hover:bg-[#112521] text-white border border-[#112521] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] shadow-sm cursor-pointer"
             >
               {/* Google Brand G SVG */}
               <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
@@ -159,8 +152,8 @@ export const SignInScreen: React.FC = () => {
               <span>{loading ? 'Tekshirilmoqda...' : 'Google orqali kirish'}</span>
             </button>
 
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#8D786D]">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#D0AE70]" />
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#173B35]/70">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#173B35]" />
               <span>Firebase xavfsiz protokoli orqali kafolatlangan</span>
             </div>
           </div>
@@ -169,91 +162,91 @@ export const SignInScreen: React.FC = () => {
         {/* Proposed Plan Entitlements Transparent Showcase */}
         <div className="space-y-4">
           <div className="text-center">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#795640]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#173B35]">
               Tariflar va belgilangan kunlik limitlar
             </h3>
-            <p className="text-xs text-[#8D786D] mt-0.5">
+            <p className="text-xs text-[#173B35]/70 mt-0.5">
               Tizimga kirganingizda avtomatik ravishda Bepul (Free) hisob ochiladi
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Free Plan */}
-            <div className="bg-white border-2 border-[#D0AE70] rounded-2xl p-4 shadow-card space-y-2 relative">
+            <div className="bg-white border-2 border-[#F5B85C] rounded-2xl p-4 shadow-card space-y-2 relative">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#493329]">{PLANS.free.name}</span>
-                <span className="text-[10px] font-semibold text-[#34221A] bg-[#D0AE70] px-2 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-[#173B35]">{PLANS.free.name}</span>
+                <span className="text-[10px] font-bold text-[#173B35] bg-[#D7F0E5] px-2 py-0.5 rounded-full">
                   Dastlabki
                 </span>
               </div>
-              <div className="text-base font-extrabold text-[#493329] font-mono">
+              <div className="text-base font-extrabold text-[#173B35] font-mono">
                 {PLANS.free.priceLabel}
               </div>
-              <div className="text-[11px] text-[#6B5549] space-y-1 pt-1 border-t border-[#EFE8DE]">
+              <div className="text-[11px] text-[#173B35]/80 space-y-1 pt-1 border-t border-[#E0ECE8]">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#D0AE70] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Reklama: <strong>{PLANS.free.dailyAdLimit} ta/kun</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#D0AE70] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Shablonlar: <strong>{PLANS.free.customTemplateLimit} ta</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#D0AE70] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Foyda kalkulyatori</span>
                 </div>
               </div>
             </div>
 
             {/* Pro Plan */}
-            <div className="bg-white border border-[#E6DCD1] rounded-2xl p-4 shadow-card space-y-2">
+            <div className="bg-white border border-[#E0ECE8] rounded-2xl p-4 shadow-card space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#493329]">{PLANS.pro.name}</span>
-                <span className="text-[10px] font-semibold text-[#795640] bg-[#FAF6F0] px-2 py-0.5 rounded-full border border-[#E6DCD1]">
+                <span className="text-xs font-bold text-[#173B35]">{PLANS.pro.name}</span>
+                <span className="text-[10px] font-medium text-[#173B35] bg-[#F6F8F7] px-2 py-0.5 rounded-full border border-[#D7F0E5]">
                   Rejalashtirilgan
                 </span>
               </div>
-              <div className="text-base font-extrabold text-[#493329] font-mono">
+              <div className="text-base font-extrabold text-[#173B35] font-mono">
                 {PLANS.pro.priceLabel}
               </div>
-              <div className="text-[11px] text-[#6B5549] space-y-1 pt-1 border-t border-[#EFE8DE]">
+              <div className="text-[11px] text-[#173B35]/80 space-y-1 pt-1 border-t border-[#E0ECE8]">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#795640] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Reklama: <strong>{PLANS.pro.dailyAdLimit} ta/kun</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#795640] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Shablonlar: <strong>{PLANS.pro.customTemplateLimit} ta</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#795640] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Kengaytirilgan tahlil</span>
                 </div>
               </div>
             </div>
 
             {/* Ultra Plan */}
-            <div className="bg-white border border-[#E6DCD1] rounded-2xl p-4 shadow-card space-y-2">
+            <div className="bg-white border border-[#E0ECE8] rounded-2xl p-4 shadow-card space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#493329]">{PLANS.ultra.name}</span>
-                <span className="text-[10px] font-semibold text-[#795640] bg-[#FAF6F0] px-2 py-0.5 rounded-full border border-[#E6DCD1]">
+                <span className="text-xs font-bold text-[#173B35]">{PLANS.ultra.name}</span>
+                <span className="text-[10px] font-medium text-[#173B35] bg-[#F6F8F7] px-2 py-0.5 rounded-full border border-[#D7F0E5]">
                   Rejalashtirilgan
                 </span>
               </div>
-              <div className="text-base font-extrabold text-[#493329] font-mono">
+              <div className="text-base font-extrabold text-[#173B35] font-mono">
                 {PLANS.ultra.priceLabel}
               </div>
-              <div className="text-[11px] text-[#6B5549] space-y-1 pt-1 border-t border-[#EFE8DE]">
+              <div className="text-[11px] text-[#173B35]/80 space-y-1 pt-1 border-t border-[#E0ECE8]">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#795640] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Reklama: <strong>{PLANS.ultra.dailyAdLimit} ta/kun</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#795640] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Shablonlar: <strong>{PLANS.ultra.customTemplateLimit}+ ta</strong></span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#795640] shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#173B35] shrink-0" />
                   <span>Jamoaviy eksport</span>
                 </div>
               </div>
@@ -264,3 +257,4 @@ export const SignInScreen: React.FC = () => {
     </div>
   );
 };
+

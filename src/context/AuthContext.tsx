@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { User, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider, isConfigured, checkFirebaseStatus, FirebaseConfigStatus } from '../services/firebase';
 import { syncUserProfile, getTodayAdUsage } from '../services/firestore';
-import { PLANS, PlanEntitlements } from '../config/plans';
+import { PLANS, PlanEntitlements, ADMIN_PLAN, isAdminUser, SimulatedTier } from '../config/plans';
 import { UserProfile, DailyUsageDoc } from '../types/firestore';
 
 interface AuthContextType {
@@ -13,6 +13,11 @@ interface AuthContextType {
   isConfigured: boolean;
   configStatus: FirebaseConfigStatus;
   currentPlan: PlanEntitlements;
+  simulatedTier: SimulatedTier;
+  setSimulatedTier: (tier: SimulatedTier) => void;
+  isPro: boolean;
+  isUltra: boolean;
+  isAdmin: boolean;
   authError: string | null;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
@@ -31,14 +36,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  const [simulatedTier, setSimulatedTierState] = useState<SimulatedTier>(() => {
+    try {
+      const stored = sessionStorage.getItem('biznes_admin_simulated_tier');
+      if (stored === 'free' || stored === 'pro' || stored === 'ultra' || stored === 'admin') {
+        return stored;
+      }
+    } catch {
+      // ignore
+    }
+    return 'admin';
+  });
+
+  const setSimulatedTier = useCallback((tier: SimulatedTier) => {
+    setSimulatedTierState(tier);
+    try {
+      sessionStorage.setItem('biznes_admin_simulated_tier', tier);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const configStatus = checkFirebaseStatus();
 
-  // Authoritatively derive current plan from Firestore profile.
-  // Fallback is strictly Free. Never allow localStorage or client-side tampering to escalate tiers.
-  const currentPlan: PlanEntitlements = 
-    (userProfile?.currentPlan && PLANS[userProfile.currentPlan])
-      ? PLANS[userProfile.currentPlan]
-      : PLANS.free;
+  // True admin identity derived strictly from Firebase Auth email (never changes regardless of test mode)
+  const isAdmin = isAdminUser(user?.email);
+
+  // Authoritatively derive current/effective plan.
+  // Non-admin users are strictly locked to Firestore profile.
+  // Verified Admin can test Free/Pro/Ultra UI & limit states via simulatedTier without changing Firestore data.
+  const currentPlan: PlanEntitlements = (isAdmin && simulatedTier !== 'admin' && PLANS[simulatedTier])
+    ? PLANS[simulatedTier]
+    : isAdmin
+      ? ADMIN_PLAN
+      : (userProfile?.currentPlan && PLANS[userProfile.currentPlan])
+        ? PLANS[userProfile.currentPlan]
+        : PLANS.free;
+
+  const isPro = (isAdmin && simulatedTier === 'admin') || currentPlan.id === 'pro' || currentPlan.id === 'ultra';
+  const isUltra = (isAdmin && simulatedTier === 'admin') || currentPlan.id === 'ultra';
 
   const loadUserData = useCallback(async (firebaseUser: User) => {
     try {
@@ -183,6 +219,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isConfigured,
         configStatus,
         currentPlan,
+        simulatedTier,
+        setSimulatedTier,
+        isPro,
+        isUltra,
+        isAdmin,
         authError,
         signInWithGoogle,
         signOutUser,

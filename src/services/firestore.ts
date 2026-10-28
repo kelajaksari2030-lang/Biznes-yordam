@@ -26,6 +26,8 @@ import {
   CustomTemplateDoc,
 } from '../types/firestore';
 
+import { isAdminUser } from '../config/plans';
+
 export const getTodayDateKey = (): string => {
   const now = new Date();
   const year = now.getFullYear();
@@ -56,12 +58,13 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 
 /**
  * Synchronize user profile on Google Sign-In
- * Creates initial profile with Free tier if not exists
+ * Creates initial profile with Free tier if not exists (Admin receives Ultra tier)
  * Preserves existing subscription plan and status (cannot be overwritten by client)
  */
 export async function syncUserProfile(user: User): Promise<UserProfile> {
   const docPath = `users/${user.uid}`;
   const nowIso = new Date().toISOString();
+  const isAdmin = isAdminUser(user.email);
 
   try {
     const docRef = doc(db, 'users', user.uid);
@@ -69,13 +72,13 @@ export async function syncUserProfile(user: User): Promise<UserProfile> {
     const snap = await getDoc(docRef);
 
     if (!snap.exists()) {
-      // First-time registration: strictly 'free' plan
+      // First-time registration: Admin gets 'ultra', standard users get 'free'
       const initialProfile: UserProfile = {
         uid: user.uid,
         email: user.email || '',
         displayName: user.displayName || 'Tadbirkor',
         photoURL: user.photoURL || '',
-        currentPlan: 'free',
+        currentPlan: isAdmin ? 'ultra' : 'free',
         subscriptionStatus: 'active',
         planExpiresAt: null,
         createdAt: nowIso,
@@ -85,13 +88,19 @@ export async function syncUserProfile(user: User): Promise<UserProfile> {
       await setDoc(docRef, initialProfile);
       return initialProfile;
     } else {
-      // Existing profile: update non-critical profile fields only
+      // Existing profile: update non-critical profile fields & ensure email is stored
       const existing = snap.data() as UserProfile;
       const updates: Partial<UserProfile> = {
         displayName: user.displayName || existing.displayName,
         photoURL: user.photoURL || existing.photoURL,
+        email: user.email || existing.email,
         updatedAt: nowIso,
       };
+
+      if (isAdmin) {
+        updates.currentPlan = 'ultra';
+        updates.subscriptionStatus = 'active';
+      }
 
       await updateDoc(docRef, updates);
       return {
@@ -107,7 +116,7 @@ export async function syncUserProfile(user: User): Promise<UserProfile> {
       email: user.email,
       displayName: user.displayName,
       photoURL: user.photoURL,
-      currentPlan: 'free',
+      currentPlan: isAdmin ? 'ultra' : 'free',
       subscriptionStatus: 'active',
       planExpiresAt: null,
       createdAt: nowIso,

@@ -80,6 +80,62 @@
         "createdAt": { "type": "string", "maxLength": 64 }
       },
       "required": ["id", "userId", "title", "category", "template"]
+    },
+    "BusinessProfile": {
+      "title": "BusinessProfile",
+      "description": "Foydalanuvchining yagona biznes profili (kompaniya, auditoriya, kanallar, valyuta)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "companyName": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 128 },
+        "targetAudience": { "type": "string", "maxLength": 500 },
+        "mainSalesChannels": { "type": "array", "items": { "type": "string" } },
+        "currency": { "type": "string", "enum": ["UZS", "USD"] },
+        "cityOrRegion": { "type": "string", "maxLength": 128 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "phone": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId", "companyName", "category", "targetAudience"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "CRM tizimidagi mijoz yozuvi, kontaktlari va statusi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 64 },
+        "telegramUsername": { "type": "string", "maxLength": 128 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["yangi", "boglanildi", "muzokara", "xarid_qildi", "yoqotildi"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "name", "phone", "status"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Mahsulotlar omboridagi tovar, uning qoldig'i, tannarxi va sotuv narxi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 250 },
+        "sku": { "type": "string", "maxLength": 100 },
+        "purchasePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 50 },
+        "minStockAlert": { "type": "number" },
+        "category": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "name", "purchasePrice", "sellingPrice", "quantity", "unit", "minStockAlert"]
     }
   },
   "firestore": {
@@ -102,6 +158,18 @@
     "/users/{userId}/customTemplates/{templateId}": {
       "schema": "CustomTemplate",
       "description": "Foydalanuvchining shaxsiy javob shablonlari"
+    },
+    "/users/{userId}/businessProfile/{docId}": {
+      "schema": "BusinessProfile",
+      "description": "Foydalanuvchining yagona biznes profili"
+    },
+    "/users/{userId}/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Foydalanuvchining CRM mijozlari bazasi"
+    },
+    "/users/{userId}/products/{productId}": {
+      "schema": "Product",
+      "description": "Foydalanuvchining mahsulotlar ombori va qoldiqlari"
     }
   }
 }

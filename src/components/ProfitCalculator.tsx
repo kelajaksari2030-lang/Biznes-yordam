@@ -13,7 +13,8 @@ import {
   Info,
   TrendingUp,
   Percent,
-  Database
+  Database,
+  Package
 } from 'lucide-react';
 import { ProfitInputs, ProfitResults, SavedCalculation } from '../types';
 import { 
@@ -25,6 +26,8 @@ import {
 } from '../utils/numberFormat';
 import { useAuth } from '../context/AuthContext';
 import { getUserCalculations, saveCalculation, deleteCalculation } from '../services/firestore';
+import { saveProduct } from '../services/inventoryService';
+import { ModuleHelpGuide, HelpGuideButton, HelpStep } from './ModuleHelpGuide';
 
 interface PresetItem {
   title: string;
@@ -98,6 +101,112 @@ export const ProfitCalculator: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [inventorySaving, setInventorySaving] = useState(false);
+  const [inventorySaved, setInventorySaved] = useState(false);
+  const [inventoryMsg, setInventoryMsg] = useState<string | null>(null);
+
+  // Help Guide state
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem('besto_help_profit_calculator_seen');
+      if (!seen) {
+        setIsHelpOpen(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const profitHelpSteps: HelpStep[] = useMemo(() => [
+    {
+      title: "1. Mahsulot va sotuv narxini kiritish",
+      description: "Mahsulotning asl xarid tannarxini va mijozga sotish narxini kiriting. Necha dona mahsulot sotishingizni ham ko'rsating.",
+      tip: "Kalkulyator kiritilgan raqamlar bo'yicha darhol xarajatlar va daromadni real-vaqt rejimida hisoblaydi.",
+      visual: (
+        <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
+          <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
+          <rect x="30" y="25" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="45" y="48" fill="#6B5549" fontSize="10" fontWeight="bold">Xarid narxi (1 dona)</text>
+          <rect x="45" y="56" width="180" height="30" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="55" y="76" fill="#173B35" fontSize="12" fontWeight="bold" fontFamily="monospace">100 000 so'm</text>
+
+          <rect x="260" y="25" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="275" y="48" fill="#173B35" fontSize="10" fontWeight="bold">Mijozga sotish narxi</text>
+          <rect x="275" y="56" width="180" height="30" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="285" y="76" fill="#173B35" fontSize="12" fontWeight="bold" fontFamily="monospace">160 000 so'm</text>
+
+          <rect x="30" y="115" width="440" height="80" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="45" y="138" fill="#6B5549" fontSize="10" fontWeight="bold">Rejalashtirilgan sotuv miqdori</text>
+          <rect x="45" y="148" width="410" height="32" rx="8" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="60" y="169" fill="#173B35" fontSize="13" fontWeight="bold" fontFamily="monospace">20 dona</text>
+        </svg>
+      ),
+    },
+    {
+      title: "2. Qo'shimcha va doimiy xarajatlar",
+      description: "1 donaga to'g'ri keladigan direct xarajatlarni (qadoq, reklama, kuryer) hamda oylik doimiy ijarasi/maosh kabi xarajatlarni hisobga oling.",
+      tip: "Doimiy xarajatlar kiritilsa, kalkulyator do'koningiz zararga kirmasligi uchun kamida necha dona mahsulot sotishi kerakligini (Zararsizlik nuqtasi) ko'rsatib beradi.",
+      visual: (
+        <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
+          <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
+          <rect x="30" y="25" width="440" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="45" y="48" fill="#6B5549" fontSize="10" fontWeight="bold">1 donaga qo'shimcha xarajat (Qadoq + Reklama)</text>
+          <rect x="45" y="56" width="410" height="30" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="55" y="76" fill="#173B35" fontSize="12" fontWeight="bold" fontFamily="monospace">10 000 so'm</text>
+
+          <rect x="30" y="115" width="440" height="80" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="45" y="138" fill="#6B5549" fontSize="10" fontWeight="bold">Umumiy doimiy xarajatlar (Oylik ijara / kommunal)</text>
+          <rect x="45" y="148" width="410" height="32" rx="8" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="60" y="169" fill="#173B35" fontSize="13" fontWeight="bold" fontFamily="monospace">1 500 000 so'm</text>
+        </svg>
+      ),
+    },
+    {
+      title: "3. Real-vaqt foyda va marja natijalari",
+      description: "O'ng tomonda kutilayotgan umumiy oborot, barcha xarajatlar va o'zingizga qoladigan sof foyda va marja foizi darhol hisoblanadi.",
+      tip: "Sotish narxi xarajatdan past bo'lsa, tizim ogohlantirish beradi.",
+      visual: (
+        <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
+          <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
+          <rect x="25" y="20" width="450" height="85" rx="14" fill="#173B35" />
+          <text x="45" y="45" fill="#F5B85C" fontSize="11" fontWeight="bold">KUTILAYOTGAN SOF FOYDA</text>
+          <text x="45" y="78" fill="#F5B85C" fontSize="24" fontWeight="extrabold" fontFamily="monospace">+1 000 000 so'm</text>
+
+          <rect x="25" y="120" width="215" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="40" y="142" fill="#6B5549" fontSize="10">Jami oborot (Tushum)</text>
+          <text x="40" y="168" fill="#173B35" fontSize="15" fontWeight="bold" fontFamily="monospace">3 200 000 so'm</text>
+
+          <rect x="260" y="120" width="215" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="275" y="142" fill="#173B35" fontSize="10" fontWeight="bold">Foyda marjasi</text>
+          <text x="275" y="168" fill="#173B35" fontSize="18" fontWeight="extrabold" fontFamily="monospace">31.25%</text>
+        </svg>
+      ),
+    },
+    {
+      title: "4. Saqlash, hisobot nusxalash va Omborga o'tkazish",
+      description: "Hisoblangan natijalarni xotirada saqlashingiz, matn ko'rinishida Telegram'ga nusxalashingiz yoki 'Omborga saqlash' tugmasi bilan bir bosishda Ombor moduliga tovar qilib kiritishingiz mumkin.",
+      tip: "'Omborga saqlash' tugmasi kalkulyatorda hisoblangan narxlarni qayta yozmasdan to'g'ridan-to'g'ri Skladga o'tkazadi.",
+      visual: (
+        <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
+          <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
+          <rect x="25" y="40" width="140" height="45" rx="10" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="38" y="67" fill="#173B35" fontSize="10" fontWeight="bold">💾 Saqlash</text>
+
+          <rect x="180" y="40" width="140" height="45" rx="10" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
+          <text x="192" y="67" fill="#173B35" fontSize="10" fontWeight="bold">📦 Omborga saqlash</text>
+
+          <rect x="335" y="40" width="140" height="45" rx="10" fill="#F5B85C" />
+          <text x="348" y="67" fill="#173B35" fontSize="10" fontWeight="bold">📋 Nusxalash</text>
+
+          <rect x="25" y="105" width="450" height="90" rx="12" fill="#D7F0E5" stroke="#173B35" strokeWidth="1" />
+          <text x="45" y="130" fill="#173B35" fontSize="11" fontWeight="bold">✓ Muvaffaqiyatli saqlandi!</text>
+          <text x="45" y="152" fill="#173B35" fontSize="10">Mahsulot ombor modulingizga xarid va sotuv narxi bilan birga qo'shildi.</text>
+        </svg>
+      ),
+    },
+  ], []);
 
   // Synchronize calculations from Firestore for authenticated user
   useEffect(() => {
@@ -216,7 +325,7 @@ export const ProfitCalculator: React.FC = () => {
   };
 
   const handleCopySummary = async () => {
-    const text = `📊 BIZNESYORDAM — MAHSULOT FOYDA HISOBOTI
+    const text = `📊 BESTO — MAHSULOT FOYDA HISOBOTI
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 💰 Sotish narxi (1 dona): ${formatUzbekSom(inputs.sellingPrice)}
 📦 Xarid tannarxi (1 dona): ${formatUzbekSom(inputs.purchaseCost)}
@@ -240,6 +349,45 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
       setTimeout(() => setCopied(false), 2500);
     } catch {
       // fallback
+    }
+  };
+
+  const handleSaveToInventory = async () => {
+    if (!user) {
+      setInventoryMsg("Omborga saqlash uchun iltimos tizimga kiring.");
+      setTimeout(() => setInventoryMsg(null), 3000);
+      return;
+    }
+    if (inputs.purchaseCost <= 0 || inputs.sellingPrice <= 0) {
+      setInventoryMsg("Xarid tannarxi va sotish narxini 0 dan yuqori qilib kiriting.");
+      setTimeout(() => setInventoryMsg(null), 3000);
+      return;
+    }
+    setInventorySaving(true);
+    setInventoryMsg(null);
+    try {
+      const prodName = calcName.trim() || `Mahsulot (${formatUzbekSom(inputs.sellingPrice)})`;
+      await saveProduct(user.uid, {
+        name: prodName,
+        purchasePrice: inputs.purchaseCost,
+        sellingPrice: inputs.sellingPrice,
+        quantity: Math.max(1, inputs.quantity),
+        unit: 'dona',
+        minStockAlert: Math.max(1, Math.min(5, Math.round(inputs.quantity * 0.2) || 1)),
+        category: 'Kalkulyatordan',
+      });
+      setInventorySaved(true);
+      setInventoryMsg("Mahsulot omborga muvaffaqiyatli saqlandi!");
+      setTimeout(() => {
+        setInventorySaved(false);
+        setInventoryMsg(null);
+      }, 3500);
+    } catch (err: any) {
+      console.error('Failed to save product to inventory:', err);
+      setInventoryMsg(err?.message || "Omborga saqlashda xatolik yuz berdi");
+      setTimeout(() => setInventoryMsg(null), 3500);
+    } finally {
+      setInventorySaving(false);
     }
   };
 
@@ -272,13 +420,35 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <HelpGuideButton onClick={() => setIsHelpOpen(true)} />
+
             <button
               onClick={() => setShowExplanation(!showExplanation)}
               className="px-3.5 py-2 text-xs font-medium text-[#493329] bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
             >
               <HelpCircle className="w-4 h-4 text-[#795640]" />
               <span>Marja vs Ustama farqi</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSaveToInventory}
+              disabled={inventorySaving || inputs.purchaseCost <= 0 || inputs.sellingPrice <= 0}
+              className="px-3.5 py-2 text-xs font-medium text-[#493329] bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] disabled:opacity-50"
+              title="Ushbu mahsulotni to'g'ridan-to'g'ri omborga tovar sifatida qo'shish"
+            >
+              {inventorySaved ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="text-emerald-700 font-semibold">Omborga saqlandi!</span>
+                </>
+              ) : (
+                <>
+                  <Package className="w-4 h-4 text-[#D0AE70]" />
+                  <span>{inventorySaving ? "Saqlanmoqda..." : "Omborga saqlash"}</span>
+                </>
+              )}
             </button>
 
             <button
@@ -299,6 +469,14 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
             </button>
           </div>
         </div>
+
+        {/* Inventory notification toast banner if message exists */}
+        {inventoryMsg && (
+          <div className="mt-3 p-3 rounded-xl text-xs flex items-center gap-2 bg-[#F6EFE3] text-[#493329] border border-[#E8D6B7] animate-in fade-in duration-200">
+            <Info className="w-4 h-4 text-[#D0AE70] shrink-0" />
+            <span>{inventoryMsg}</span>
+          </div>
+        )}
 
         {/* Quick industry presets */}
         <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -508,15 +686,15 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
               />
               <button
                 type="submit"
-                className="px-3.5 py-2 text-xs font-semibold text-white bg-[#493329] hover:bg-[#3B2921] rounded-xl transition-all btn-tactile flex items-center gap-1 shrink-0"
+                className="px-3.5 py-2 text-xs font-semibold text-white bg-[#173B35] hover:bg-[#102A26] rounded-xl transition-all btn-tactile flex items-center gap-1 shrink-0"
               >
-                <Save className="w-3.5 h-3.5 text-[#D0AE70]" />
+                <Save className="w-3.5 h-3.5 text-[#F5B85C]" />
                 <span>Saqlash</span>
               </button>
             </div>
             {saveSuccess && (
-              <p className="text-[11px] text-[#795640] font-medium flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <p className="text-[11px] text-[#173B35] font-medium flex items-center gap-1">
+                <Check className="w-3.5 h-3.5 text-[#047857]" />
                 <span>Hisob-kitob muvaffaqiyatli saqlandi!</span>
               </p>
             )}
@@ -525,12 +703,12 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
         {/* Right Side: Live Results Dashboard (7 cols on lg) */}
         <div className="lg:col-span-7 space-y-5">
-          {/* Main Profit Status Banner - Executive Deep Warm Brown or Wine Loss banner */}
+          {/* Main Profit Status Banner - Executive Deep BESTO Green or Wine Loss banner */}
           <div
             className={`p-6 rounded-2xl border transition-all shadow-card ${
               isLoss
                 ? 'bg-[#6B2023] border-[#852C30] text-white'
-                : 'bg-[#493329] border-[#614537] text-[#FAF6F0]'
+                : 'bg-[#173B35] border-[#23584F] text-[#FAF6F0]'
             }`}
           >
             <div className="flex items-start justify-between gap-4">
@@ -716,6 +894,15 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
           )}
         </div>
       </div>
+
+      {/* Module Help Guide */}
+      <ModuleHelpGuide
+        moduleKey="profit_calculator"
+        moduleTitle="Foyda Kalkulyatori"
+        steps={profitHelpSteps}
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+      />
     </div>
   );
 };

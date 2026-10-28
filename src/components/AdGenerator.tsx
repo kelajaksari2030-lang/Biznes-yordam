@@ -41,7 +41,7 @@ const BENEFIT_SUGGESTIONS = [
 ];
 
 export const AdGenerator: React.FC = () => {
-  const { user, currentPlan, dailyUsage, updateDailyUsageCount, signInWithGoogle } = useAuth();
+  const { user, currentPlan, dailyUsage, updateDailyUsageCount, signInWithGoogle, simulatedTier, isAdmin } = useAuth();
 
   const [formData, setFormData] = useState<AdFormData>({
     productName: 'Erkaklar klassik soati',
@@ -72,6 +72,37 @@ export const AdGenerator: React.FC = () => {
       return [];
     }
   });
+
+  // Check for presets (e.g. from Mahsulot tavsifi or Ijtimoiy tarmoq postlari cards)
+  useEffect(() => {
+    try {
+      const preset = sessionStorage.getItem('ad_generator_preset');
+      if (preset === 'product_desc') {
+        setFormData((prev) => ({
+          ...prev,
+          variant: 'classic',
+          productName: "Premium charm poyabzal",
+          targetAudience: "Sifat va qulaylikni qadrlaydiganlar",
+          keyBenefits: "100% tabiiy buzoq terisi\nOrtopedik yumshoq taglik\n1 yillik rasmiy kafolat",
+          specialOffer: "Birinchi xarid uchun maxsus parvarish vositasi sovg'a!",
+        }));
+        sessionStorage.removeItem('ad_generator_preset');
+      } else if (preset === 'social_post') {
+        setFormData((prev) => ({
+          ...prev,
+          platform: 'instagram',
+          variant: 'social_proof',
+          productName: "Erkaklar qishki kurtkasi",
+          targetAudience: "Erkaklar va yoshlar",
+          keyBenefits: "Suv va sovuq o'tkazmaydigan membrana\n-25°C gacha issiq saqlaydi\n1,200 dan ortiq mamnun mijozlar bahosi",
+          specialOffer: "Stories orqali buyurtma berganlarga bepul yetkazib berish!",
+        }));
+        sessionStorage.removeItem('ad_generator_preset');
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
 
   // Synchronize drafts from Firestore on login
   useEffect(() => {
@@ -146,7 +177,11 @@ export const AdGenerator: React.FC = () => {
     setIsGenerating(true);
 
     try {
-      const result = await requestAdGenerationFromBackend(formData, (msg) => {
+      const payload = {
+        ...formData,
+        simulatedTier: isAdmin && simulatedTier !== 'admin' ? simulatedTier : undefined,
+      };
+      const result = await requestAdGenerationFromBackend(payload, (msg) => {
         setStatusMessage(msg);
       });
 

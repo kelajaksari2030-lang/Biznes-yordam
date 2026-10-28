@@ -59,7 +59,7 @@ export function isRenderBackendConfigured(): boolean {
  * Uses Render web service if configured, or Firebase Cloud Functions callable.
  */
 export async function requestAdGenerationFromBackend(
-  formData: AdFormData,
+  formData: AdFormData & { simulatedTier?: string },
   onStatusMessage?: (status: string) => void
 ): Promise<{ data?: BackendAdResponse; error?: BackendAdError }> {
   // 1. Check current Firebase Authentication

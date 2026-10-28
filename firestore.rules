@@ -35,18 +35,18 @@ service cloud.firestore {
       allow get: if isOwner(userId);
       allow list: if false; // Users cannot list other users
 
-      // On registration, users can create their own profile with 'free' plan only
-      // Pro and Ultra plans can ONLY be provisioned by a trusted server/admin
+      // On registration, users can create their own profile with 'free' plan (Admin email kelajaksari2030@gmail.com is allowed 'ultra' plan)
+      // Pro and Ultra plans for standard users can ONLY be provisioned by a trusted server/admin
       allow create: if isOwner(userId)
         && incoming().uid == userId
-        && incoming().currentPlan == 'free';
+        && (incoming().currentPlan == 'free' || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'));
 
-      // Profile updates cannot alter currentPlan, subscriptionStatus, planExpiresAt, or createdAt
+      // Profile updates cannot alter currentPlan, subscriptionStatus, planExpiresAt, or createdAt unless authenticated as Admin
       allow update: if isOwner(userId)
         && incoming().uid == userId
-        && (!('currentPlan' in existing()) || incoming().currentPlan == existing().currentPlan)
-        && (!('subscriptionStatus' in existing()) || incoming().subscriptionStatus == existing().subscriptionStatus)
-        && !incoming().diff(existing()).affectedKeys().hasAny(['currentPlan', 'subscriptionStatus', 'planExpiresAt', 'createdAt']);
+        && (!('currentPlan' in existing()) || incoming().currentPlan == existing().currentPlan || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'))
+        && (!('subscriptionStatus' in existing()) || incoming().subscriptionStatus == existing().subscriptionStatus || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'))
+        && (!incoming().diff(existing()).affectedKeys().hasAny(['currentPlan', 'subscriptionStatus', 'planExpiresAt', 'createdAt']) || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'));
 
       allow delete: if false;
 
@@ -76,6 +76,69 @@ service cloud.firestore {
       match /customTemplates/{templateId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // User's unified business profile
+      match /businessProfile/{docId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // CRM Customers (Strictly isolated per user)
+      match /customers/{customerId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Warehouse Inventory Products (Strictly isolated per user)
+      match /products/{productId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Sales Orders (Strictly isolated per user with schema invariants)
+      match /orders/{orderId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().status in ['draft', 'confirmed']
+          && incoming().paymentStatus in ['unpaid', 'partially_paid', 'paid']
+          && (!('paidAmount' in incoming()) || (incoming().paidAmount is number && incoming().paidAmount >= 0))
+          && incoming().stockDeducted is bool
+          && incoming().totalAmount is number && incoming().totalAmount >= 0
+          && incoming().totalCost is number && incoming().totalCost >= 0
+          && incoming().items is list;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().status in ['draft', 'confirmed', 'delivered', 'cancelled']
+          && incoming().paymentStatus in ['unpaid', 'partially_paid', 'paid']
+          && (!('paidAmount' in incoming()) || (incoming().paidAmount is number && incoming().paidAmount >= 0))
+          && incoming().stockDeducted is bool
+          && incoming().totalAmount is number && incoming().totalAmount >= 0
+          && incoming().totalCost is number && incoming().totalCost >= 0;
+        allow delete: if isOwner(userId)
+          && (!('stockDeducted' in existing()) || existing().stockDeducted == false);
+      }
+
+      // Financial Transactions (Expenses & Ledger - Strictly isolated per user)
+      match /transactions/{transactionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().type in ['income', 'expense']
+          && incoming().category in ['ijara', 'reklama', 'transport', 'ish_haqi', 'mahsulot_xaridi', 'kommunal', 'boshqa', 'sales', 'tax', 'other']
+          && incoming().amount is number && incoming().amount > 0
+          && incoming().date is string && incoming().date.size() == 10;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().type in ['income', 'expense']
+          && incoming().category in ['ijara', 'reklama', 'transport', 'ish_haqi', 'mahsulot_xaridi', 'kommunal', 'boshqa', 'sales', 'tax', 'other']
+          && incoming().amount is number && incoming().amount > 0
+          && incoming().date is string && incoming().date.size() == 10;
         allow delete: if isOwner(userId);
       }
     }

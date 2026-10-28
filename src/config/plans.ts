@@ -3,8 +3,17 @@
  * Defines Free, Pro, and Ultra plan tiers and authoritative limits
  */
 
+export const ADMIN_EMAIL = 'kelajaksari2030@gmail.com';
+
+export type SimulatedTier = 'admin' | 'free' | 'pro' | 'ultra';
+
+export function isAdminUser(email?: string | null): boolean {
+  if (!email || typeof email !== 'string') return false;
+  return email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
+
 export interface PlanEntitlements {
-  id: 'free' | 'pro' | 'ultra';
+  id: 'free' | 'pro' | 'ultra' | 'admin';
   name: string;
   badge: string;
   priceMonthlySom: number;
@@ -15,6 +24,23 @@ export interface PlanEntitlements {
   isPopular?: boolean;
   features: string[];
 }
+
+export const ADMIN_PLAN: PlanEntitlements = {
+  id: 'admin',
+  name: 'Admin (Cheksiz)',
+  badge: 'Admin',
+  priceMonthlySom: 0,
+  priceLabel: '0 so\'m (Admin)',
+  dailyAdLimit: 999999,
+  customTemplateLimit: 999999,
+  description: 'Barcha Pro va Ultra imkoniyatlariga to\'liq va cheksiz kirish',
+  features: [
+    'Cheksiz kunlik reklama matnlari',
+    'Cheksiz shaxsiy javob shablonlari',
+    'Barcha Pro va Ultra eksklyuziv modullarga ruxsat',
+    'CRM, Ombor, Savdo va Moliya modullariga to\'liq kirish',
+  ],
+};
 
 export const PLANS: Record<'free' | 'pro' | 'ultra', PlanEntitlements> = {
   free: {
@@ -74,3 +100,29 @@ export const PLANS: Record<'free' | 'pro' | 'ultra', PlanEntitlements> = {
 };
 
 export const DEFAULT_PLAN = PLANS.free;
+
+/**
+ * Authoritatively determines whether a given plan tier is entitled to export financial reports to CSV.
+ * - Free: false (blocked)
+ * - Pro: true (allowed)
+ * - Ultra: true (allowed)
+ * - Admin: true (allowed)
+ */
+export function canExportFinancialReports(planId?: string | null): boolean {
+  if (!planId) return false;
+  return planId === 'pro' || planId === 'ultra' || planId === 'admin';
+}
+
+/**
+ * Authoritatively determines whether a given plan tier is entitled to the Ultra Business Forecast module.
+ * - Free: false (blocked)
+ * - Pro: false (blocked)
+ * - Ultra: true (allowed)
+ * - Admin: true (allowed)
+ */
+export function canAccessBusinessForecast(planId?: string | null): boolean {
+  if (!planId) return false;
+  return planId === 'ultra' || planId === 'admin';
+}
+
+

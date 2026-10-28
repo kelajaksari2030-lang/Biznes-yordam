@@ -39,15 +39,26 @@ const getValidEnvStr = (val: unknown): string => {
 export const TARGET_PROJECT_ID = 'gen-lang-client-0498548617';
 export const TARGET_DATABASE_ID = 'ai-studio-biznesyordam-e0d6389f-9af4-4469-a3e0-1826035a54fd';
 
+const getMetaEnv = (key: string): string => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta && (import.meta as any).env) {
+      return getValidEnvStr((import.meta as any).env[key]);
+    }
+  } catch {
+    // Ignore in non-Vite ESM environments
+  }
+  return '';
+};
+
 // Support Vite environment variables for production deployments while locking Project and Database IDs
 export const firebaseConfig = {
-  apiKey: getValidEnvStr(import.meta.env.VITE_FIREBASE_API_KEY) || appletConfig.apiKey,
+  apiKey: getMetaEnv('VITE_FIREBASE_API_KEY') || appletConfig.apiKey,
   authDomain: `${TARGET_PROJECT_ID}.firebaseapp.com`,
   projectId: TARGET_PROJECT_ID,
-  appId: getValidEnvStr(import.meta.env.VITE_FIREBASE_APP_ID) || appletConfig.appId,
+  appId: getMetaEnv('VITE_FIREBASE_APP_ID') || appletConfig.appId,
   firestoreDatabaseId: TARGET_DATABASE_ID,
   storageBucket: `${TARGET_PROJECT_ID}.firebasestorage.app`,
-  messagingSenderId: getValidEnvStr(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID) || appletConfig.messagingSenderId,
+  messagingSenderId: getMetaEnv('VITE_FIREBASE_MESSAGING_SENDER_ID') || appletConfig.messagingSenderId,
 };
 
 

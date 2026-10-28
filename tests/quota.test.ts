@@ -23,7 +23,7 @@ import {
 
 // In-Memory Transactional Store with simulated locks for atomic concurrency testing
 class MockFirestoreStore implements TransactionalStore {
-  public users: Map<string, { currentPlan?: string; subscriptionStatus?: string }> = new Map();
+  public users: Map<string, { currentPlan?: string; subscriptionStatus?: string; email?: string }> = new Map();
   public usage: Map<string, { adCount: number; lastGeneratedAt: string }> = new Map();
   
   private lock: Promise<void> = Promise.resolve();
@@ -301,6 +301,96 @@ async function runTestSuite() {
     assert(
       res.plan === 'free' && res.dailyLimit === 5,
       'Expired Pro subscription safely downgrades to Free tier (Limit: 5)'
+    );
+  }
+
+  // --- Test 9: Admin User (kelajaksari2030@gmail.com) Unlimited Quota & Privileges ---
+  {
+    const store = new MockFirestoreStore();
+    const adminUid = 'admin_user_2030';
+    store.users.set(adminUid, {
+      currentPlan: 'free',
+      subscriptionStatus: 'active',
+      email: 'kelajaksari2030@gmail.com',
+    });
+
+    // Run 10 generations for admin (more than free limit of 5)
+    let lastRes: any = null;
+    for (let i = 1; i <= 10; i++) {
+      lastRes = await executeQuotaEnforcedAdGeneration(store, adminUid, sampleFormData);
+    }
+
+    assert(
+      lastRes && lastRes.dailyLimit === 999999 && lastRes.adCount === 10,
+      'Admin user (kelajaksari2030@gmail.com) gets unlimited daily ad generation quota'
+    );
+
+    // Verify case-insensitive email check
+    const adminUidUpper = 'admin_user_upper';
+    store.users.set(adminUidUpper, {
+      currentPlan: 'free',
+      subscriptionStatus: 'active',
+      email: 'KELAJAKSARI2030@GMAIL.COM',
+    });
+
+    const resUpper = await executeQuotaEnforcedAdGeneration(store, adminUidUpper, sampleFormData);
+    assert(
+      resUpper.dailyLimit === 999999,
+      'Admin check is case-insensitive for KELAJAKSARI2030@GMAIL.COM'
+    );
+  }
+
+  // --- Test 10: Admin Simulation Mode Isolated Usage Counter & Spoofing Resistance ---
+  {
+    const store = new MockFirestoreStore();
+    const adminUid = 'admin_user_sim_1';
+    store.users.set(adminUid, {
+      currentPlan: 'free',
+      subscriptionStatus: 'active',
+      email: 'kelajaksari2030@gmail.com',
+    });
+
+    // Admin simulates 'free' tier (limit = 5)
+    const simFreePayload = { ...sampleFormData, simulatedTier: 'free' };
+    for (let i = 1; i <= 5; i++) {
+      const res = await executeQuotaEnforcedAdGeneration(store, adminUid, simFreePayload);
+      assert(
+        res.plan === 'free' && res.dailyLimit === 5 && res.adCount === i,
+        `Admin Free simulation generation ${i}/5 succeeded`
+      );
+    }
+
+    // 6th generation in Free simulation mode MUST trigger resource-exhausted error
+    try {
+      await executeQuotaEnforcedAdGeneration(store, adminUid, simFreePayload);
+      assert(false, '6th generation in Free simulation mode should be rejected');
+    } catch (err: any) {
+      assert(
+        err instanceof QuotaError && err.code === 'resource-exhausted',
+        'Admin Free simulation correctly triggers RESOURCE_EXHAUSTED at 5 limit'
+      );
+    }
+
+    // Switch admin back to Real Admin Mode (simulatedTier: 'admin' / undefined)
+    const realRes = await executeQuotaEnforcedAdGeneration(store, adminUid, sampleFormData);
+    assert(
+      realRes.dailyLimit === 999999 && realRes.adCount === 1,
+      'Real admin mode uses pristine unsimulated counter and retains unlimited quota'
+    );
+
+    // Non-admin attacker sends simulatedTier = 'ultra' or 'admin'
+    const attackerUid = 'attacker_user_99';
+    store.users.set(attackerUid, {
+      currentPlan: 'free',
+      subscriptionStatus: 'active',
+      email: 'attacker@gmail.com',
+    });
+
+    const spoofedPayload = { ...sampleFormData, simulatedTier: 'ultra' };
+    const attackerRes = await executeQuotaEnforcedAdGeneration(store, attackerUid, spoofedPayload);
+    assert(
+      attackerRes.plan === 'free' && attackerRes.dailyLimit === 5,
+      'Server strictly ignores simulatedTier parameter from non-admin users'
     );
   }
 

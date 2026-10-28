@@ -110,8 +110,8 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               <Sparkles className="w-3.5 h-3.5 text-[#D0AE70]" />
               <span>Tarif rejalari va imkoniyatlar</span>
             </div>
-            <h3 id="pricing-modal-title" className="text-xl font-bold text-[#493329] mt-1">
-              BiznesYordam obuna shartlari
+            <h3 id="pricing-modal-title" className="text-xl font-bold text-[#173B35] mt-1">
+              BESTO obuna shartlari
             </h3>
             <p className="text-xs text-[#6B5549] mt-0.5">
               Biznesingiz hajmiga mos tarifni tanlang. Hozirda barcha tizimga kirgan foydalanuvchilar Bepul tarifda xizmat ko'radilar.

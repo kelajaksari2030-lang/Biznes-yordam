@@ -3,30 +3,50 @@
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* BESTO Brand Theme Colors for Tailwind Utility Classes */
+  --color-besto-dark: #173B35;
+  --color-besto-mint: #D7F0E5;
+  --color-besto-gold: #F5B85C;
+  --color-besto-bg: #F6F8F7;
 }
 
 :root {
-  /* Warm-luxury visual identity colors */
-  --color-primary-dark: #493329;
-  --color-chestnut: #795640;
-  --color-gold: #D0AE70;
-  --color-gold-hover: #C39F60;
-  --color-gold-light: #F7EFE1;
-  --color-gold-border: #E8D6B7;
-  --color-cream: #F8F4ED;
-  --color-card-bg: #FFFFFF;
-  --color-card-warm: #FAF6F0;
-  --color-border-warm: #E6DCD1;
-  --color-border-subtle: #EFE8DE;
-  --color-text-main: #34221A;
-  --color-text-muted: #6B5549;
-  --color-text-soft: #8D786D;
+  /* BESTO Primary Brand Design Tokens */
+  --color-besto-dark: #173B35;
+  --color-besto-dark-hover: #12302B;
+  --color-besto-mint: #D7F0E5;
+  --color-besto-mint-dark: #B5E2D1;
+  --color-besto-gold: #F5B85C;
+  --color-besto-gold-hover: #E2A448;
+  --color-besto-bg: #F6F8F7;
+  --color-besto-card: #FFFFFF;
+  --color-besto-border: #E0ECE8;
+  --color-besto-text: #112521;
+  --color-besto-text-muted: #2C4C45;
+  --color-besto-text-soft: #55756E;
 
-  /* Elevation and shadows */
-  --shadow-subtle: 0 1px 3px rgba(73, 51, 41, 0.04);
-  --shadow-card: 0 4px 16px -2px rgba(73, 51, 41, 0.05), 0 1px 3px rgba(73, 51, 41, 0.03);
-  --shadow-hover: 0 10px 24px -4px rgba(73, 51, 41, 0.08), 0 3px 8px -2px rgba(73, 51, 41, 0.04);
-  --shadow-modal: 0 20px 35px -5px rgba(73, 51, 41, 0.16), 0 8px 16px -4px rgba(73, 51, 41, 0.08);
+  /* Legacy aliases seamlessly mapped to BESTO design system */
+  --color-primary-dark: #173B35;
+  --color-chestnut: #2A544C;
+  --color-gold: #F5B85C;
+  --color-gold-hover: #E2A448;
+  --color-gold-light: #D7F0E5;
+  --color-gold-border: #BEE3D4;
+  --color-cream: #F6F8F7;
+  --color-card-bg: #FFFFFF;
+  --color-card-warm: #F0F7F4;
+  --color-border-warm: #E0ECE8;
+  --color-border-subtle: #EBF3F0;
+  --color-text-main: #112521;
+  --color-text-muted: #2C4C45;
+  --color-text-soft: #55756E;
+
+  /* Elevation and shadows tuned for BESTO dark green theme */
+  --shadow-subtle: 0 1px 3px rgba(23, 59, 53, 0.04);
+  --shadow-card: 0 4px 16px -2px rgba(23, 59, 53, 0.05), 0 1px 3px rgba(23, 59, 53, 0.03);
+  --shadow-hover: 0 10px 24px -4px rgba(23, 59, 53, 0.08), 0 3px 8px -2px rgba(23, 59, 53, 0.04);
+  --shadow-modal: 0 20px 35px -5px rgba(23, 59, 53, 0.18), 0 8px 16px -4px rgba(23, 59, 53, 0.08);
 
   /* Animation durations & curves */
   --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -36,8 +56,8 @@
 
 /* Base styles */
 html, body {
-  background-color: var(--color-cream);
-  color: var(--color-text-main);
+  background-color: var(--color-besto-bg);
+  color: var(--color-besto-text);
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
@@ -73,22 +93,22 @@ input[type="number"] {
   }
 }
 
-/* Standardized luxury input control */
-.input-warm {
+/* Standardized BESTO input control */
+.input-warm, .input-besto {
   background-color: #FFFFFF;
-  border: 1px solid var(--color-border-warm);
-  color: var(--color-text-main);
+  border: 1px solid var(--color-besto-border);
+  color: var(--color-besto-text);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
-.input-warm:focus {
+.input-warm:focus, .input-besto:focus {
   outline: none;
-  border-color: var(--color-chestnut);
-  box-shadow: 0 0 0 3px rgba(208, 174, 112, 0.30);
+  border-color: var(--color-besto-dark);
+  box-shadow: 0 0 0 3px rgba(215, 240, 229, 0.65);
 }
 
-.input-warm::placeholder {
-  color: #A39082;
+.input-warm::placeholder, .input-besto::placeholder {
+  color: var(--color-besto-text-soft);
 }
 
 /* Respect accessibility prefers-reduced-motion */
