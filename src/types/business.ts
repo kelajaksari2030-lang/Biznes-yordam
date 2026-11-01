@@ -84,6 +84,15 @@ export interface Product {
 export type OrderStatus = 'draft' | 'confirmed' | 'delivered' | 'cancelled';
 export type OrderPaymentStatus = 'unpaid' | 'partially_paid' | 'paid';
 
+export interface DeductedStockItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  unit?: string;
+  isIngredient?: boolean;
+  finishedProductId?: string;
+}
+
 export interface OrderItem {
   productId: string;
   productName: string;
@@ -93,6 +102,7 @@ export interface OrderItem {
   unit?: string;
   totalPrice: number; // quantity * unitPrice
   totalCost: number;  // quantity * unitCost
+  recipeSnapshot?: { ingredientProductId: string; quantity: number }[];
 }
 
 export interface Order {
@@ -110,6 +120,7 @@ export interface Order {
   paymentStatus: OrderPaymentStatus;
   paidAmount?: number; // Actual collected payment amount in currency
   stockDeducted: boolean; // Tracks whether inventory quantities were deducted atomically
+  deductedStockItems?: DeductedStockItem[]; // Exact stock items deducted (including raw ingredients)
   idempotencyKey?: string; // Prevents duplicate ledger entries & inventory deductions
   notes?: string;
   createdAt: string;

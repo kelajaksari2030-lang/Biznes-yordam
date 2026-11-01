@@ -73,7 +73,7 @@ export const CrmModule: React.FC = () => {
       visual: (
         <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
           <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
-          <rect x="20" y="20" width="460" height="40" rx="10" fill="#FFFFFF" stroke="#E6DCD1" strokeWidth="1" />
+          <rect x="20" y="20" width="460" height="40" rx="10" fill="#FFFFFF" stroke="#E0ECE8" strokeWidth="1" />
           <rect x="35" y="32" width="16" height="16" rx="4" fill="#D7F0E5" />
           <text x="60" y="44" fill="#173B35" fontSize="11" fontWeight="bold">Mijozlar Boshqaruvi (CRM)</text>
           <rect x="330" y="26" width="135" height="28" rx="8" fill="#F5B85C" />
@@ -82,16 +82,16 @@ export const CrmModule: React.FC = () => {
           <rect x="50" y="75" width="400" height="125" rx="12" fill="#FFFFFF" stroke="#173B35" strokeWidth="2" />
           <text x="70" y="96" fill="#173B35" fontSize="11" fontWeight="bold">Yangi mijoz qo'shish</text>
 
-          <text x="70" y="118" fill="#6B5549" fontSize="9" fontWeight="bold">Mijoz ismi *</text>
-          <rect x="70" y="123" width="170" height="22" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="70" y="118" fill="#52796F" fontSize="9" fontWeight="bold">Mijoz ismi *</text>
+          <rect x="70" y="123" width="170" height="22" rx="6" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="1" />
           <text x="80" y="137" fill="#173B35" fontSize="10">Anvar Qodirov</text>
 
-          <text x="260" y="118" fill="#6B5549" fontSize="9" fontWeight="bold">Telefon raqami *</text>
-          <rect x="260" y="123" width="170" height="22" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="260" y="118" fill="#52796F" fontSize="9" fontWeight="bold">Telefon raqami *</text>
+          <rect x="260" y="123" width="170" height="22" rx="6" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="1" />
           <text x="270" y="137" fill="#173B35" fontSize="10" fontFamily="monospace">+998 90 123 45 67</text>
 
-          <text x="70" y="158" fill="#6B5549" fontSize="9" fontWeight="bold">Telegram Username</text>
-          <rect x="70" y="163" width="360" height="22" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
+          <text x="70" y="158" fill="#52796F" fontSize="9" fontWeight="bold">Telegram Username</text>
+          <rect x="70" y="163" width="360" height="22" rx="6" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="1" />
           <text x="80" y="177" fill="#173B35" fontSize="10" fontFamily="monospace">@anvar_qodirov</text>
         </svg>
       ),
@@ -106,17 +106,17 @@ export const CrmModule: React.FC = () => {
           <rect x="20" y="30" width="80" height="35" rx="8" fill="#DBEAFE" stroke="#93C5FD" strokeWidth="1" />
           <text x="32" y="52" fill="#1E40AF" fontSize="10" fontWeight="bold">Yangi lid</text>
 
-          <text x="108" y="52" fill="#8D786D" fontSize="12">➔</text>
+          <text x="108" y="52" fill="#52796F" fontSize="12">➔</text>
 
           <rect x="125" y="30" width="90" height="35" rx="8" fill="#F3E8FF" stroke="#D8B4FE" strokeWidth="1" />
           <text x="135" y="52" fill="#6B21A8" fontSize="10" fontWeight="bold">Bog'lanildi</text>
 
-          <text x="222" y="52" fill="#8D786D" fontSize="12">➔</text>
+          <text x="222" y="52" fill="#52796F" fontSize="12">➔</text>
 
           <rect x="240" y="30" width="95" height="35" rx="8" fill="#FEF3C7" stroke="#FDE047" strokeWidth="1" />
           <text x="250" y="52" fill="#854D0E" fontSize="10" fontWeight="bold">Muzokarada</text>
 
-          <text x="342" y="52" fill="#8D786D" fontSize="12">➔</text>
+          <text x="342" y="52" fill="#52796F" fontSize="12">➔</text>
 
           <rect x="360" y="30" width="115" height="35" rx="8" fill="#D1FAE5" stroke="#6EE7B7" strokeWidth="1" />
           <text x="372" y="52" fill="#065F46" fontSize="10" fontWeight="bold">✓ Xarid qildi</text>
@@ -125,10 +125,10 @@ export const CrmModule: React.FC = () => {
           <text x="45" y="115" fill="#173B35" fontSize="11" fontWeight="bold">Status bo'yicha tezkor filterlar:</text>
           <rect x="45" y="128" width="85" height="28" rx="6" fill="#173B35" />
           <text x="58" y="145" fill="#FFFFFF" fontSize="10">Barchasi (12)</text>
-          <rect x="140" y="128" width="95" height="28" rx="6" fill="#FAF6F0" stroke="#E6DCD1" strokeWidth="1" />
-          <text x="150" y="145" fill="#634839" fontSize="10">Yangi lid (3)</text>
-          <rect x="245" y="128" width="105" height="28" rx="6" fill="#FAF6F0" stroke="#E6DCD1" strokeWidth="1" />
-          <text x="255" y="145" fill="#634839" fontSize="10">Xarid qildi (7)</text>
+          <rect x="140" y="128" width="95" height="28" rx="6" fill="#F6F8F7" stroke="#E0ECE8" strokeWidth="1" />
+          <text x="150" y="145" fill="#52796F" fontSize="10">Yangi lid (3)</text>
+          <rect x="245" y="128" width="105" height="28" rx="6" fill="#F6F8F7" stroke="#E0ECE8" strokeWidth="1" />
+          <text x="255" y="145" fill="#52796F" fontSize="10">Xarid qildi (7)</text>
         </svg>
       ),
     },
@@ -141,10 +141,10 @@ export const CrmModule: React.FC = () => {
           <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
           <rect x="30" y="25" width="440" height="170" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
           <text x="50" y="52" fill="#173B35" fontSize="12" fontWeight="bold">📝 Mijoz bo'yicha maxsus izoh:</text>
-          <rect x="50" y="65" width="400" height="85" rx="10" fill="#FAF6F0" stroke="#E6DCD1" strokeWidth="1" />
-          <text x="65" y="90" fill="#493329" fontSize="11 font-medium font-sans">"Erkaklar klassik kostyumi qidirmoqda, o'lchami 50.</text>
-          <text x="65" y="110" fill="#493329" fontSize="11 font-medium font-sans">Dushanba kuni soat 14:00 da qayta qo'ng'iroq qilib</text>
-          <text x="65" y="130" fill="#493329" fontSize="11 font-medium font-sans">yangi kelgan partiyani taklif qilish kerak."</text>
+          <rect x="50" y="65" width="400" height="85" rx="10" fill="#F6F8F7" stroke="#E0ECE8" strokeWidth="1" />
+          <text x="65" y="90" fill="#112521" fontSize="11 font-medium font-sans">"Erkaklar klassik kostyumi qidirmoqda, o'lchami 50.</text>
+          <text x="65" y="110" fill="#112521" fontSize="11 font-medium font-sans">Dushanba kuni soat 14:00 da qayta qo'ng'iroq qilib</text>
+          <text x="65" y="130" fill="#112521" fontSize="11 font-medium font-sans">yangi kelgan partiyani taklif qilish kerak."</text>
         </svg>
       ),
     },
@@ -160,10 +160,10 @@ export const CrmModule: React.FC = () => {
           <rect x="160" y="42" width="70" height="18" rx="4" fill="#FEF3C7" stroke="#FDE047" strokeWidth="1" />
           <text x="168" y="55" fill="#854D0E" fontSize="9" fontWeight="bold">Muzokarada</text>
 
-          <text x="50" y="85" fill="#6B5549" fontSize="11" fontFamily="monospace">📞 +998 90 123 45 67</text>
+          <text x="50" y="85" fill="#52796F" fontSize="11" fontFamily="monospace">📞 +998 90 123 45 67</text>
 
-          <rect x="50" y="110" width="115" height="36" rx="10" fill="#FAF8F5" stroke="#D5C7B8" strokeWidth="1" />
-          <text x="65" y="132" fill="#493329" fontSize="11" fontWeight="bold">📞 Qo'ng'iroq</text>
+          <rect x="50" y="110" width="115" height="36" rx="10" fill="#F6F8F7" stroke="#E0ECE8" strokeWidth="1" />
+          <text x="65" y="132" fill="#112521" fontSize="11" fontWeight="bold">📞 Qo'ng'iroq</text>
 
           <rect x="180" y="110" width="125" height="36" rx="10" fill="#F0F9FF" stroke="#BAE6FD" strokeWidth="1" />
           <text x="192" y="132" fill="#0369A1" fontSize="11" fontWeight="bold">✈️ @anvar_qodirov</text>
@@ -311,19 +311,19 @@ export const CrmModule: React.FC = () => {
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       {/* Top Banner / Header */}
-      <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FAF6F0] text-[#795640] rounded-lg text-xs font-semibold border border-[#E8D6B7]/60">
-              <Users className="w-3.5 h-3.5 text-[#D0AE70]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F6F8F7] text-[#173B35] rounded-lg text-xs font-semibold border border-[#E0ECE8]/60">
+              <Users className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Mijozlar Boshqaruvi (CRM)</span>
             </div>
             <HelpGuideButton onClick={() => setIsHelpOpen(true)} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#493329]">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#112521]">
             Mijozlar va Sotuv Aloqalari
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B5549] max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#52796F] max-w-2xl leading-relaxed">
             Mijozlar ro'yxatini shakllantiring, telefon va Telegram orqali tezkor bog'laning hamda muzokaralar holatini kuzatib boring.
           </p>
         </div>
@@ -331,54 +331,54 @@ export const CrmModule: React.FC = () => {
         <button
           type="button"
           onClick={handleOpenAddModal}
-          className="px-5 py-3 rounded-2xl bg-[#D0AE70] hover:bg-[#C39F60] text-[#34221A] text-xs sm:text-sm font-bold shadow-xs transition-all flex items-center justify-center gap-2 btn-tactile shrink-0"
+          className="px-5 py-3 rounded-2xl bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] text-xs sm:text-sm font-bold shadow-xs transition-all flex items-center justify-center gap-2 btn-tactile shrink-0"
         >
-          <UserPlus className="w-4 h-4 text-[#34221A]" />
+          <UserPlus className="w-4 h-4 text-[#112521]" />
           <span>Yangi mijoz qo'shish</span>
         </button>
       </div>
 
       {/* 4 Metric Counter Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 sm:p-5 bg-white border border-[#E6DCD1] rounded-2xl shadow-card">
+        <div className="p-4 sm:p-5 bg-white border border-[#E0ECE8] rounded-2xl shadow-card">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#8D786D]">Jami mijozlar</span>
-            <Users className="w-4 h-4 text-[#D0AE70]" />
+            <span className="text-xs font-semibold text-[#52796F]">Jami mijozlar</span>
+            <Users className="w-4 h-4 text-[#F5B85C]" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#493329] font-mono mt-2">
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#112521] font-mono mt-2">
             {stats.total}
           </div>
-          <span className="text-[11px] text-[#795640] mt-1 block">Bazadagi barcha kontaktlar</span>
+          <span className="text-[11px] text-[#173B35] mt-1 block">Bazadagi barcha kontaktlar</span>
         </div>
 
-        <div className="p-4 sm:p-5 bg-white border border-[#E6DCD1] rounded-2xl shadow-card">
+        <div className="p-4 sm:p-5 bg-white border border-[#E0ECE8] rounded-2xl shadow-card">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-blue-700">Yangi lidlar</span>
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#493329] font-mono mt-2">
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#112521] font-mono mt-2">
             {stats.yangiCount}
           </div>
-          <span className="text-[11px] text-[#795640] mt-1 block">Birinchi marta murojaat</span>
+          <span className="text-[11px] text-[#173B35] mt-1 block">Birinchi marta murojaat</span>
         </div>
 
-        <div className="p-4 sm:p-5 bg-white border border-[#E6DCD1] rounded-2xl shadow-card">
+        <div className="p-4 sm:p-5 bg-white border border-[#E0ECE8] rounded-2xl shadow-card">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-purple-700">Muzokarada</span>
             <Clock className="w-4 h-4 text-purple-600" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#493329] font-mono mt-2">
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#112521] font-mono mt-2">
             {stats.muzokaraCount}
           </div>
-          <span className="text-[11px] text-[#795640] mt-1 block">Aloqa yoki narx kelishuvi</span>
+          <span className="text-[11px] text-[#173B35] mt-1 block">Aloqa yoki narx kelishuvi</span>
         </div>
 
-        <div className="p-4 sm:p-5 bg-white border border-[#E6DCD1] rounded-2xl shadow-card">
+        <div className="p-4 sm:p-5 bg-white border border-[#E0ECE8] rounded-2xl shadow-card">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-emerald-700">Xarid qilganlar</span>
             <UserCheck className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#493329] font-mono mt-2">
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#112521] font-mono mt-2">
             {stats.xaridCount}
           </div>
           <span className="text-[11px] text-emerald-700 mt-1 block font-medium">Doimiy mijozlar</span>
@@ -386,31 +386,31 @@ export const CrmModule: React.FC = () => {
       </div>
 
       {/* Search Bar & Status Filter Tabs */}
-      <div className="bg-white border border-[#E6DCD1] rounded-2xl p-4 sm:p-5 shadow-card space-y-4">
+      <div className="bg-white border border-[#E0ECE8] rounded-2xl p-4 sm:p-5 shadow-card space-y-4">
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           {/* Search box */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#8D786D] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#52796F] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Ism, telefon, Telegram (@username) yoki izoh bo'yicha qidirish..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] focus:ring-1 focus:ring-[#493329] outline-none text-xs sm:text-sm text-[#34221A] bg-[#FAF8F5]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] focus:ring-1 focus:ring-[#112521] outline-none text-xs sm:text-sm text-[#112521] bg-[#F6F8F7]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8D786D] hover:text-[#493329]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52796F] hover:text-[#112521]"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <div className="text-xs text-[#8D786D] shrink-0 self-center">
-            Topildi: <strong className="text-[#493329] font-mono">{filteredList.length}</strong> ta
+          <div className="text-xs text-[#52796F] shrink-0 self-center">
+            Topildi: <strong className="text-[#112521] font-mono">{filteredList.length}</strong> ta
           </div>
         </div>
 
@@ -421,8 +421,8 @@ export const CrmModule: React.FC = () => {
             onClick={() => setStatusFilter('all')}
             className={`px-3 py-1.5 rounded-xl font-medium transition-all shrink-0 btn-tactile ${
               statusFilter === 'all'
-                ? 'bg-[#493329] text-[#FAF6F0] shadow-xs'
-                : 'bg-[#FAF6F0] text-[#634839] border border-[#E6DCD1] hover:bg-[#F2ECE1]'
+                ? 'bg-[#112521] text-[#F6F8F7] shadow-xs'
+                : 'bg-[#F6F8F7] text-[#52796F] border border-[#E0ECE8] hover:bg-[#E0ECE8]'
             }`}
           >
             Barchasi ({customers.length})
@@ -439,12 +439,12 @@ export const CrmModule: React.FC = () => {
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl font-medium transition-all shrink-0 flex items-center gap-1.5 btn-tactile ${
                   isActive
-                    ? 'bg-[#493329] text-[#FAF6F0] shadow-xs'
-                    : 'bg-[#FAF6F0] text-[#634839] border border-[#E6DCD1] hover:bg-[#F2ECE1]'
+                    ? 'bg-[#112521] text-[#F6F8F7] shadow-xs'
+                    : 'bg-[#F6F8F7] text-[#52796F] border border-[#E0ECE8] hover:bg-[#E0ECE8]'
                 }`}
               >
                 <span>{cfg.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isActive ? 'bg-[#D0AE70] text-[#34221A]' : 'bg-white border border-[#D5C7B8]'}`}>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isActive ? 'bg-[#F5B85C] text-[#112521]' : 'bg-white border border-[#E0ECE8]'}`}>
                   {count}
                 </span>
               </button>
@@ -455,23 +455,23 @@ export const CrmModule: React.FC = () => {
 
       {/* Customer List Display */}
       {loading ? (
-        <div className="py-16 bg-white border border-[#E6DCD1] rounded-3xl flex flex-col items-center justify-center space-y-3 shadow-card">
-          <Loader2 className="w-8 h-8 text-[#D0AE70] animate-spin" />
-          <span className="text-xs font-semibold text-[#795640]">
+        <div className="py-16 bg-white border border-[#E0ECE8] rounded-3xl flex flex-col items-center justify-center space-y-3 shadow-card">
+          <Loader2 className="w-8 h-8 text-[#F5B85C] animate-spin" />
+          <span className="text-xs font-semibold text-[#173B35]">
             Mijozlar bazasi yuklanmoqda...
           </span>
         </div>
       ) : filteredList.length === 0 ? (
-        <div className="py-14 bg-white border border-[#E6DCD1] rounded-3xl text-center space-y-3 p-6 shadow-card">
-          <div className="w-14 h-14 rounded-2xl bg-[#FAF6F0] border border-[#E6DCD1] text-[#D0AE70] flex items-center justify-center mx-auto">
+        <div className="py-14 bg-white border border-[#E0ECE8] rounded-3xl text-center space-y-3 p-6 shadow-card">
+          <div className="w-14 h-14 rounded-2xl bg-[#F6F8F7] border border-[#E0ECE8] text-[#F5B85C] flex items-center justify-center mx-auto">
             <Users className="w-7 h-7" />
           </div>
-          <h3 className="text-base font-bold text-[#493329]">
+          <h3 className="text-base font-bold text-[#112521]">
             {customers.length === 0
               ? "Hozircha mijozlar mavjud emas"
               : "Qidiruv bo'yicha hech kim topilmadi"}
           </h3>
-          <p className="text-xs text-[#8D786D] max-w-md mx-auto">
+          <p className="text-xs text-[#52796F] max-w-md mx-auto">
             {customers.length === 0
               ? "Yangi mijoz qo'shing va ularning kontaktlari, telegram manzili hamda xarid jarayonini qulay saqlang."
               : "Boshqa so'z bilan qidirib ko'ring yoki status filtrini 'Barchasi'ga o'zgartiring."}
@@ -480,16 +480,16 @@ export const CrmModule: React.FC = () => {
             <button
               type="button"
               onClick={handleOpenAddModal}
-              className="mt-2 px-4 py-2.5 bg-[#D0AE70] hover:bg-[#C39F60] text-[#34221A] text-xs font-bold rounded-xl transition-all btn-tactile inline-flex items-center gap-1.5 shadow-xs"
+              className="mt-2 px-4 py-2.5 bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] text-xs font-bold rounded-xl transition-all btn-tactile inline-flex items-center gap-1.5 shadow-xs"
             >
-              <UserPlus className="w-4 h-4 text-[#34221A]" />
+              <UserPlus className="w-4 h-4 text-[#112521]" />
               <span>Birinchi mijozni qo'shish</span>
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white border border-[#E6DCD1] rounded-3xl shadow-card overflow-hidden">
-          <div className="divide-y divide-[#EFE8DE]">
+        <div className="bg-white border border-[#E0ECE8] rounded-3xl shadow-card overflow-hidden">
+          <div className="divide-y divide-[#E0ECE8]">
             {filteredList.map((cust) => {
               const statusCfg = CUSTOMER_STATUS_CONFIG[cust.status] || CUSTOMER_STATUS_CONFIG.yangi;
               const tgClean = cust.telegramUsername ? cust.telegramUsername.replace(/^@/, '') : '';
@@ -497,12 +497,12 @@ export const CrmModule: React.FC = () => {
               return (
                 <div
                   key={cust.id}
-                  className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF8F5] transition-colors"
+                  className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#F6F8F7] transition-colors"
                 >
                   {/* Left: Customer Info */}
                   <div className="space-y-1.5 min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-bold text-[#493329] truncate">
+                      <h3 className="text-sm font-bold text-[#112521] truncate">
                         {cust.name}
                       </h3>
                       <span
@@ -513,13 +513,13 @@ export const CrmModule: React.FC = () => {
                     </div>
 
                     {/* Contacts row */}
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B5549] pt-0.5">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-[#52796F] pt-0.5">
                       {/* Phone */}
                       <div className="flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-[#D0AE70] shrink-0" />
+                        <Phone className="w-3.5 h-3.5 text-[#F5B85C] shrink-0" />
                         <a
                           href={`tel:${cust.phone}`}
-                          className="hover:text-[#493329] hover:underline font-mono"
+                          className="hover:text-[#112521] hover:underline font-mono"
                           title="Qo'ng'iroq qilish"
                         >
                           {cust.phone}
@@ -527,7 +527,7 @@ export const CrmModule: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleCopyPhone(cust.phone, cust.id)}
-                          className="p-1 text-[#8D786D] hover:text-[#493329] transition-colors rounded"
+                          className="p-1 text-[#52796F] hover:text-[#112521] transition-colors rounded"
                           title="Telefon raqamidan nusxa olish"
                         >
                           {copiedId === cust.id ? (
@@ -553,14 +553,14 @@ export const CrmModule: React.FC = () => {
                         </div>
                       )}
 
-                      <span className="text-[#8D786D] text-[11px]">
+                      <span className="text-[#52796F] text-[11px]">
                         Sana: {new Date(cust.createdAt).toLocaleDateString('uz-UZ')}
                       </span>
                     </div>
 
                     {/* Notes */}
                     {cust.notes && (
-                      <p className="text-xs text-[#795640] bg-[#FAF6F0] p-2.5 rounded-xl border border-[#EFE8DE] mt-1.5 max-w-2xl leading-relaxed">
+                      <p className="text-xs text-[#173B35] bg-[#F6F8F7] p-2.5 rounded-xl border border-[#E0ECE8] mt-1.5 max-w-2xl leading-relaxed">
                         📝 {cust.notes}
                       </p>
                     )}
@@ -570,10 +570,10 @@ export const CrmModule: React.FC = () => {
                   <div className="flex items-center gap-2 self-start sm:self-center shrink-0 pt-2 sm:pt-0">
                     <a
                       href={`tel:${cust.phone}`}
-                      className="px-3 py-1.5 rounded-xl border border-[#D5C7B8] bg-[#FAF8F5] hover:bg-[#F2ECE1] text-[#493329] text-xs font-semibold flex items-center gap-1.5 transition-colors btn-tactile"
+                      className="px-3 py-1.5 rounded-xl border border-[#E0ECE8] bg-[#F6F8F7] hover:bg-[#E0ECE8] text-[#112521] text-xs font-semibold flex items-center gap-1.5 transition-colors btn-tactile"
                       title="Qo'ng'iroq"
                     >
-                      <PhoneCall className="w-3.5 h-3.5 text-[#D0AE70]" />
+                      <PhoneCall className="w-3.5 h-3.5 text-[#F5B85C]" />
                       <span className="hidden sm:inline">Qo'ng'iroq</span>
                     </a>
 
@@ -593,7 +593,7 @@ export const CrmModule: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleOpenEditModal(cust)}
-                      className="p-2 rounded-xl border border-[#D5C7B8] hover:bg-[#FAF6F0] text-[#795640] transition-colors btn-tactile"
+                      className="p-2 rounded-xl border border-[#E0ECE8] hover:bg-[#F6F8F7] text-[#173B35] transition-colors btn-tactile"
                       title="Tahrirlash"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -625,22 +625,22 @@ export const CrmModule: React.FC = () => {
           role="presentation"
         >
           <div
-            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-modal border border-[#E6DCD1] flex flex-col max-h-[calc(100vh-24px)] max-h-[calc(100dvh-24px)] my-auto animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-modal border border-[#E0ECE8] flex flex-col max-h-[calc(100vh-24px)] max-h-[calc(100dvh-24px)] my-auto animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
             role="dialog"
             aria-modal="true"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-[#EFE8DE] pb-3 mb-4 bg-white z-10">
+            <div className="shrink-0 flex items-center justify-between border-b border-[#E0ECE8] pb-3 mb-4 bg-white z-10">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] border border-[#E6DCD1] flex items-center justify-center text-[#795640] shrink-0">
-                  <UserPlus className="w-5 h-5 text-[#D0AE70]" />
+                <div className="w-9 h-9 rounded-xl bg-[#F6F8F7] border border-[#E0ECE8] flex items-center justify-center text-[#173B35] shrink-0">
+                  <UserPlus className="w-5 h-5 text-[#F5B85C]" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-[#493329]">
+                  <h3 className="text-base sm:text-lg font-bold text-[#112521]">
                     {editingCustomer ? "Mijoz ma'lumotlarini tahrirlash" : "Yangi mijoz qo'shish"}
                   </h3>
-                  <p className="text-xs text-[#8D786D]">
+                  <p className="text-xs text-[#52796F]">
                     Mijoz kontaktlari va hozirgi muzokara holati
                   </p>
                 </div>
@@ -648,7 +648,7 @@ export const CrmModule: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCloseModal}
-                className="text-[#8D786D] hover:text-[#493329] p-1.5 rounded-lg transition-colors shrink-0"
+                className="text-[#52796F] hover:text-[#112521] p-1.5 rounded-lg transition-colors shrink-0"
                 aria-label="Yopish"
               >
                 <X className="w-5 h-5" />
@@ -666,7 +666,7 @@ export const CrmModule: React.FC = () => {
 
               {/* 1. Name */}
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5">
+                <label className="block text-xs font-bold text-[#112521] mb-1.5">
                   Mijoz ismi va familiyasi <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -674,14 +674,14 @@ export const CrmModule: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Masalan: Anvar Qodirov yoki Malika opa (Toshkent)"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] focus:ring-1 focus:ring-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] focus:ring-1 focus:ring-[#112521] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                   required
                 />
               </div>
 
               {/* 2. Phone */}
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5">
+                <label className="block text-xs font-bold text-[#112521] mb-1.5">
                   Telefon raqami <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -689,18 +689,18 @@ export const CrmModule: React.FC = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+998 90 123 45 67"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] focus:ring-1 focus:ring-[#493329] outline-none text-sm font-mono text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] focus:ring-1 focus:ring-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                   required
                 />
               </div>
 
               {/* 3. Telegram Username */}
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5">
+                <label className="block text-xs font-bold text-[#112521] mb-1.5">
                   Telegram username (ixtiyoriy)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-[#8D786D]">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-[#52796F]">
                     @
                   </span>
                   <input
@@ -708,20 +708,20 @@ export const CrmModule: React.FC = () => {
                     value={telegramUsername}
                     onChange={(e) => setTelegramUsername(e.target.value)}
                     placeholder="foydalanuvchi_nomi"
-                    className="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] focus:ring-1 focus:ring-[#493329] outline-none text-sm font-mono text-[#34221A] bg-[#FAF8F5]"
+                    className="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] focus:ring-1 focus:ring-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                   />
                 </div>
               </div>
 
               {/* 4. Status */}
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5">
+                <label className="block text-xs font-bold text-[#112521] mb-1.5">
                   Mijoz statusi <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as CustomerStatus)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                 >
                   <option value="yangi">Yangi lid (Birinchi murojaat)</option>
                   <option value="boglanildi">Bog'lanildi (Qo'ng'iroq / xabar yuborildi)</option>
@@ -733,7 +733,7 @@ export const CrmModule: React.FC = () => {
 
               {/* 5. Notes */}
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5">
+                <label className="block text-xs font-bold text-[#112521] mb-1.5">
                   Mijoz bo'yicha maxsus izoh yoki eslatma
                 </label>
                 <textarea
@@ -741,23 +741,23 @@ export const CrmModule: React.FC = () => {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Masalan: Erkaklar kostyumi qidirmoqda, o'lchami 50, dushanba kuni qayta qo'ng'iroq qilish kerak."
                   rows={3}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] outline-none text-xs sm:text-sm text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-xs sm:text-sm text-[#112521] bg-[#F6F8F7]"
                 />
               </div>
 
               {/* Modal Footer Buttons */}
-              <div className="pt-3 border-t border-[#EFE8DE] flex items-center justify-end gap-3 sticky bottom-0 bg-white pt-2 mt-2">
+              <div className="pt-3 border-t border-[#E0ECE8] flex items-center justify-end gap-3 sticky bottom-0 bg-white pt-2 mt-2">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-4 py-2.5 rounded-xl border border-[#D5C7B8] text-xs font-bold text-[#634839] hover:bg-[#FAF6F0] transition-colors"
+                  className="px-4 py-2.5 rounded-xl border border-[#E0ECE8] text-xs font-bold text-[#52796F] hover:bg-[#F6F8F7] transition-colors"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2.5 rounded-xl bg-[#493329] hover:bg-[#34221A] text-[#FAF6F0] text-xs font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 btn-tactile"
+                  className="px-5 py-2.5 rounded-xl bg-[#112521] hover:bg-[#112521] text-[#F6F8F7] text-xs font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 btn-tactile"
                 >
                   {saving ? (
                     <>
@@ -766,7 +766,7 @@ export const CrmModule: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <Check className="w-3.5 h-3.5 text-[#D0AE70]" />
+                      <Check className="w-3.5 h-3.5 text-[#F5B85C]" />
                       Saqlash
                     </>
                   )}

@@ -563,3 +563,122 @@ export async function handleClickComplete(body: ClickCompleteRequestBody): Promi
     };
   }
 }
+
+/**
+ * Handles Click Shop API "Cancel" callback (action = 2).
+ * Verifies signature, amount, and idempotently cancels order in Firestore.
+ */
+export async function handleClickCancel(body: ClickCompleteRequestBody): Promise<ClickResponse> {
+  const clickTransId = body.click_trans_id ?? '';
+  const merchantTransId = (body.merchant_trans_id || '').trim();
+  const merchantPrepareId = body.merchant_prepare_id ?? merchantTransId;
+  const serviceId = body.service_id ?? '';
+  const amount = body.amount ?? '';
+  const action = body.action;
+  const signTime = body.sign_time || '';
+  const signString = (body.sign_string || '').trim();
+
+  const secretKey = (process.env.CLICK_SECRET_KEY || '').trim();
+
+  if (!secretKey) {
+    console.error('[Click Cancel] Server configuration error: CLICK_SECRET_KEY is not defined.');
+    return {
+      click_trans_id: clickTransId,
+      merchant_trans_id: merchantTransId,
+      error: CLICK_ERRORS.REQUEST_ERROR,
+      error_note: 'Server konfiguratsiyasida xatolik',
+    };
+  }
+
+  // 1. Verify action code (2 = Cancel)
+  if (String(action) !== '2') {
+    return {
+      click_trans_id: clickTransId,
+      merchant_trans_id: merchantTransId,
+      error: CLICK_ERRORS.ACTION_NOT_FOUND,
+      error_note: 'Noto\'g\'ri harakat kodi (action 2 bo\'lishi shart)',
+    };
+  }
+
+  // 2. Verify Signature (uses same format as Complete action=1)
+  const expectedSign = generateCompleteSignature(
+    clickTransId,
+    serviceId,
+    secretKey,
+    merchantTransId,
+    merchantPrepareId,
+    amount,
+    (action ?? '').toString(),
+    signTime
+  );
+
+  if (!signString || signString.toLowerCase() !== expectedSign.toLowerCase()) {
+    console.warn('[Click Cancel] Signature mismatch.');
+    return {
+      click_trans_id: clickTransId,
+      merchant_trans_id: merchantTransId,
+      error: CLICK_ERRORS.SIGN_CHECK_FAILED,
+      error_note: 'SIGN CHECK FAILED',
+    };
+  }
+
+  const orderRef = adminDb.collection('orders').doc(merchantTransId);
+
+  // 3. Atomic Idempotent Cancellation
+  try {
+    return await adminDb.runTransaction(async (transaction) => {
+      const orderSnap = await transaction.get(orderRef);
+
+      if (!orderSnap.exists) {
+        return {
+          click_trans_id: clickTransId,
+          merchant_trans_id: merchantTransId,
+          error: CLICK_ERRORS.USER_NOT_FOUND,
+          error_note: 'Buyurtma topilmadi',
+        };
+      }
+
+      const orderData = orderSnap.data() as OrderRecord;
+
+      // Idempotency: Already cancelled
+      if (orderData.status === 'cancelled') {
+        return {
+          click_trans_id: clickTransId,
+          merchant_trans_id: merchantTransId,
+          error: CLICK_ERRORS.SUCCESS,
+          error_note: 'Success (already cancelled)',
+        };
+      }
+
+      // Can't cancel paid orders
+      if (orderData.status === 'paid') {
+        return {
+          click_trans_id: clickTransId,
+          merchant_trans_id: merchantTransId,
+          error: CLICK_ERRORS.TRANSACTION_CANCELLED,
+          error_note: 'To\'langan buyurtmani bekor qilib bo\'lmaydi',
+        };
+      }
+
+      transaction.update(orderRef, {
+        status: 'cancelled',
+        updatedAt: new Date().toISOString(),
+      });
+
+      return {
+        click_trans_id: clickTransId,
+        merchant_trans_id: merchantTransId,
+        error: CLICK_ERRORS.SUCCESS,
+        error_note: 'Success',
+      };
+    });
+  } catch (txError) {
+    console.error('[Click Cancel] Firestore transaction error:', txError);
+    return {
+      click_trans_id: clickTransId,
+      merchant_trans_id: merchantTransId,
+      error: CLICK_ERRORS.FAILED_TO_UPDATE,
+      error_note: 'Tranzaksiyani bekor qilishda xatolik',
+    };
+  }
+}

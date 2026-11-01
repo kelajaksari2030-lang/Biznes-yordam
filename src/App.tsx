@@ -21,6 +21,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { DiagnosticProvider } from './context/DiagnosticContext';
 import { DiagnosticPanel } from './components/DiagnosticPanel';
 import { SignInScreen } from './components/SignInScreen';
+import { PublicLandingPage } from './components/PublicLandingPage';
 import { AccountStatusModal } from './components/AccountStatusModal';
 import { PricingModal } from './components/PricingModal';
 import { BusinessProfileModal } from './components/BusinessProfileModal';
@@ -29,6 +30,13 @@ import { InventoryModule } from './components/InventoryModule';
 import { OrdersModule } from './components/OrdersModule';
 import { FinanceModule } from './components/FinanceModule';
 import { BusinessForecastModule } from './components/BusinessForecastModule';
+import { SuppliersModule } from './components/SuppliersModule';
+import { StaffModule } from './components/StaffModule';
+import { LoyaltyModule } from './components/LoyaltyModule';
+import { MultiBranchModule } from './components/MultiBranchModule';
+import { BarcodePrinterModule } from './components/BarcodePrinterModule';
+import { SettingsPage } from './components/SettingsPage';
+import { useScrollReveal } from './hooks/useScrollReveal';
 
 const VALID_TABS: ToolType[] = [
   'home',
@@ -43,6 +51,12 @@ const VALID_TABS: ToolType[] = [
   'orders',
   'finance',
   'business-forecast',
+  'suppliers',
+  'staff',
+  'loyalty',
+  'multi-branch',
+  'barcode-print',
+  'settings',
 ];
 
 function AppContent() {
@@ -56,6 +70,9 @@ function AppContent() {
     }
     return 'home';
   });
+
+  // Re-observe and trigger scroll-reveal animations across authenticated routes
+  useScrollReveal([activeTab, user?.uid]);
 
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isPricingOpen, setIsPricingOpen] = useState(false);
@@ -109,39 +126,13 @@ function AppContent() {
     );
   }
 
-  // PRODUCT RULE: All users must sign in with Google through Firebase Authentication before using the application
+  // Public marketing website for visitors; authenticated workspace once signed in
   if (!user) {
-    return (
-      <div className="min-h-screen bg-[#F6F8F7] text-[#112521] flex flex-col font-sans">
-        <header className="border-b border-[#E0ECE8] bg-white/95 py-3.5 px-4 sm:px-6">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="px-3 py-1 rounded-xl bg-[#173B35] text-[#F5B85C] font-extrabold text-sm shadow-xs tracking-wider">
-                BESTO
-              </div>
-              <span className="text-lg font-extrabold tracking-tight text-[#173B35]">
-                BESTO
-              </span>
-            </div>
-            <span className="text-xs font-semibold text-[#173B35] bg-[#D7F0E5] px-2.5 py-1 rounded-lg border border-[#D7F0E5]">
-              Xavfsiz kirish
-            </span>
-          </div>
-        </header>
-
-        <main className="flex-1">
-          <SignInScreen />
-        </main>
-
-        <footer className="border-t border-[#E0ECE8] bg-[#F6F8F7] py-6 text-center text-xs text-[#173B35]/70">
-          BESTO — Biznesingizni boshqaring. O‘sishni oldindan ko‘ring.
-        </footer>
-      </div>
-    );
+    return <PublicLandingPage />;
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F8F7] text-[#112521] flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#F6F8F7] text-[#112521] flex flex-col lg:flex-row font-sans">
       <DiagnosticPanel />
 
       {/* 1. Left Sidebar for Desktop and Tablet */}
@@ -165,8 +156,13 @@ function AppContent() {
           onToggleSidebar={() => handleToggleSidebar(!isSidebarCollapsed)}
         />
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto">
-          {activeTab === 'home' && <HomeDashboard setActiveTab={handleTabChange} />}
+        <main className="flex-1 px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 max-w-7xl w-full mx-auto">
+          {activeTab === 'home' && (
+            <HomeDashboard 
+              setActiveTab={handleTabChange} 
+              onOpenPricing={() => setIsPricingOpen(true)} 
+            />
+          )}
           {activeTab === 'ad-generator' && <AdGenerator />}
           {activeTab === 'ad-lab' && <AdLab />}
           {activeTab === 'profit-calculator' && <ProfitCalculator />}
@@ -179,6 +175,17 @@ function AppContent() {
           {activeTab === 'inventory' && <InventoryModule />}
           {activeTab === 'orders' && <OrdersModule />}
           {activeTab === 'finance' && <FinanceModule />}
+          {activeTab === 'suppliers' && <SuppliersModule />}
+          {activeTab === 'staff' && <StaffModule />}
+          {activeTab === 'loyalty' && <LoyaltyModule />}
+          {activeTab === 'multi-branch' && <MultiBranchModule />}
+          {activeTab === 'barcode-print' && <BarcodePrinterModule />}
+          {activeTab === 'settings' && (
+            <SettingsPage
+              onOpenPricing={() => setIsPricingOpen(true)}
+              onOpenBusinessProfile={() => setIsBusinessProfileOpen(true)}
+            />
+          )}
           {activeTab === 'business-forecast' && (
             <BusinessForecastModule
               onOpenPricing={() => setIsPricingOpen(true)}

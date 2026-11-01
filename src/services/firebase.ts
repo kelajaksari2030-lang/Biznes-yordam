@@ -15,6 +15,7 @@ import {
 } from 'firebase/auth';
 import { 
   getFirestore, 
+  initializeFirestore,
   doc, 
   getDocFromServer,
   Firestore 
@@ -116,23 +117,31 @@ let isConfigured = false;
 
 try {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-  // CRITICAL: Must use provisioned firestoreDatabaseId
-  db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  // CRITICAL: Initialize Firestore with long-polling auto-detection to prevent 10s WebSocket timeouts in preview environments
+  try {
+    db = initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    }, firebaseConfig.firestoreDatabaseId);
+  } catch {
+    db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  }
+
   auth = getAuth(app);
   functions = getFunctions(app, 'asia-southeast1');
   googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({ prompt: 'select_account' });
   isConfigured = !!firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY';
 
-  // Test connection asynchronously
+  // Test connection asynchronously with fallback
   if (typeof window !== 'undefined' && isConfigured) {
     getDocFromServer(doc(db, 'test', 'connection'))
       .then(() => {
         // Connection verified
       })
       .catch((error) => {
-        if (error instanceof Error && error.message.includes('the client is offline')) {
-          console.warn('Firebase connection check: client is offline or network restricted.');
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes('offline') || msg.includes('backend') || msg.includes('reach')) {
+          console.warn('Firebase connection notice: Operating in graceful offline/cached mode.');
         }
       });
   }
@@ -182,6 +191,34 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   emitError(errInfo);
+}
+
+/**
+ * Recursively strips undefined properties from an object or array before passing to Firestore.
+ * Firestore strictly throws errors when payload contains undefined values.
+ */
+export function sanitizeFirestorePayload<T>(data: T): T {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data
+      .map((item) => sanitizeFirestorePayload(item))
+      .filter((item) => item !== undefined) as unknown as T;
+  }
+
+  if (typeof data === 'object' && !(data instanceof Date)) {
+    const result: Record<string, any> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        result[key] = sanitizeFirestorePayload(value);
+      }
+    }
+    return result as T;
+  }
+
+  return data;
 }
 
 

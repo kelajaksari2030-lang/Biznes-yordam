@@ -60,9 +60,7 @@ try {
         credential,
         projectId: PROJECT_ID,
       });
-      console.log(
-        `✅ Firebase Admin initialized with explicit credentials for project "${PROJECT_ID}", database "${NAMED_DATABASE_ID}", serviceAccount: "${serviceAccountEmail}".`
-      );
+      console.log(`✅ Firebase Admin initialized successfully.`);
       isFirebaseAdminInitialized = true;
     } else {
       // Fallback: Default initialization (e.g. for local testing or GCP ADC)

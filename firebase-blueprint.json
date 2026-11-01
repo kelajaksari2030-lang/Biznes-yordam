@@ -17,70 +17,6 @@
       },
       "required": ["uid", "email", "currentPlan"]
     },
-    "DailyUsage": {
-      "title": "DailyUsage",
-      "description": "Foydalanuvchining kunlik reklama matnlari generatsiyasi hisobi",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string", "maxLength": 128 },
-        "userId": { "type": "string", "maxLength": 128 },
-        "date": { "type": "string", "maxLength": 32 },
-        "adCount": { "type": "number" },
-        "lastGeneratedAt": { "type": "string", "maxLength": 64 }
-      },
-      "required": ["id", "userId", "date", "adCount"]
-    },
-    "AdDraft": {
-      "title": "AdDraft",
-      "description": "Foydalanuvchi tomonidan yaratilgan va saqlangan reklama qoralamasi",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string", "maxLength": 128 },
-        "userId": { "type": "string", "maxLength": 128 },
-        "title": { "type": "string", "maxLength": 256 },
-        "productName": { "type": "string", "maxLength": 256 },
-        "platform": { "type": "string", "enum": ["telegram", "instagram"] },
-        "content": { "type": "string", "maxLength": 10000 },
-        "createdAt": { "type": "string", "maxLength": 64 }
-      },
-      "required": ["id", "userId", "title", "platform", "content"]
-    },
-    "SavedCalculation": {
-      "title": "SavedCalculation",
-      "description": "Foydalanuvchi tomonidan saqlangan mahsulot tannarxi va foyda hisob-kitobi",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string", "maxLength": 128 },
-        "userId": { "type": "string", "maxLength": 128 },
-        "name": { "type": "string", "maxLength": 256 },
-        "date": { "type": "string", "maxLength": 64 },
-        "purchaseCost": { "type": "number" },
-        "sellingPrice": { "type": "number" },
-        "quantity": { "type": "number" },
-        "extraCostPerItem": { "type": "number" },
-        "fixedCosts": { "type": "number" },
-        "netProfit": { "type": "number" },
-        "marginPercent": { "type": "number" },
-        "markupPercent": { "type": "number" },
-        "createdAt": { "type": "string", "maxLength": 64 }
-      },
-      "required": ["id", "userId", "name", "purchaseCost", "sellingPrice", "netProfit"]
-    },
-    "CustomTemplate": {
-      "title": "CustomTemplate",
-      "description": "Foydalanuvchi tomonidan yaratilgan maxsus mijoz javobi shabloni",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string", "maxLength": 128 },
-        "userId": { "type": "string", "maxLength": 128 },
-        "title": { "type": "string", "maxLength": 256 },
-        "category": { "type": "string", "maxLength": 64 },
-        "template": { "type": "string", "maxLength": 5000 },
-        "description": { "type": "string", "maxLength": 512 },
-        "createdAt": { "type": "string", "maxLength": 64 }
-      },
-      "required": ["id", "userId", "title", "category", "template"]
-    },
     "BusinessProfile": {
       "title": "BusinessProfile",
       "description": "Foydalanuvchining yagona biznes profili (kompaniya, auditoriya, kanallar, valyuta)",
@@ -110,12 +46,14 @@
         "name": { "type": "string", "maxLength": 200 },
         "phone": { "type": "string", "maxLength": 64 },
         "telegramUsername": { "type": "string", "maxLength": 128 },
-        "notes": { "type": "string", "maxLength": 2000 },
-        "status": { "type": "string", "enum": ["yangi", "boglanildi", "muzokara", "xarid_qildi", "yoqotildi"] },
+        "status": { "type": "string", "enum": ["lead", "active", "vip", "inactive"] },
+        "totalOrdersCount": { "type": "number" },
+        "totalSpent": { "type": "number" },
+        "loyaltyBalanceUZS": { "type": "number" },
         "createdAt": { "type": "string", "maxLength": 64 },
         "updatedAt": { "type": "string", "maxLength": 64 }
       },
-      "required": ["id", "userId", "name", "phone", "status"]
+      "required": ["id", "userId", "name", "phone"]
     },
     "Product": {
       "title": "Product",
@@ -126,7 +64,7 @@
         "userId": { "type": "string", "maxLength": 128 },
         "name": { "type": "string", "maxLength": 250 },
         "sku": { "type": "string", "maxLength": 100 },
-        "purchasePrice": { "type": "number" },
+        "purchaseCost": { "type": "number" },
         "sellingPrice": { "type": "number" },
         "quantity": { "type": "number" },
         "unit": { "type": "string", "maxLength": 50 },
@@ -135,41 +73,120 @@
         "createdAt": { "type": "string", "maxLength": 64 },
         "updatedAt": { "type": "string", "maxLength": 64 }
       },
-      "required": ["id", "userId", "name", "purchasePrice", "sellingPrice", "quantity", "unit", "minStockAlert"]
+      "required": ["id", "userId", "name", "purchaseCost", "sellingPrice", "quantity"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Ta'minotchi kishi yoki kompaniya yozuvi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 64 },
+        "balancePayable": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "name", "phone"]
+    },
+    "PurchaseOrder": {
+      "title": "PurchaseOrder",
+      "description": "Xomashyo va tovarlar xarid buyurtmasi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "poNumber": { "type": "string", "maxLength": 64 },
+        "supplierId": { "type": "string", "maxLength": 128 },
+        "supplierName": { "type": "string", "maxLength": 200 },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["draft", "ordered", "received", "cancelled"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "poNumber", "supplierId", "totalAmount"]
+    },
+    "StaffMember": {
+      "title": "StaffMember",
+      "description": "Xodim yozuvi va rol huquqlari",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "role": { "type": "string", "enum": ["admin", "manager", "cashier", "accountant"] },
+        "commissionRatePercent": { "type": "number" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "name", "role"]
+    },
+    "StaffShift": {
+      "title": "StaffShift",
+      "description": "Smena va kassa topshirish yozuvi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "staffId": { "type": "string", "maxLength": 128 },
+        "staffName": { "type": "string", "maxLength": 200 },
+        "initialCash": { "type": "number" },
+        "status": { "type": "string", "enum": ["open", "closed"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "staffId", "status"]
+    },
+    "StockTransfer": {
+      "title": "StockTransfer",
+      "description": "Omborlararo tovarlar o'tkazish yozuvi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "transferNumber": { "type": "string", "maxLength": 64 },
+        "sourceWarehouseId": { "type": "string", "maxLength": 128 },
+        "destWarehouseId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["pending", "in_transit", "completed", "cancelled"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "transferNumber", "sourceWarehouseId", "destWarehouseId"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
-      "description": "Foydalanuvchi shaxsiy profili, obuna holati va sozlamalari"
-    },
-    "/users/{userId}/usage/{dateId}": {
-      "schema": "DailyUsage",
-      "description": "Foydalanuvchining ma'lum kungi reklama yaratish ko'rsatkichi"
-    },
-    "/users/{userId}/adDrafts/{draftId}": {
-      "schema": "AdDraft",
-      "description": "Foydalanuvchining shaxsiy reklama matnlari qoralamalari"
-    },
-    "/users/{userId}/calculations/{calcId}": {
-      "schema": "SavedCalculation",
-      "description": "Foydalanuvchining shaxsiy saqlangan moliyaviy hisobotlari"
-    },
-    "/users/{userId}/customTemplates/{templateId}": {
-      "schema": "CustomTemplate",
-      "description": "Foydalanuvchining shaxsiy javob shablonlari"
+      "description": "Foydalanuvchi shaxsiy profili va obuna holati"
     },
     "/users/{userId}/businessProfile/{docId}": {
       "schema": "BusinessProfile",
-      "description": "Foydalanuvchining yagona biznes profili"
+      "description": "Yagona biznes profili"
     },
     "/users/{userId}/customers/{customerId}": {
       "schema": "Customer",
-      "description": "Foydalanuvchining CRM mijozlari bazasi"
+      "description": "CRM mijozlar bazasi"
     },
     "/users/{userId}/products/{productId}": {
       "schema": "Product",
-      "description": "Foydalanuvchining mahsulotlar ombori va qoldiqlari"
+      "description": "Mahsulotlar ombori"
+    },
+    "/users/{userId}/suppliers/{supplierId}": {
+      "schema": "Supplier",
+      "description": "Ta'minotchilar yozuvi"
+    },
+    "/users/{userId}/purchaseOrders/{poId}": {
+      "schema": "PurchaseOrder",
+      "description": "Xarid buyurtmalari"
+    },
+    "/users/{userId}/staff/{staffId}": {
+      "schema": "StaffMember",
+      "description": "Xodimlar va rollar"
+    },
+    "/users/{userId}/shifts/{shiftId}": {
+      "schema": "StaffShift",
+      "description": "Kassa smenalari"
+    },
+    "/users/{userId}/transfers/{transferId}": {
+      "schema": "StockTransfer",
+      "description": "Omborlararo transferlar"
     }
   }
 }

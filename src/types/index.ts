@@ -2,7 +2,25 @@
  * BiznesYordam - Core Type Definitions
  */
 
-export type ToolType = 'home' | 'ad-generator' | 'ad-lab' | 'profit-calculator' | 'reply-templates' | 'business-diagnostics' | 'today-navigator' | 'crm' | 'inventory' | 'orders' | 'finance' | 'business-forecast';
+export type ToolType =
+  | 'home'
+  | 'ad-generator'
+  | 'ad-lab'
+  | 'profit-calculator'
+  | 'reply-templates'
+  | 'business-diagnostics'
+  | 'today-navigator'
+  | 'crm'
+  | 'inventory'
+  | 'orders'
+  | 'finance'
+  | 'business-forecast'
+  | 'suppliers'
+  | 'staff'
+  | 'loyalty'
+  | 'multi-branch'
+  | 'barcode-print'
+  | 'settings';
 
 export type AvailableTimeOption = '30m' | '1h' | '2h' | '4h+';
 
@@ -234,3 +252,4 @@ export type {
 } from './business';
 export * from './crm';
 export * from './inventory';
+export * from './modules';

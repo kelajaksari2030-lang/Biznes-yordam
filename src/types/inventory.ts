@@ -4,6 +4,11 @@
 
 export type ProductUnit = 'dona' | 'kg' | 'metr' | 'poy' | 'quti' | 'litr' | 'to‘plam' | 'boshqa';
 
+export interface RecipeItem {
+  ingredientProductId: string;
+  quantity: number;
+}
+
 export interface Product {
   id: string;
   userId: string;
@@ -15,12 +20,14 @@ export interface Product {
   unit: ProductUnit;
   minStockAlert: number;
   category?: string;
+  recipe?: RecipeItem[];
   createdAt: string;
   updatedAt: string;
 }
 
 export type ProductInput = Omit<Product, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'sku'> & {
   sku?: string;
+  recipe?: RecipeItem[];
 };
 
 export const PRODUCT_UNITS: { id: ProductUnit; label: string }[] = [

@@ -278,15 +278,15 @@ export const CustomerReplies: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#493329]">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#112521]">
                 Mijozlarga tayyor javoblar to'plami
               </h1>
-              <span className="text-[11px] font-medium text-[#795640] bg-[#FAF6F0] px-2.5 py-0.5 rounded-full border border-[#E6DCD1] flex items-center gap-1.5">
-                <Database className="w-3 h-3 text-[#D0AE70]" />
+              <span className="text-[11px] font-medium text-[#173B35] bg-[#F6F8F7] px-2.5 py-0.5 rounded-full border border-[#E0ECE8] flex items-center gap-1.5">
+                <Database className="w-3 h-3 text-[#F5B85C]" />
                 <span>Shaxsiy limit: {customCount} / {currentPlan.customTemplateLimit} ta ({currentPlan.name})</span>
               </span>
             </div>
-            <p className="text-sm text-[#6B5549] mt-1 max-w-2xl">
+            <p className="text-sm text-[#52796F] mt-1 max-w-2xl">
               Savollarga 1 daqiqada muloyim, aniq va sotuvga eltuvchi tayyor andozalar bilan javob bering. O'z ma'lumotlaringizni kiriting va bir tugma bilan nusxa oling.
             </p>
           </div>
@@ -294,18 +294,18 @@ export const CustomerReplies: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleResetToDefaults}
-              className="px-3 py-2 text-xs font-medium text-[#6B5549] hover:text-[#493329] bg-white border border-[#E6DCD1] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+              className="px-3 py-2 text-xs font-medium text-[#52796F] hover:text-[#112521] bg-white border border-[#E0ECE8] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
               title="Dastlabki holatga qaytarish"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-[#795640]" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#173B35]" />
               <span>Tiklash</span>
             </button>
 
             <button
               onClick={openCreateModal}
-              className="px-3.5 py-2 text-xs font-semibold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+              className="px-3.5 py-2 text-xs font-semibold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] border border-[#F5B85C]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
             >
-              <Plus className="w-4 h-4 text-[#34221A]" />
+              <Plus className="w-4 h-4 text-[#112521]" />
               <span>Yangi shablon</span>
             </button>
           </div>
@@ -313,22 +313,22 @@ export const CustomerReplies: React.FC = () => {
       </div>
 
       {/* Global Quick Variables Toolbar */}
-      <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EFE8DE] pb-2.5">
+      <div className="bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E0ECE8] pb-2.5">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#D0AE70] shrink-0" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#493329]">
+            <Sparkles className="w-4 h-4 text-[#F5B85C] shrink-0" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#112521]">
               Tezkor ma'lumotlar paneli (Barcha shablonlarga avtomatik joylanadi)
             </h3>
           </div>
-          <span className="text-[11px] text-[#8D786D]">
+          <span className="text-[11px] text-[#52796F]">
             Kiritilgan ma'lumotlar avtomatik saqlanadi
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div>
-            <label className="block text-[11px] font-medium text-[#6B5549] mb-1">
+            <label className="block text-[11px] font-medium text-[#52796F] mb-1">
               Mahsulot nomi
             </label>
             <input
@@ -341,7 +341,7 @@ export const CustomerReplies: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#6B5549] mb-1">
+            <label className="block text-[11px] font-medium text-[#52796F] mb-1">
               Narxi (so'm)
             </label>
             <input
@@ -354,7 +354,7 @@ export const CustomerReplies: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#6B5549] mb-1">
+            <label className="block text-[11px] font-medium text-[#52796F] mb-1">
               Yetkazish muddati
             </label>
             <input
@@ -367,7 +367,7 @@ export const CustomerReplies: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#6B5549] mb-1">
+            <label className="block text-[11px] font-medium text-[#52796F] mb-1">
               Karta raqami
             </label>
             <input
@@ -380,7 +380,7 @@ export const CustomerReplies: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#6B5549] mb-1">
+            <label className="block text-[11px] font-medium text-[#52796F] mb-1">
               Do'kon / Mas'ul shaxs
             </label>
             <input
@@ -393,7 +393,7 @@ export const CustomerReplies: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#6B5549] mb-1">
+            <label className="block text-[11px] font-medium text-[#52796F] mb-1">
               Chegirma / Aksiya
             </label>
             <input
@@ -415,10 +415,10 @@ export const CustomerReplies: React.FC = () => {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] ${
                 activeCategory === cat
-                  ? 'bg-[#493329] text-[#FAF6F0] border border-[#3B2921] font-semibold shadow-xs'
-                  : 'bg-white hover:bg-[#FAF6F0] text-[#6B5549] hover:text-[#493329] border border-[#E6DCD1]'
+                  ? 'bg-[#112521] text-[#F6F8F7] border border-[#173B35] font-semibold shadow-xs'
+                  : 'bg-white hover:bg-[#F6F8F7] text-[#52796F] hover:text-[#112521] border border-[#E0ECE8]'
               }`}
             >
               {CATEGORY_LABELS[cat]}
@@ -428,7 +428,7 @@ export const CustomerReplies: React.FC = () => {
 
         {/* Search input */}
         <div className="relative min-w-[220px]">
-          <Search className="w-3.5 h-3.5 text-[#8D786D] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-[#52796F] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -439,7 +439,7 @@ export const CustomerReplies: React.FC = () => {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8D786D] hover:text-[#493329] btn-tactile"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#52796F] hover:text-[#112521] btn-tactile"
             >
               <X className="w-3 h-3" />
             </button>
@@ -449,10 +449,10 @@ export const CustomerReplies: React.FC = () => {
 
       {/* Templates List Cards */}
       {filteredTemplates.length === 0 ? (
-        <div className="p-12 text-center bg-white border border-[#E6DCD1] rounded-2xl shadow-card">
-          <MessageSquare className="w-8 h-8 text-[#8D786D] mx-auto mb-2" />
-          <h3 className="text-sm font-semibold text-[#493329]">Shablon topilmadi</h3>
-          <p className="text-xs text-[#6B5549] mt-1">
+        <div className="p-12 text-center bg-white border border-[#E0ECE8] rounded-2xl shadow-card">
+          <MessageSquare className="w-8 h-8 text-[#52796F] mx-auto mb-2" />
+          <h3 className="text-sm font-semibold text-[#112521]">Shablon topilmadi</h3>
+          <p className="text-xs text-[#52796F] mt-1">
             Qidiruv so'zini o'zgartirib ko'ring yoki yangi shablon qo'shing.
           </p>
         </div>
@@ -465,15 +465,15 @@ export const CustomerReplies: React.FC = () => {
             return (
               <div
                 key={template.id}
-                className="bg-white border border-[#E6DCD1] hover:border-[#D0AE70] rounded-2xl p-5 shadow-card card-elevation flex flex-col justify-between transition-all"
+                className="bg-white border border-[#E0ECE8] hover:border-[#F5B85C] rounded-2xl p-5 shadow-card card-elevation flex flex-col justify-between transition-all"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div>
-                      <span className="text-[11px] font-semibold text-[#795640] uppercase tracking-wider block mb-1">
+                      <span className="text-[11px] font-semibold text-[#173B35] uppercase tracking-wider block mb-1">
                         {CATEGORY_LABELS[template.category] || template.category}
                       </span>
-                      <h3 className="text-sm font-bold text-[#493329]">
+                      <h3 className="text-sm font-bold text-[#112521]">
                         {template.title}
                       </h3>
                     </div>
@@ -481,7 +481,7 @@ export const CustomerReplies: React.FC = () => {
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => openEditModal(template)}
-                        className="p-1.5 text-[#8D786D] hover:text-[#493329] hover:bg-[#FAF6F0] rounded-lg transition-colors btn-tactile"
+                        className="p-1.5 text-[#52796F] hover:text-[#112521] hover:bg-[#F6F8F7] rounded-lg transition-colors btn-tactile"
                         title="Tahrirlash"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -489,7 +489,7 @@ export const CustomerReplies: React.FC = () => {
                       {template.isCustom && (
                         <button
                           onClick={() => handleDeleteTemplate(template.id)}
-                          className="p-1.5 text-[#8D786D] hover:text-[#9E2A2B] hover:bg-[#FDF4F4] rounded-lg transition-colors btn-tactile"
+                          className="p-1.5 text-[#52796F] hover:text-[#9E2A2B] hover:bg-[#FDF4F4] rounded-lg transition-colors btn-tactile"
                           title="O'chirish"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -498,33 +498,33 @@ export const CustomerReplies: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-[#6B5549] mb-3 leading-relaxed">
+                  <p className="text-xs text-[#52796F] mb-3 leading-relaxed">
                     {template.description}
                   </p>
 
                   {/* Populated Text preview */}
-                  <div className="p-3.5 bg-[#FAF6F0] border border-[#EFE8DE] rounded-xl text-xs text-[#34221A] font-sans whitespace-pre-wrap leading-relaxed select-all">
+                  <div className="p-3.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] font-sans whitespace-pre-wrap leading-relaxed select-all">
                     {populated}
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#EFE8DE] flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-[#8D786D] italic truncate">
+                <div className="mt-4 pt-3 border-t border-[#E0ECE8] flex items-center justify-between gap-3">
+                  <span className="text-[11px] text-[#52796F] italic truncate">
                     {template.usageTip}
                   </span>
 
                   <button
                     onClick={() => handleCopy(template.id, template.template)}
-                    className="px-3.5 py-1.5 text-xs font-semibold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shrink-0 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+                    className="px-3.5 py-1.5 text-xs font-semibold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] border border-[#F5B85C]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shrink-0 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
                   >
                     {isCopied ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-[#34221A]" />
+                        <Check className="w-3.5 h-3.5 text-[#112521]" />
                         <span>Nusxalandi!</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3.5 h-3.5 text-[#34221A]" />
+                        <Copy className="w-3.5 h-3.5 text-[#112521]" />
                         <span>Nusxa olish</span>
                       </>
                     )}
@@ -539,9 +539,9 @@ export const CustomerReplies: React.FC = () => {
       {/* Edit / Create Modal */}
       {(editingTemplate || isCreatingNew) && (
         <div className="fixed inset-0 z-50 bg-[#251A14]/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-modal border border-[#E6DCD1] animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-[#EFE8DE] pb-3 mb-4">
-              <h3 className="text-base font-bold text-[#493329]">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-modal border border-[#E0ECE8] animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E0ECE8] pb-3 mb-4">
+              <h3 className="text-base font-bold text-[#112521]">
                 {isCreatingNew ? 'Yangi javob shabloni yaratish' : 'Shablonni tahrirlash'}
               </h3>
               <button
@@ -549,7 +549,7 @@ export const CustomerReplies: React.FC = () => {
                   setEditingTemplate(null);
                   setIsCreatingNew(false);
                 }}
-                className="text-[#8D786D] hover:text-[#493329] p-1 rounded-lg btn-tactile"
+                className="text-[#52796F] hover:text-[#112521] p-1 rounded-lg btn-tactile"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -557,7 +557,7 @@ export const CustomerReplies: React.FC = () => {
 
             <form onSubmit={handleSaveModal} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#493329] mb-1">
+                <label className="block text-xs font-semibold text-[#112521] mb-1">
                   Shablon sarlavhasi
                 </label>
                 <input
@@ -571,7 +571,7 @@ export const CustomerReplies: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#493329] mb-1">
+                <label className="block text-xs font-semibold text-[#112521] mb-1">
                   Kategoriya
                 </label>
                 <select
@@ -589,7 +589,7 @@ export const CustomerReplies: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#493329] mb-1">
+                <label className="block text-xs font-semibold text-[#112521] mb-1">
                   Shablon matni (O'zgaruvchilar: {'{productName}'}, {'{price}'}, {'{deliveryTime}'}, {'{cardNumber}'})
                 </label>
                 <textarea
@@ -603,7 +603,7 @@ export const CustomerReplies: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#493329] mb-1">
+                <label className="block text-xs font-semibold text-[#112521] mb-1">
                   Qisqa izoh / Foydalanish bo'yicha maslahat
                 </label>
                 <input
@@ -615,20 +615,20 @@ export const CustomerReplies: React.FC = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#EFE8DE]">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E0ECE8]">
                 <button
                   type="button"
                   onClick={() => {
                     setEditingTemplate(null);
                     setIsCreatingNew(false);
                   }}
-                  className="px-3.5 py-2 text-xs font-medium text-[#6B5549] hover:bg-[#FAF6F0] rounded-xl transition-colors btn-tactile"
+                  className="px-3.5 py-2 text-xs font-medium text-[#52796F] hover:bg-[#F6F8F7] rounded-xl transition-colors btn-tactile"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold text-white bg-[#493329] hover:bg-[#3B2921] rounded-xl transition-all btn-tactile"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-[#112521] hover:bg-[#173B35] rounded-xl transition-all btn-tactile"
                 >
                   Saqlash
                 </button>

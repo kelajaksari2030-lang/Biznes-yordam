@@ -17,6 +17,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.admin == true) ||
+        (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com')
+      );
+    }
+
     function incoming() {
       return request.resource.data;
     }
@@ -25,9 +32,9 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Connection probe test document
+    // Connection probe test document (SEC-02: restricted to authenticated users)
     match /test/connection {
-      allow read: if true;
+      allow read: if isSignedIn();
     }
 
     // User document rules (Profile, Subscription & Subcollections)
@@ -35,28 +42,25 @@ service cloud.firestore {
       allow get: if isOwner(userId);
       allow list: if false; // Users cannot list other users
 
-      // On registration, users can create their own profile with 'free' plan (Admin email kelajaksari2030@gmail.com is allowed 'ultra' plan)
-      // Pro and Ultra plans for standard users can ONLY be provisioned by a trusted server/admin
       allow create: if isOwner(userId)
         && incoming().uid == userId
-        && (incoming().currentPlan == 'free' || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'));
+        && (incoming().currentPlan == 'free' || isAdmin());
 
-      // Profile updates cannot alter currentPlan, subscriptionStatus, planExpiresAt, or createdAt unless authenticated as Admin
       allow update: if isOwner(userId)
         && incoming().uid == userId
-        && (!('currentPlan' in existing()) || incoming().currentPlan == existing().currentPlan || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'))
-        && (!('subscriptionStatus' in existing()) || incoming().subscriptionStatus == existing().subscriptionStatus || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'))
-        && (!incoming().diff(existing()).affectedKeys().hasAny(['currentPlan', 'subscriptionStatus', 'planExpiresAt', 'createdAt']) || (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com'));
+        && (!('currentPlan' in existing()) || incoming().currentPlan == existing().currentPlan || isAdmin())
+        && (!('subscriptionStatus' in existing()) || incoming().subscriptionStatus == existing().subscriptionStatus || isAdmin())
+        && (!incoming().diff(existing()).affectedKeys().hasAny(['currentPlan', 'subscriptionStatus', 'planExpiresAt', 'createdAt']) || isAdmin());
 
       allow delete: if false;
 
-      // Daily Usage Tracking for ad generations (strictly authoritative backend / Admin SDK only)
+      // Usage tracking
       match /usage/{dateId} {
         allow get, list: if isOwner(userId);
-        allow write: if false; // Disallow all client writes. Quota is updated only via backend transaction.
+        allow write: if false;
       }
 
-      // User's saved Ad drafts
+      // Ad drafts
       match /adDrafts/{draftId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId)
@@ -65,42 +69,42 @@ service cloud.firestore {
         allow delete: if isOwner(userId);
       }
 
-      // User's saved calculations
+      // Calculations
       match /calculations/{calcId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId) && incoming().userId == userId;
         allow delete: if isOwner(userId);
       }
 
-      // User's custom reply templates
+      // Custom reply templates
       match /customTemplates/{templateId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId) && incoming().userId == userId;
         allow delete: if isOwner(userId);
       }
 
-      // User's unified business profile
+      // Business profile
       match /businessProfile/{docId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId) && incoming().userId == userId;
         allow delete: if isOwner(userId);
       }
 
-      // CRM Customers (Strictly isolated per user)
+      // CRM Customers
       match /customers/{customerId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId) && incoming().userId == userId;
         allow delete: if isOwner(userId);
       }
 
-      // Warehouse Inventory Products (Strictly isolated per user)
+      // Inventory Products
       match /products/{productId} {
         allow get, list: if isOwner(userId);
         allow create, update: if isOwner(userId) && incoming().userId == userId;
         allow delete: if isOwner(userId);
       }
 
-      // Sales Orders (Strictly isolated per user with schema invariants)
+      // Sales Orders
       match /orders/{orderId} {
         allow get, list: if isOwner(userId);
         allow create: if isOwner(userId)
@@ -141,9 +145,74 @@ service cloud.firestore {
           && incoming().date is string && incoming().date.size() == 10;
         allow delete: if isOwner(userId);
       }
+
+      // NEW MODULE 1: Suppliers & Purchase Orders
+      match /suppliers/{supplierId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      match /purchaseOrders/{poId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // NEW MODULE 2: Staff & Shifts
+      match /staff/{staffId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      match /shifts/{shiftId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // NEW MODULE 3: Telegram Config
+      match /telegramConfig/{configId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // NEW MODULE 4: Loyalty Ledger
+      match /loyaltyLedger/{ledgerId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // NEW MODULE 5: Multi-Branch & Warehouses & Transfers
+      match /branches/{branchId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      match /warehouses/{warehouseId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      match /transfers/{transferId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && incoming().userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // SETTINGS
+      match /settings/{settingsId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
     }
 
-    // Orders (Access restricted to owner)
     match /orders/{orderId} {
       allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
     }

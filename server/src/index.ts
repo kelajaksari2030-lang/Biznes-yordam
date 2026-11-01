@@ -16,6 +16,7 @@ import {
   createOrder,
   handleClickPrepare,
   handleClickComplete,
+  handleClickCancel,
 } from './clickService.js';
 import {
   isFirebaseAdminInitialized,
@@ -52,11 +53,6 @@ app.use(express.json());
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'healthy',
-    service: 'biznesyordam-backend',
-    firebaseAdminInitialized: isFirebaseAdminInitialized,
-    projectId: PROJECT_ID,
-    firestoreDatabaseId: NAMED_DATABASE_ID,
-    timestamp: new Date().toISOString(),
   });
 });
 
@@ -78,24 +74,7 @@ app.get('/', (req: Request, res: Response) => {
   `);
 });
 
-app.get('/debug-db', requireFirebaseAuth, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const collections = await adminDb.listCollections();
-    res.json({
-        success: true,
-        collections: collections.map((c: any) => c.id),
-        projectId: PROJECT_ID,
-        databaseId: NAMED_DATABASE_ID
-    });
-  } catch (err: any) {
-    res.status(500).json({ 
-      success: false,
-      error: err.message, 
-      databaseId: NAMED_DATABASE_ID,
-      projectId: PROJECT_ID
-    });
-  }
-});
+
 
 /**
  * Click Payment API Routes
@@ -125,8 +104,8 @@ app.post('/api/payment/click/prepare', express.urlencoded({ extended: true }), a
 
 app.post('/api/payment/click/complete', express.urlencoded({ extended: true }), async (req: Request, res: Response) => {
   if (String(req.body.action) === '2') {
-    console.warn('[Click] action=2 (Cancel) received but not implemented.');
-    return res.json({ error: 0, error_note: 'Not implemented' });
+    const result = await handleClickCancel(req.body);
+    return res.json(result);
   }
   const result = await handleClickComplete(req.body);
   res.json(result);
@@ -232,18 +211,11 @@ app.post(
       }
 
       if (errCode === 7 || errMsg.includes('PERMISSION_DENIED') || errMsg.includes('permission')) {
-        console.error(
-          `[Firestore 7 PERMISSION_DENIED] Service Account "${serviceAccountEmail}" does not have write/read permissions on database "${NAMED_DATABASE_ID}" in project "${PROJECT_ID}". Check IAM roles in Google Cloud Console.`
-        );
+        console.error(`[Firestore 7 PERMISSION_DENIED] Backend service account lacks database permissions.`);
         return res.status(500).json({
           success: false,
           error: 'permission_denied',
-          message: `Firebase Firestore ruxsat xatosi (Code 7 PERMISSION_DENIED). "${serviceAccountEmail}" xizmat hisobi "${PROJECT_ID}" loyihasidagi "${NAMED_DATABASE_ID}" ma'lumotlar bazasiga kirish huquqiga ega emas. Google Cloud Console -> IAM bo'limida ushbu hisobga 'Cloud Datastore User' yoki 'Firebase Admin' rolini bering.`,
-          details: {
-            serviceAccountEmail,
-            projectId: PROJECT_ID,
-            databaseId: NAMED_DATABASE_ID,
-          },
+          message: "Serverda ma'lumotlar bazasiga ulanish huquqi bilan bog'liq xatolik yuz berdi. Iltimos, administratorga murojaat qiling.",
         });
       }
 

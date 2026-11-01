@@ -128,7 +128,7 @@ export const ProfitCalculator: React.FC = () => {
         <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
           <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
           <rect x="30" y="25" width="210" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
-          <text x="45" y="48" fill="#6B5549" fontSize="10" fontWeight="bold">Xarid narxi (1 dona)</text>
+          <text x="45" y="48" fill="#52796F" fontSize="10" fontWeight="bold">Xarid narxi (1 dona)</text>
           <rect x="45" y="56" width="180" height="30" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
           <text x="55" y="76" fill="#173B35" fontSize="12" fontWeight="bold" fontFamily="monospace">100 000 so'm</text>
 
@@ -138,7 +138,7 @@ export const ProfitCalculator: React.FC = () => {
           <text x="285" y="76" fill="#173B35" fontSize="12" fontWeight="bold" fontFamily="monospace">160 000 so'm</text>
 
           <rect x="30" y="115" width="440" height="80" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
-          <text x="45" y="138" fill="#6B5549" fontSize="10" fontWeight="bold">Rejalashtirilgan sotuv miqdori</text>
+          <text x="45" y="138" fill="#52796F" fontSize="10" fontWeight="bold">Rejalashtirilgan sotuv miqdori</text>
           <rect x="45" y="148" width="410" height="32" rx="8" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
           <text x="60" y="169" fill="#173B35" fontSize="13" fontWeight="bold" fontFamily="monospace">20 dona</text>
         </svg>
@@ -152,12 +152,12 @@ export const ProfitCalculator: React.FC = () => {
         <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
           <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
           <rect x="30" y="25" width="440" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
-          <text x="45" y="48" fill="#6B5549" fontSize="10" fontWeight="bold">1 donaga qo'shimcha xarajat (Qadoq + Reklama)</text>
+          <text x="45" y="48" fill="#52796F" fontSize="10" fontWeight="bold">1 donaga qo'shimcha xarajat (Qadoq + Reklama)</text>
           <rect x="45" y="56" width="410" height="30" rx="6" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
           <text x="55" y="76" fill="#173B35" fontSize="12" fontWeight="bold" fontFamily="monospace">10 000 so'm</text>
 
           <rect x="30" y="115" width="440" height="80" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
-          <text x="45" y="138" fill="#6B5549" fontSize="10" fontWeight="bold">Umumiy doimiy xarajatlar (Oylik ijara / kommunal)</text>
+          <text x="45" y="138" fill="#52796F" fontSize="10" fontWeight="bold">Umumiy doimiy xarajatlar (Oylik ijara / kommunal)</text>
           <rect x="45" y="148" width="410" height="32" rx="8" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
           <text x="60" y="169" fill="#173B35" fontSize="13" fontWeight="bold" fontFamily="monospace">1 500 000 so'm</text>
         </svg>
@@ -175,7 +175,7 @@ export const ProfitCalculator: React.FC = () => {
           <text x="45" y="78" fill="#F5B85C" fontSize="24" fontWeight="extrabold" fontFamily="monospace">+1 000 000 so'm</text>
 
           <rect x="25" y="120" width="215" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
-          <text x="40" y="142" fill="#6B5549" fontSize="10">Jami oborot (Tushum)</text>
+          <text x="40" y="142" fill="#52796F" fontSize="10">Jami oborot (Tushum)</text>
           <text x="40" y="168" fill="#173B35" fontSize="15" fontWeight="bold" fontFamily="monospace">3 200 000 so'm</text>
 
           <rect x="260" y="120" width="215" height="75" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
@@ -412,10 +412,10 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
       <div>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#493329]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#112521]">
               Foyda va marja kalkulyatori
             </h1>
-            <p className="text-sm text-[#6B5549] mt-1 max-w-2xl">
+            <p className="text-sm text-[#52796F] mt-1 max-w-2xl">
               Mahsulot tannarxi, qo'shimcha xarajatlar va sotish narxini kiritib, kutilayotgan sof foyda hamda marjani bir zumda aniqlang.
             </p>
           </div>
@@ -425,9 +425,9 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
             <button
               onClick={() => setShowExplanation(!showExplanation)}
-              className="px-3.5 py-2 text-xs font-medium text-[#493329] bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+              className="px-3.5 py-2 text-xs font-medium text-[#112521] bg-white hover:bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
             >
-              <HelpCircle className="w-4 h-4 text-[#795640]" />
+              <HelpCircle className="w-4 h-4 text-[#173B35]" />
               <span>Marja vs Ustama farqi</span>
             </button>
 
@@ -435,7 +435,7 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
               type="button"
               onClick={handleSaveToInventory}
               disabled={inventorySaving || inputs.purchaseCost <= 0 || inputs.sellingPrice <= 0}
-              className="px-3.5 py-2 text-xs font-medium text-[#493329] bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] disabled:opacity-50"
+              className="px-3.5 py-2 text-xs font-medium text-[#112521] bg-white hover:bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl transition-all btn-tactile flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] disabled:opacity-50"
               title="Ushbu mahsulotni to'g'ridan-to'g'ri omborga tovar sifatida qo'shish"
             >
               {inventorySaved ? (
@@ -445,7 +445,7 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                 </>
               ) : (
                 <>
-                  <Package className="w-4 h-4 text-[#D0AE70]" />
+                  <Package className="w-4 h-4 text-[#F5B85C]" />
                   <span>{inventorySaving ? "Saqlanmoqda..." : "Omborga saqlash"}</span>
                 </>
               )}
@@ -453,16 +453,16 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
             <button
               onClick={handleCopySummary}
-              className="px-3.5 py-2 text-xs font-semibold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+              className="px-3.5 py-2 text-xs font-semibold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] border border-[#F5B85C]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-[#34221A]" />
+                  <Check className="w-4 h-4 text-[#112521]" />
                   <span>Nusxalandi!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-[#34221A]" />
+                  <Copy className="w-4 h-4 text-[#112521]" />
                   <span>Hisobotni nusxalash</span>
                 </>
               )}
@@ -472,29 +472,29 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
         {/* Inventory notification toast banner if message exists */}
         {inventoryMsg && (
-          <div className="mt-3 p-3 rounded-xl text-xs flex items-center gap-2 bg-[#F6EFE3] text-[#493329] border border-[#E8D6B7] animate-in fade-in duration-200">
-            <Info className="w-4 h-4 text-[#D0AE70] shrink-0" />
+          <div className="mt-3 p-3 rounded-xl text-xs flex items-center gap-2 bg-[#D7F0E5] text-[#112521] border border-[#E0ECE8] animate-in fade-in duration-200">
+            <Info className="w-4 h-4 text-[#F5B85C] shrink-0" />
             <span>{inventoryMsg}</span>
           </div>
         )}
 
         {/* Quick industry presets */}
         <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          <span className="text-xs font-medium text-[#8D786D] whitespace-nowrap">
+          <span className="text-xs font-medium text-[#52796F] whitespace-nowrap">
             Tayyor namunalar:
           </span>
           {PRESETS.map((preset) => (
             <button
               key={preset.title}
               onClick={() => setInputs({ ...preset.inputs })}
-              className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-[#6B5549] hover:text-[#493329] whitespace-nowrap transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+              className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-[#52796F] hover:text-[#112521] whitespace-nowrap transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
             >
               {preset.title}
             </button>
           ))}
           <button
             onClick={handleReset}
-            className="px-3 py-1.5 text-xs font-medium text-[#8D786D] hover:text-[#493329] border border-dashed border-[#D8CCC0] rounded-xl whitespace-nowrap transition-all btn-tactile flex items-center gap-1 ml-auto"
+            className="px-3 py-1.5 text-xs font-medium text-[#52796F] hover:text-[#112521] border border-dashed border-[#E0ECE8] rounded-xl whitespace-nowrap transition-all btn-tactile flex items-center gap-1 ml-auto"
           >
             <RefreshCw className="w-3 h-3" />
             <span>Tozalash</span>
@@ -504,43 +504,43 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
       {/* Educational Explanation Box (Marja va Ustama farqi) */}
       {showExplanation && (
-        <div className="p-5 bg-white border border-[#E8D6B7] rounded-2xl shadow-card text-sm space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center gap-2 text-[#493329] font-semibold">
-            <Info className="w-5 h-5 text-[#D0AE70] shrink-0" />
+        <div className="p-5 bg-white border border-[#E0ECE8] rounded-2xl shadow-card text-sm space-y-3 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 text-[#112521] font-semibold">
+            <Info className="w-5 h-5 text-[#F5B85C] shrink-0" />
             <span>Marja (Profit Margin) va Ustama (Markup) o'rtasidagi farq nima?</span>
           </div>
 
-          <p className="text-[#6B5549] leading-relaxed">
+          <p className="text-[#52796F] leading-relaxed">
             Ko'plab tadbirkorlar marja va ustamani adashtirishadi, bu esa kutilganidan kamroq foyda olishga olib keladi:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-            <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-              <span className="font-semibold text-[#493329] block mb-1">
+            <div className="p-3.5 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+              <span className="font-semibold text-[#112521] block mb-1">
                 1. Ustama foizi (Markup %)
               </span>
-              <p className="text-xs text-[#6B5549] leading-relaxed">
+              <p className="text-xs text-[#52796F] leading-relaxed">
                 Tannarxga necha foiz qo'shib sotayotganingizni ko'rsatadi.
               </p>
-              <div className="mt-2 text-xs font-mono bg-white p-2.5 rounded-lg border border-[#E6DCD1] text-[#34221A]">
+              <div className="mt-2 text-xs font-mono bg-white p-2.5 rounded-lg border border-[#E0ECE8] text-[#112521]">
                 Formula: ((Sotish narxi - Tannarx) / Tannarx) × 100%
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#F6EFE3] rounded-xl border border-[#E8D6B7]">
-              <span className="font-semibold text-[#493329] block mb-1">
+            <div className="p-3.5 bg-[#D7F0E5] rounded-xl border border-[#E0ECE8]">
+              <span className="font-semibold text-[#112521] block mb-1">
                 2. Foyda marjasi (Margin %)
               </span>
-              <p className="text-xs text-[#6B5549] leading-relaxed">
+              <p className="text-xs text-[#52796F] leading-relaxed">
                 Har bir so'mlik umumiy tushumning necha foizi sizning cho'ntagingizda sof foyda bo'lib qolishini ko'rsatadi.
               </p>
-              <div className="mt-2 text-xs font-mono bg-white p-2.5 rounded-lg border border-[#E8D6B7] text-[#493329]">
+              <div className="mt-2 text-xs font-mono bg-white p-2.5 rounded-lg border border-[#E0ECE8] text-[#112521]">
                 Formula: (Sof foyda / Jami tushum) × 100%
               </div>
             </div>
           </div>
 
-          <p className="text-xs italic bg-[#FAF6F0] p-3 rounded-xl border border-[#E6DCD1] text-[#795640]">
+          <p className="text-xs italic bg-[#F6F8F7] p-3 rounded-xl border border-[#E0ECE8] text-[#173B35]">
             <strong>Oddiy misol:</strong> 100 000 so'mga olgan tovaringizni 150 000 so'mga sotsangiz, <strong>Ustama 50%</strong> bo'ladi, lekin <strong>Marjangiz 33.3%</strong> bo'ladi. Hech qachon marja 100% dan oshmaydi!
           </p>
         </div>
@@ -549,14 +549,14 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
       {/* Main 2-Column Split: Form on Left, Live Financial Cards on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Side: Input Form (5 cols on lg) */}
-        <div className="lg:col-span-5 bg-white border border-[#E6DCD1] rounded-2xl p-5 sm:p-6 shadow-card space-y-5">
-          <h2 className="text-base font-semibold text-[#493329] border-b border-[#EFE8DE] pb-3">
+        <div className="lg:col-span-5 bg-white border border-[#E0ECE8] rounded-2xl p-5 sm:p-6 shadow-card space-y-5">
+          <h2 className="text-base font-semibold text-[#112521] border-b border-[#E0ECE8] pb-3">
             Xarajat va sotuv ko'rsatkichlari
           </h2>
 
           {/* Input: Purchase Cost */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Mahsulot xarid narxi / Tannarxi (1 dona uchun)
             </label>
             <div className="relative">
@@ -568,18 +568,18 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                 placeholder="Masalan: 100 000"
                 className="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl input-warm pr-14"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#8D786D]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#52796F]">
                 so'm
               </span>
             </div>
-            <p className="text-[11px] text-[#8D786D]">
+            <p className="text-[11px] text-[#52796F]">
               Ishlab chiqaruvchi yoki ulgurji bozordan olingan asl narx
             </p>
           </div>
 
           {/* Input: Extra direct costs per item */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               1 donaga qo'shimcha xarajat (Yetkazish, qadoq, reklama)
             </label>
             <div className="relative">
@@ -591,18 +591,18 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                 placeholder="Masalan: 10 000"
                 className="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl input-warm pr-14"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#8D786D]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#52796F]">
                 so'm
               </span>
             </div>
-            <p className="text-[11px] text-[#8D786D]">
+            <p className="text-[11px] text-[#52796F]">
               Paket, quti, 1 donaga to'g'ri keladigan reklama yoki yetkazib berish xarajati
             </p>
           </div>
 
           {/* Input: Selling Price */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Mijozga sotish narxi (1 dona uchun)
             </label>
             <div className="relative">
@@ -616,7 +616,7 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                   isLoss ? '!border-[#A93C3E] bg-[#FDF4F4]' : ''
                 }`}
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#8D786D]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#52796F]">
                 so'm
               </span>
             </div>
@@ -630,7 +630,7 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
           {/* Input: Quantity */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Rejalashtirilgan sotuv miqdori (dona)
             </label>
             <div className="relative">
@@ -642,15 +642,15 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                 placeholder="Masalan: 20"
                 className="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl input-warm pr-14"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#8D786D]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#52796F]">
                 dona
               </span>
             </div>
           </div>
 
           {/* Input: Fixed costs (Optional) */}
-          <div className="space-y-1.5 pt-2 border-t border-[#EFE8DE]">
-            <label className="block text-xs font-semibold text-[#493329]">
+          <div className="space-y-1.5 pt-2 border-t border-[#E0ECE8]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Umumiy doimiy xarajatlar (ixtiyoriy)
             </label>
             <div className="relative">
@@ -662,18 +662,18 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                 placeholder="0"
                 className="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl input-warm pr-14"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#8D786D]">
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#52796F]">
                 so'm
               </span>
             </div>
-            <p className="text-[11px] text-[#8D786D]">
+            <p className="text-[11px] text-[#52796F]">
               Masalan: do'kon oylik ijarasi, kommunal to'lov yoki oylik maosh ulushi
             </p>
           </div>
 
           {/* Save this calculation form */}
-          <form onSubmit={handleSaveCalculation} className="pt-3 border-t border-[#EFE8DE] space-y-2">
-            <label className="block text-xs font-medium text-[#6B5549]">
+          <form onSubmit={handleSaveCalculation} className="pt-3 border-t border-[#E0ECE8] space-y-2">
+            <label className="block text-xs font-medium text-[#52796F]">
               Ushbu hisob-kitobni saqlab qo'yish:
             </label>
             <div className="flex gap-2">
@@ -708,16 +708,16 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
             className={`p-6 rounded-2xl border transition-all shadow-card ${
               isLoss
                 ? 'bg-[#6B2023] border-[#852C30] text-white'
-                : 'bg-[#173B35] border-[#23584F] text-[#FAF6F0]'
+                : 'bg-[#173B35] border-[#23584F] text-[#F6F8F7]'
             }`}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <span className="text-xs uppercase tracking-wider font-semibold opacity-85 text-[#D0AE70]">
+                <span className="text-xs uppercase tracking-wider font-semibold opacity-85 text-[#F5B85C]">
                   {isLoss ? 'Kutilayotgan zarar' : 'Kutilayotgan sof foyda'}
                 </span>
                 <div className={`text-3xl sm:text-4xl font-extrabold font-mono tabular-nums tracking-tight mt-1 ${
-                  isLoss ? 'text-white' : 'text-[#D0AE70]'
+                  isLoss ? 'text-white' : 'text-[#F5B85C]'
                 }`}>
                   {isLoss ? '-' : '+'}
                   {formatUzbekSom(Math.abs(results.netProfit))}
@@ -728,7 +728,7 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                 className={`p-3 rounded-xl border ${
                   isLoss
                     ? 'bg-[#852C30] text-white border-[#A1383D]'
-                    : 'bg-[#3B2921] text-[#D0AE70] border-[#5A4033]'
+                    : 'bg-[#173B35] text-[#F5B85C] border-[#23584F]'
                 }`}
               >
                 {isLoss ? (
@@ -748,13 +748,13 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
               </div>
               <div>
                 <span className="text-[#D7C9BF] block">Foyda marjasi:</span>
-                <span className="font-bold font-mono text-sm tabular-nums text-[#D0AE70]">
+                <span className="font-bold font-mono text-sm tabular-nums text-[#F5B85C]">
                   {formatPercent(results.marginPercent)}
                 </span>
               </div>
               <div className="col-span-2 sm:col-span-1">
                 <span className="text-[#D7C9BF] block">Ustama foizi:</span>
-                <span className="font-bold font-mono text-sm tabular-nums text-[#D0AE70]">
+                <span className="font-bold font-mono text-sm tabular-nums text-[#F5B85C]">
                   {formatPercent(results.markupPercent)}
                 </span>
               </div>
@@ -764,65 +764,65 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
           {/* Metric breakdown cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Total Revenue */}
-            <div className="bg-white border border-[#E6DCD1] rounded-2xl p-4 shadow-card card-elevation">
-              <span className="text-xs font-medium text-[#8D786D] block">
+            <div className="bg-white border border-[#E0ECE8] rounded-2xl p-4 shadow-card card-elevation">
+              <span className="text-xs font-medium text-[#52796F] block">
                 Jami kutilayotgan tushum (Oborot)
               </span>
-              <div className="text-xl font-bold font-mono tabular-nums text-[#493329] mt-1">
+              <div className="text-xl font-bold font-mono tabular-nums text-[#112521] mt-1">
                 {formatUzbekSom(results.totalRevenue)}
               </div>
-              <span className="text-[11px] text-[#8D786D] mt-1 block">
+              <span className="text-[11px] text-[#52796F] mt-1 block">
                 {formatNumber(inputs.quantity)} dona × {formatUzbekSom(inputs.sellingPrice)}
               </span>
             </div>
 
             {/* Total All Costs */}
-            <div className="bg-white border border-[#E6DCD1] rounded-2xl p-4 shadow-card card-elevation">
-              <span className="text-xs font-medium text-[#8D786D] block">
+            <div className="bg-white border border-[#E0ECE8] rounded-2xl p-4 shadow-card card-elevation">
+              <span className="text-xs font-medium text-[#52796F] block">
                 Jami barcha xarajatlar
               </span>
-              <div className="text-xl font-bold font-mono tabular-nums text-[#493329] mt-1">
+              <div className="text-xl font-bold font-mono tabular-nums text-[#112521] mt-1">
                 {formatUzbekSom(results.totalAllCost)}
               </div>
-              <span className="text-[11px] text-[#8D786D] mt-1 block">
+              <span className="text-[11px] text-[#52796F] mt-1 block">
                 Tannarx + qo'shimcha xarajatlar
               </span>
             </div>
           </div>
 
           {/* Detailed itemized cost distribution table */}
-          <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#795640] mb-3">
+          <div className="bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#173B35] mb-3">
               Xarajatlar taqsimoti tafsiloti
             </h3>
 
             <div className="space-y-2.5 text-sm">
-              <div className="flex items-center justify-between pb-2 border-b border-[#EFE8DE]">
-                <span className="text-[#6B5549]">Xarid tannarxi (Jami):</span>
-                <span className="font-mono font-medium text-[#493329] tabular-nums">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E0ECE8]">
+                <span className="text-[#52796F]">Xarid tannarxi (Jami):</span>
+                <span className="font-mono font-medium text-[#112521] tabular-nums">
                   {formatUzbekSom(results.totalDirectCost)}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between pb-2 border-b border-[#EFE8DE]">
-                <span className="text-[#6B5549]">Donabay qo'shimcha xarajatlar:</span>
-                <span className="font-mono font-medium text-[#493329] tabular-nums">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E0ECE8]">
+                <span className="text-[#52796F]">Donabay qo'shimcha xarajatlar:</span>
+                <span className="font-mono font-medium text-[#112521] tabular-nums">
                   {formatUzbekSom(results.totalExtraItemCost)}
                 </span>
               </div>
 
               {inputs.fixedCosts > 0 && (
-                <div className="flex items-center justify-between pb-2 border-b border-[#EFE8DE]">
-                  <span className="text-[#6B5549]">Doimiy umumiy xarajatlar:</span>
-                  <span className="font-mono font-medium text-[#493329] tabular-nums">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E0ECE8]">
+                  <span className="text-[#52796F]">Doimiy umumiy xarajatlar:</span>
+                  <span className="font-mono font-medium text-[#112521] tabular-nums">
                     {formatUzbekSom(results.totalFixedCost)}
                   </span>
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-1 font-semibold text-[#493329]">
+              <div className="flex items-center justify-between pt-1 font-semibold text-[#112521]">
                 <span>1 dona mahsulotning to'liq xarajati:</span>
-                <span className="font-mono tabular-nums text-[#795640]">
+                <span className="font-mono tabular-nums text-[#173B35]">
                   {formatUzbekSom(totalCostPerUnit)}
                 </span>
               </div>
@@ -830,8 +830,8 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
             {/* Break-even point notice */}
             {inputs.fixedCosts > 0 && (
-              <div className="mt-4 pt-4 border-t border-[#EFE8DE] text-xs text-[#6B5549] flex items-start gap-2">
-                <Info className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+              <div className="mt-4 pt-4 border-t border-[#E0ECE8] text-xs text-[#52796F] flex items-start gap-2">
+                <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
                 <span>
                   <strong>Zararsizlik chegarasi (Break-even):</strong> Doimiy xarajatlaringizni to'liq qoplash uchun kamida <strong>{results.breakEvenUnits} dona</strong> mahsulot sotishingiz kerak.
                 </span>
@@ -841,32 +841,32 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
 
           {/* Saved Calculations Drawer / History */}
           {savedCalculations.length > 0 && (
-            <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card">
+            <div className="bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#795640]">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#173B35]">
                   Saqlangan hisob-kitoblar ({savedCalculations.length})
                 </h3>
-                <span className="text-[11px] text-[#8D786D]">
+                <span className="text-[11px] text-[#52796F]">
                   Qurilmangizda saqlangan
                 </span>
               </div>
 
-              <div className="divide-y divide-[#EFE8DE] max-h-60 overflow-y-auto">
+              <div className="divide-y divide-[#E0ECE8] max-h-60 overflow-y-auto">
                 {savedCalculations.map((calc) => (
                   <div
                     key={calc.id}
-                    className="py-3 flex items-center justify-between gap-3 hover:bg-[#FAF6F0] px-2 rounded-xl transition-colors"
+                    className="py-3 flex items-center justify-between gap-3 hover:bg-[#F6F8F7] px-2 rounded-xl transition-colors"
                   >
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-[#493329] truncate">
+                      <p className="text-xs font-semibold text-[#112521] truncate">
                         {calc.name}
                       </p>
-                      <div className="flex items-center gap-2 text-[11px] text-[#8D786D] mt-0.5">
+                      <div className="flex items-center gap-2 text-[11px] text-[#52796F] mt-0.5">
                         <span>{calc.date}</span>
                         <span>·</span>
                         <span>{formatNumber(calc.inputs.quantity)} dona</span>
                         <span>·</span>
-                        <span className="font-mono text-[#795640] font-medium">
+                        <span className="font-mono text-[#173B35] font-medium">
                           {formatUzbekSom(calc.results.netProfit)}
                         </span>
                       </div>
@@ -875,13 +875,13 @@ Hisoblash sanasi: ${new Date().toLocaleDateString('uz-UZ')}`;
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={() => handleLoadSaved(calc)}
-                        className="px-2.5 py-1 text-xs font-medium text-[#493329] hover:bg-white rounded-lg border border-[#E6DCD1] transition-all btn-tactile"
+                        className="px-2.5 py-1 text-xs font-medium text-[#112521] hover:bg-white rounded-lg border border-[#E0ECE8] transition-all btn-tactile"
                       >
                         Ochish
                       </button>
                       <button
                         onClick={() => handleDeleteSaved(calc.id)}
-                        className="p-1 text-[#8D786D] hover:text-[#9E2A2B] transition-colors btn-tactile"
+                        className="p-1 text-[#52796F] hover:text-[#9E2A2B] transition-colors btn-tactile"
                         title="O'chirish"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

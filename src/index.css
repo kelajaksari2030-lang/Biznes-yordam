@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -52,6 +53,7 @@
   --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 220ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Base styles */
@@ -82,15 +84,76 @@ input[type="number"] {
   transform: translateY(1px) scale(0.98);
 }
 
-/* Subtle card hover elevation on hover-capable devices */
+/* PREMIUM SCROLL REVEAL ANIMATION SYSTEM */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 750ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 750ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.96) translateY(20px);
+  transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal-scale.is-revealed {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Support for inline stagger delays */
+.scroll-reveal[style*="--reveal-delay"],
+.scroll-reveal-scale[style*="--reveal-delay"] {
+  transition-delay: var(--reveal-delay);
+}
+
+/* Card Hover Elevation Effect */
+.card-hover-effect {
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (hover: hover) {
-  .card-elevation {
-    transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
+  .card-hover-effect:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px -6px rgba(23, 59, 53, 0.12), 0 4px 10px -2px rgba(23, 59, 53, 0.04);
   }
-  .card-elevation:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
-  }
+}
+
+/* Nav Link Hover Animation */
+.nav-link-animated {
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.nav-link-animated::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-besto-gold);
+  border-radius: 1px;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link-animated:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 /* Standardized BESTO input control */
@@ -111,6 +174,38 @@ input[type="number"] {
   color: var(--color-besto-text-soft);
 }
 
+/* Product Showcase SVG Chart Line Animation */
+@keyframes svgPathDraw {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-svg-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: svgPathDraw 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Subtle tab content fade slide transition */
+@keyframes tabFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-tab-slide {
+  animation: tabFadeSlide 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Respect accessibility prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -120,5 +215,12 @@ input[type="number"] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

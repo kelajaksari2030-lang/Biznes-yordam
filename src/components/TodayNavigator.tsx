@@ -226,23 +226,26 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12">
       {/* Header section with warm luxury styling */}
-      <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card">
+      <div 
+        className="scroll-reveal bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card"
+        style={{ '--reveal-delay': '0ms' } as React.CSSProperties}
+      >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-[#493329] border border-[#66493B] text-[#D0AE70] flex items-center justify-center font-bold shadow-xs">
+            <div className="w-12 h-12 rounded-2xl bg-[#112521] border border-[#173B35] text-[#F5B85C] flex items-center justify-center font-bold shadow-xs">
               <Compass className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-[#493329] tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-[#112521] tracking-tight">
                   "Bugun nima qilay?" biznes navigatori
                 </h1>
-                <span className="bg-[#FAF6F0] text-[#795640] border border-[#D0AE70]/60 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-[#D0AE70]" />
+                <span className="bg-[#F6F8F7] text-[#173B35] border border-[#F5B85C]/60 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[#F5B85C]" />
                   <span>3-modul</span>
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-[#6B5549] mt-1">
+              <p className="text-xs sm:text-sm text-[#52796F] mt-1">
                 Ortiqcha chalg'ishlarsiz, aynan bugun eng ko'p natija beradigan vazifalar va bepul mijoz jalb qilish harakatlar rejasi.
               </p>
             </div>
@@ -251,17 +254,17 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           {activePlan && (
             <button
               onClick={handleResetForNewDay}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#795640] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile shrink-0"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#173B35] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-xl transition-all btn-tactile shrink-0"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Yangi kun uchun rejalashtirish</span>
             </button>
           )}
         </div>
 
         {/* Quick Presets */}
-        <div className="mt-6 pt-6 border-t border-[#EFE8DE]">
-          <span className="text-xs font-semibold text-[#795640] block mb-2.5">
+        <div className="mt-6 pt-6 border-t border-[#E0ECE8]">
+          <span className="text-xs font-semibold text-[#173B35] block mb-2.5">
             Tezkor tayyor holatlar (bosing):
           </span>
           <div className="flex flex-wrap gap-2">
@@ -270,7 +273,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
                 key={idx}
                 type="button"
                 onClick={() => handleApplyPreset(preset)}
-                className="text-xs font-medium px-3 py-1.5 rounded-xl bg-[#FAF6F0] hover:bg-[#F5EDE1] text-[#493329] border border-[#E6DCD1] hover:border-[#D0AE70] transition-colors btn-tactile text-left"
+                className="text-xs font-medium px-3 py-1.5 rounded-xl bg-[#F6F8F7] hover:bg-[#F5EDE1] text-[#112521] border border-[#E0ECE8] hover:border-[#F5B85C] transition-colors btn-tactile text-left"
               >
                 {preset.label}
               </button>
@@ -280,16 +283,20 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSubmit} className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-6">
-        <h2 className="text-base sm:text-lg font-bold text-[#493329] flex items-center gap-2">
-          <Target className="w-5 h-5 text-[#D0AE70]" />
+      <form 
+        onSubmit={handleSubmit} 
+        className="scroll-reveal bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-6"
+        style={{ '--reveal-delay': '80ms' } as React.CSSProperties}
+      >
+        <h2 className="text-base sm:text-lg font-bold text-[#112521] flex items-center gap-2">
+          <Target className="w-5 h-5 text-[#F5B85C]" />
           <span>Bugungi holatingizni kiriting</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Business Type */}
           <div>
-            <label className="block text-xs font-bold text-[#493329] mb-1.5">
+            <label className="block text-xs font-bold text-[#112521] mb-1.5">
               Biznesingiz turi <span className="text-red-500">*</span>
             </label>
             <input
@@ -298,13 +305,13 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
               value={formData.businessType}
               onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
               placeholder="Masalan: Kiyim do'koni, Kafe, Onlayn do'kon, Xizmatlar..."
-              className="w-full px-3.5 py-2.5 text-sm bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0AE70] text-[#34221A]"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5B85C] text-[#112521]"
             />
           </div>
 
           {/* Today's Goal */}
           <div>
-            <label className="block text-xs font-bold text-[#493329] mb-1.5">
+            <label className="block text-xs font-bold text-[#112521] mb-1.5">
               Bugungi asosiy maqsad <span className="text-red-500">*</span>
             </label>
             <input
@@ -313,14 +320,14 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
               value={formData.todayGoal}
               onChange={(e) => setFormData({ ...formData, todayGoal: e.target.value })}
               placeholder="Masalan: Kamida 2 ta sotuv qilish, eski mijozlarni uyg'otish..."
-              className="w-full px-3.5 py-2.5 text-sm bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0AE70] text-[#34221A]"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5B85C] text-[#112521]"
             />
           </div>
         </div>
 
         {/* Main Problem */}
         <div>
-          <label className="block text-xs font-bold text-[#493329] mb-1.5">
+          <label className="block text-xs font-bold text-[#112521] mb-1.5">
             Hozirgi asosiy to'siq yoki muammo <span className="text-red-500">*</span>
           </label>
           <input
@@ -329,13 +336,13 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
             value={formData.mainProblem}
             onChange={(e) => setFormData({ ...formData, mainProblem: e.target.value })}
             placeholder="Masalan: Kassa bo'sh, mijoz yozmayapti, narx so'rab yo'qolib qolgan, tovar qolib ketgan..."
-            className="w-full px-3.5 py-2.5 text-sm bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0AE70] text-[#34221A]"
+            className="w-full px-3.5 py-2.5 text-sm bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5B85C] text-[#112521]"
           />
         </div>
 
         {/* Available Time Selector */}
         <div>
-          <label className="block text-xs font-bold text-[#493329] mb-2">
+          <label className="block text-xs font-bold text-[#112521] mb-2">
             Bugun ushbu vazifalarga ajrata oladigan vaqtingiz <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -346,50 +353,50 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
                 onClick={() => setFormData({ ...formData, availableTime: opt.id })}
                 className={`p-3 rounded-2xl border text-left transition-all btn-tactile ${
                   formData.availableTime === opt.id
-                    ? 'bg-[#FAF6F0] border-[#D0AE70] ring-2 ring-[#D0AE70]/40'
-                    : 'bg-white border-[#E6DCD1] hover:border-[#D0AE70]/60'
+                    ? 'bg-[#F6F8F7] border-[#F5B85C] ring-2 ring-[#F5B85C]/40'
+                    : 'bg-white border-[#E0ECE8] hover:border-[#F5B85C]/60'
                 }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <Clock className={`w-3.5 h-3.5 ${formData.availableTime === opt.id ? 'text-[#D0AE70]' : 'text-[#8D786D]'}`} />
-                  <span className="text-xs font-bold text-[#493329]">{opt.label}</span>
+                  <Clock className={`w-3.5 h-3.5 ${formData.availableTime === opt.id ? 'text-[#F5B85C]' : 'text-[#52796F]'}`} />
+                  <span className="text-xs font-bold text-[#112521]">{opt.label}</span>
                 </div>
-                <span className="text-[10px] text-[#6B5549] block mt-1 leading-tight">{opt.desc}</span>
+                <span className="text-[10px] text-[#52796F] block mt-1 leading-tight">{opt.desc}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Optional Fields: Budget and Clients Status */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-[#EFE8DE]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-[#E0ECE8]">
           <div>
-            <label className="block text-xs font-bold text-[#493329] mb-1">
-              Mavjud reklama budjeti <span className="text-xs font-normal text-[#8D786D]">(Ixtiyoriy)</span>
+            <label className="block text-xs font-bold text-[#112521] mb-1">
+              Mavjud reklama budjeti <span className="text-xs font-normal text-[#52796F]">(Ixtiyoriy)</span>
             </label>
             <input
               type="text"
               value={formData.budget || ''}
               onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
               placeholder="Masalan: 0 so'm (bepul usul) yoki 50,000 so'm"
-              className="w-full px-3.5 py-2.5 text-sm bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0AE70] text-[#34221A]"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5B85C] text-[#112521]"
             />
-            <span className="text-[11px] text-[#8D786D] mt-1 block">
+            <span className="text-[11px] text-[#52796F] mt-1 block">
               Agar budjet ko'rsatmasangiz, faqat mutlaqo bepul (0 so'm) usullar tavsiya qilinadi.
             </span>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#493329] mb-1">
-              Mijozlar yoki so'rovlar holati <span className="text-xs font-normal text-[#8D786D]">(Ixtiyoriy)</span>
+            <label className="block text-xs font-bold text-[#112521] mb-1">
+              Mijozlar yoki so'rovlar holati <span className="text-xs font-normal text-[#52796F]">(Ixtiyoriy)</span>
             </label>
             <input
               type="text"
               value={formData.clientStatus || ''}
               onChange={(e) => setFormData({ ...formData, clientStatus: e.target.value })}
               placeholder="Masalan: 5 ta odam narx so'ragan, yoki umuman so'rov yo'q"
-              className="w-full px-3.5 py-2.5 text-sm bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0AE70] text-[#34221A]"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5B85C] text-[#112521]"
             />
-            <span className="text-[11px] text-[#8D786D] mt-1 block">
+            <span className="text-[11px] text-[#52796F] mt-1 block">
               Hozirgi muloqotdagi mijozlar soni yoki ularning javobi.
             </span>
           </div>
@@ -400,16 +407,16 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto px-8 py-3.5 text-sm font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile shadow-xs flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] disabled:opacity-50"
+            className="w-full sm:w-auto px-8 py-3.5 text-sm font-bold text-[#112521] bg-[#F5B85C] hover:bg-[#C39F60] border border-[#F5B85C]/50 rounded-xl transition-all btn-tactile shadow-xs flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] disabled:opacity-50"
           >
             {loading ? (
               <>
-                <div className="w-4 h-4 border-2 border-[#34221A] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#112521] border-t-transparent rounded-full animate-spin" />
                 <span>Bugungi harakatlar rejasi hisoblanmoqda...</span>
               </>
             ) : (
               <>
-                <Compass className="w-4 h-4 text-[#34221A]" />
+                <Compass className="w-4 h-4 text-[#112521]" />
                 <span>Bugungi aniq harakatlar rejasini tuzish</span>
                 <ArrowRight className="w-4 h-4 ml-0.5" />
               </>
@@ -422,18 +429,21 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
       {activePlan && (
         <div className="space-y-6 animate-fadeIn">
           {/* Header Action Banner */}
-          <div className="bg-[#493329] text-white rounded-3xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div 
+            className="scroll-reveal bg-[#112521] text-white rounded-3xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+            style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
+          >
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#D0AE70]">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#F5B85C]">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>{activePlan.dateFormatted}</span>
                 <span>•</span>
                 <span>Vaqt: {activePlan.input.availableTime}</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 text-[#FAF6F0]">
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 text-[#F6F8F7]">
                 Bugungi amaliy ishlar rejasi
               </h2>
-              <p className="text-xs text-[#E6DCD1] mt-1">
+              <p className="text-xs text-[#E0ECE8] mt-1">
                 Biznes: {activePlan.input.businessType} | Maqsad: {activePlan.input.todayGoal}
               </p>
             </div>
@@ -441,7 +451,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
             <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 onClick={handleCopyFullPlan}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold bg-[#FAF6F0] hover:bg-[#F2ECE1] text-[#493329] rounded-xl transition-all btn-tactile shadow-xs"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold bg-[#F6F8F7] hover:bg-[#E0ECE8] text-[#112521] rounded-xl transition-all btn-tactile shadow-xs"
               >
                 {copied ? (
                   <>
@@ -450,7 +460,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 text-[#795640]" />
+                    <Copy className="w-4 h-4 text-[#173B35]" />
                     <span>Rejani to'liq nusxalash</span>
                   </>
                 )}
@@ -458,7 +468,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
 
               <button
                 onClick={handleResetForNewDay}
-                className="p-2.5 text-[#D0AE70] hover:text-white bg-[#66493B]/70 hover:bg-[#66493B] border border-[#D0AE70]/40 rounded-xl transition-all btn-tactile"
+                className="p-2.5 text-[#F5B85C] hover:text-white bg-[#173B35]/70 hover:bg-[#173B35] border border-[#F5B85C]/40 rounded-xl transition-all btn-tactile"
                 title="Qayta boshlash"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -468,60 +478,69 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
 
           {/* Assumption / Transparency Note */}
           {activePlan.inferredAssumptionsNote && (
-            <div className="bg-[#FAF6F0] border border-[#E6DCD1] rounded-2xl p-4 text-xs text-[#6B5549] flex items-start gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+            <div 
+              className="scroll-reveal bg-[#F6F8F7] border border-[#E0ECE8] rounded-2xl p-4 text-xs text-[#52796F] flex items-start gap-2.5"
+              style={{ '--reveal-delay': '60ms' } as React.CSSProperties}
+            >
+              <ShieldCheck className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
               <p className="leading-relaxed">{activePlan.inferredAssumptionsNote}</p>
             </div>
           )}
 
           {/* 1. SINGLE MOST IMPORTANT TASK (FOKUS) */}
-          <div className="bg-white border-2 border-[#D0AE70] rounded-3xl p-6 sm:p-8 shadow-card relative overflow-hidden">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#795640] mb-2">
+          <div 
+            className="scroll-reveal bg-white border-2 border-[#F5B85C] rounded-3xl p-6 sm:p-8 shadow-card relative overflow-hidden"
+            style={{ '--reveal-delay': '80ms' } as React.CSSProperties}
+          >
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#173B35] mb-2">
               <Flame className="w-4 h-4 text-amber-600" />
               <span>1. Bugun bajariladigan eng muhim bitta vazifa (Asosiy Fokus)</span>
             </div>
 
-            <h3 className="text-lg sm:text-xl font-extrabold text-[#493329] leading-snug">
+            <h3 className="text-lg sm:text-xl font-extrabold text-[#112521] leading-snug">
               {activePlan.singleMostImportantTask.title}
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-[#EFE8DE] text-xs">
-              <div className="bg-[#FAF6F0] p-3.5 rounded-xl border border-[#E6DCD1]">
-                <span className="font-bold text-[#493329] block mb-1">💡 Nega aynan shu vazifa birinchi o'rinda?</span>
-                <p className="text-[#6B5549] leading-relaxed">{activePlan.singleMostImportantTask.rationale}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-[#E0ECE8] text-xs">
+              <div className="bg-[#F6F8F7] p-3.5 rounded-xl border border-[#E0ECE8]">
+                <span className="font-bold text-[#112521] block mb-1">💡 Nega aynan shu vazifa birinchi o'rinda?</span>
+                <p className="text-[#52796F] leading-relaxed">{activePlan.singleMostImportantTask.rationale}</p>
               </div>
 
-              <div className="bg-[#FAF6F0] p-3.5 rounded-xl border border-[#E6DCD1]">
-                <span className="font-bold text-[#493329] block mb-1">🎯 Kutiladigan aniq natija:</span>
-                <p className="text-[#6B5549] leading-relaxed">{activePlan.singleMostImportantTask.expectedResult}</p>
+              <div className="bg-[#F6F8F7] p-3.5 rounded-xl border border-[#E0ECE8]">
+                <span className="font-bold text-[#112521] block mb-1">🎯 Kutiladigan aniq natija:</span>
+                <p className="text-[#52796F] leading-relaxed">{activePlan.singleMostImportantTask.expectedResult}</p>
               </div>
             </div>
           </div>
 
           {/* 2. INTERACTIVE CHECKLIST (3-5 SPECIFIC STEPS WITH MINUTES) */}
-          <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-6">
+          <div 
+            className="scroll-reveal bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-6"
+            style={{ '--reveal-delay': '120ms' } as React.CSSProperties}
+          >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-[#D0AE70]" />
-                  <h3 className="text-base sm:text-lg font-bold text-[#493329]">
+                  <CheckCircle2 className="w-5 h-5 text-[#F5B85C]" />
+                  <h3 className="text-base sm:text-lg font-bold text-[#112521]">
                     2. Bugungi amaliy qadamlar ro'yxati (Bajarilganini belgilang)
                   </h3>
                 </div>
-                <p className="text-xs text-[#6B5549] mt-0.5">
+                <p className="text-xs text-[#52796F] mt-0.5">
                   Har bir qadam uchun hisoblangan taxminiy vaqt ajratilgan. Bajarilgan qadamni bosib belgilang.
                 </p>
               </div>
 
               {/* Progress counter */}
-              <div className="bg-[#FAF6F0] border border-[#E6DCD1] px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#493329] shrink-0 flex items-center gap-2">
+              <div className="bg-[#F6F8F7] border border-[#E0ECE8] px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#112521] shrink-0 flex items-center gap-2">
                 <span>Bajarildi: {completedStepsCount} / {totalStepsCount}</span>
-                <span className="text-[#D0AE70] font-bold">({progressPercent}%)</span>
+                <span className="text-[#F5B85C] font-bold">({progressPercent}%)</span>
               </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-[#EFE8DE] h-2.5 rounded-full overflow-hidden">
+            <div className="w-full bg-[#E0ECE8] h-2.5 rounded-full overflow-hidden">
               <div
                 className="bg-emerald-600 h-full transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
@@ -536,7 +555,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
                   className={`p-4 rounded-2xl border transition-all ${
                     step.completed
                       ? 'bg-emerald-50/60 border-emerald-300'
-                      : 'bg-[#FAF6F0]/70 border-[#E6DCD1] hover:border-[#D0AE70]'
+                      : 'bg-[#F6F8F7]/70 border-[#E0ECE8] hover:border-[#F5B85C]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -549,26 +568,26 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
                         {step.completed ? (
                           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                         ) : (
-                          <Circle className="w-5 h-5 text-[#8D786D] group-hover:text-[#493329] transition-colors" />
+                          <Circle className="w-5 h-5 text-[#52796F] group-hover:text-[#112521] transition-colors" />
                         )}
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
                             className={`text-sm font-bold ${
-                              step.completed ? 'line-through text-[#8D786D]' : 'text-[#493329]'
+                              step.completed ? 'line-through text-[#52796F]' : 'text-[#112521]'
                             }`}
                           >
                             {step.order}-qadam: {step.title}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white border border-[#E6DCD1] text-[#795640]">
-                            <Clock className="w-3 h-3 text-[#D0AE70]" />
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white border border-[#E0ECE8] text-[#173B35]">
+                            <Clock className="w-3 h-3 text-[#F5B85C]" />
                             <span>{step.estimatedMinutes} daqiqa</span>
                           </span>
                         </div>
                         <p
                           className={`text-xs mt-1.5 leading-relaxed ${
-                            step.completed ? 'text-[#8D786D]' : 'text-[#6B5549]'
+                            step.completed ? 'text-[#52796F]' : 'text-[#52796F]'
                           }`}
                         >
                           {step.description}
@@ -578,7 +597,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
 
                     <button
                       onClick={() => handleCopySingleStep(step)}
-                      className="p-1.5 text-[#8D786D] hover:text-[#493329] bg-white border border-[#E6DCD1] rounded-lg text-xs transition-colors shrink-0"
+                      className="p-1.5 text-[#52796F] hover:text-[#112521] bg-white border border-[#E0ECE8] rounded-lg text-xs transition-colors shrink-0"
                       title="Qadam matnini nusxalash"
                     >
                       {copiedStepId === step.id ? (
@@ -605,14 +624,17 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           </div>
 
           {/* 3. ZERO-COST CUSTOMER ACQUISITION TACTIC */}
-          <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-4">
+          <div 
+            className="scroll-reveal bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-4"
+            style={{ '--reveal-delay': '160ms' } as React.CSSProperties}
+          >
             <div className="flex items-center gap-2">
               <Gift className="w-5 h-5 text-emerald-600" />
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-[#493329]">
+                <h3 className="text-base sm:text-lg font-bold text-[#112521]">
                   3. Bepul yoki kam xarajatli mijoz topish usuli
                 </h3>
-                <span className="text-xs text-[#6B5549]">
+                <span className="text-xs text-[#52796F]">
                   Kanal: {activePlan.zeroCostCustomerAcquisitionTactic.channel}
                 </span>
               </div>
@@ -637,14 +659,17 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           </div>
 
           {/* 4. ANTI-DISTRACTION RULE (WHAT NOT TO DO TODAY) */}
-          <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-4">
+          <div 
+            className="scroll-reveal bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-4"
+            style={{ '--reveal-delay': '200ms' } as React.CSSProperties}
+          >
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-600" />
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-[#493329]">
+                <h3 className="text-base sm:text-lg font-bold text-[#112521]">
                   4. Bugun qilmaslik kerak bo'lgan ish (Vaqt o'g'rilari)
                 </h3>
-                <span className="text-xs text-[#6B5549]">
+                <span className="text-xs text-[#52796F]">
                   O'zingizni band qilib ko'rsatadigan, lekin pul keltirmaydigan mayda ishlarni to'xtating.
                 </span>
               </div>
@@ -653,21 +678,21 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
             <div className="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
               <div>
                 <span className="text-xs font-bold text-amber-900 block">⛔ Nima qilmaslik kerak:</span>
-                <p className="text-xs font-semibold text-[#493329] mt-0.5">
+                <p className="text-xs font-semibold text-[#112521] mt-0.5">
                   {activePlan.antiDistractionRule.whatToAvoid}
                 </p>
               </div>
 
               <div>
                 <span className="text-xs font-bold text-amber-900 block">⚠️ Nega bu vaqtni behuda sarflaydi:</span>
-                <p className="text-xs text-[#6B5549] mt-0.5 leading-relaxed">
+                <p className="text-xs text-[#52796F] mt-0.5 leading-relaxed">
                   {activePlan.antiDistractionRule.whyItWastesTime}
                 </p>
               </div>
 
               <div className="pt-2 border-t border-amber-200/60">
                 <span className="text-xs font-bold text-emerald-800 block">✅ Buning o'rniga nima qilish kerak:</span>
-                <p className="text-xs text-[#493329] font-medium mt-0.5 leading-relaxed">
+                <p className="text-xs text-[#112521] font-medium mt-0.5 leading-relaxed">
                   {activePlan.antiDistractionRule.practicalAlternative}
                 </p>
               </div>
@@ -675,14 +700,14 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           </div>
 
           {/* 5. EMERGENCY 30-MINUTE EXPRESS PLAN */}
-          <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-4">
+          <div className="bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-4">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-amber-600" />
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-[#493329]">
+                <h3 className="text-base sm:text-lg font-bold text-[#112521]">
                   5. Vaqt juda kam bo'lganda: 30 daqiqalik ekspress reja
                 </h3>
-                <span className="text-xs text-[#6B5549]">
+                <span className="text-xs text-[#52796F]">
                   Kutilmagan holat yuz berganda ushbu qisqa blokdan foydalaning.
                 </span>
               </div>
@@ -690,11 +715,11 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {activePlan.expressThirtyMinPlan.steps.map((block, idx) => (
-                <div key={idx} className="bg-[#FAF6F0] border border-[#E6DCD1] rounded-2xl p-4 space-y-1.5">
-                  <span className="text-[11px] font-bold text-[#D0AE70] uppercase tracking-wide block">
+                <div key={idx} className="bg-[#F6F8F7] border border-[#E0ECE8] rounded-2xl p-4 space-y-1.5">
+                  <span className="text-[11px] font-bold text-[#F5B85C] uppercase tracking-wide block">
                     ⏱️ {block.minuteMark}
                   </span>
-                  <p className="text-xs text-[#493329] leading-relaxed font-medium">
+                  <p className="text-xs text-[#112521] leading-relaxed font-medium">
                     {block.action}
                   </p>
                 </div>
@@ -703,28 +728,28 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           </div>
 
           {/* 6. END OF DAY SUCCESS METRICS */}
-          <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card space-y-4">
+          <div className="bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card space-y-4">
             <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-[#D0AE70]" />
-              <h3 className="text-base sm:text-lg font-bold text-[#493329]">
+              <Target className="w-5 h-5 text-[#F5B85C]" />
+              <h3 className="text-base sm:text-lg font-bold text-[#112521]">
                 6. Kun oxirida natijani qanday o'lchash kerak
               </h3>
             </div>
 
             <div className="space-y-3 text-xs leading-relaxed">
-              <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="font-bold text-[#493329] block mb-1">🎯 Aniq mezon:</span>
-                <p className="text-[#6B5549]">{activePlan.endOfDaySuccessMetrics.targetMetric}</p>
+              <div className="p-3.5 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="font-bold text-[#112521] block mb-1">🎯 Aniq mezon:</span>
+                <p className="text-[#52796F]">{activePlan.endOfDaySuccessMetrics.targetMetric}</p>
               </div>
 
-              <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="font-bold text-[#493329] block mb-1">❓ Kun yakunida o'zingizga beradigan savol:</span>
-                <p className="text-[#6B5549]">{activePlan.endOfDaySuccessMetrics.verificationQuestion}</p>
+              <div className="p-3.5 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="font-bold text-[#112521] block mb-1">❓ Kun yakunida o'zingizga beradigan savol:</span>
+                <p className="text-[#52796F]">{activePlan.endOfDaySuccessMetrics.verificationQuestion}</p>
               </div>
 
-              <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="font-bold text-[#493329] block mb-1">🛡️ Reja to'liq bajarilmagandagi tahlil:</span>
-                <p className="text-[#6B5549]">{activePlan.endOfDaySuccessMetrics.fallbackAssessment}</p>
+              <div className="p-3.5 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="font-bold text-[#112521] block mb-1">🛡️ Reja to'liq bajarilmagandagi tahlil:</span>
+                <p className="text-[#52796F]">{activePlan.endOfDaySuccessMetrics.fallbackAssessment}</p>
               </div>
             </div>
           </div>

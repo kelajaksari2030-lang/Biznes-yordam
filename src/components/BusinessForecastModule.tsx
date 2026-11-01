@@ -107,20 +107,20 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
   if (!isAuthorized) {
     return (
       <div className="space-y-6 animate-fadeIn">
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#E6DCD1] shadow-card text-center max-w-2xl mx-auto space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-[#493329] text-[#D0AE70] mx-auto flex items-center justify-center shadow-md">
+        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#E0ECE8] shadow-card text-center max-w-2xl mx-auto space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-[#112521] text-[#F5B85C] mx-auto flex items-center justify-center shadow-md">
             <Lock className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Faqat Ultra tarifida</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#493329]">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#112521]">
               Aqlli biznes prognozi (Ultra Eksklyuziv)
             </h2>
-            <p className="text-xs sm:text-sm text-[#795640] leading-relaxed max-w-lg mx-auto">
+            <p className="text-xs sm:text-sm text-[#173B35] leading-relaxed max-w-lg mx-auto">
               Ushbu modul faqat Ultra tarifi foydalanuvchilari uchun maxsus ishlab chiqilgan.
               30 kunlik kassa tushumi bashorati, ombordagi tovarlar tugash xavfi va kutilayotgan
               pul oqimi (cash flow) tahliliga ega bo'lish uchun Ultra tarifiga o'ting.
@@ -131,7 +131,7 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
             {onOpenPricing && (
               <button
                 onClick={onOpenPricing}
-                className="w-full sm:w-auto px-6 py-3 bg-[#D0AE70] hover:bg-[#C39F60] text-[#34221A] text-xs font-bold rounded-xl transition-all shadow-sm btn-tactile flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] text-xs font-bold rounded-xl transition-all shadow-sm btn-tactile flex items-center justify-center gap-2"
               >
                 <span>Ultra tarifiga o'tish</span>
                 <ArrowRight className="w-4 h-4" />
@@ -140,7 +140,7 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
             {setActiveTab && (
               <button
                 onClick={() => setActiveTab('home')}
-                className="w-full sm:w-auto px-5 py-3 bg-[#FAF6F0] hover:bg-[#F2ECE1] text-[#6B5549] text-xs font-bold rounded-xl border border-[#E6DCD1] transition-all"
+                className="w-full sm:w-auto px-5 py-3 bg-[#F6F8F7] hover:bg-[#E0ECE8] text-[#52796F] text-xs font-bold rounded-xl border border-[#E0ECE8] transition-all"
               >
                 Bosh sahifaga qaytish
               </button>
@@ -155,25 +155,25 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
   if (loading) {
     return (
       <div className="space-y-6 animate-fadeIn">
-        <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-card flex items-center justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-card flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#493329] text-[#D0AE70] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#112521] text-[#F5B85C] flex items-center justify-center">
               <TrendingUp className="w-5 h-5 animate-pulse" />
             </div>
             <div className="space-y-1.5">
-              <div className="h-5 w-48 bg-[#E6DCD1]/60 rounded-md animate-pulse" />
-              <div className="h-3 w-64 bg-[#E6DCD1]/40 rounded-md animate-pulse" />
+              <div className="h-5 w-48 bg-[#E0ECE8]/60 rounded-md animate-pulse" />
+              <div className="h-3 w-64 bg-[#E0ECE8]/40 rounded-md animate-pulse" />
             </div>
           </div>
-          <RefreshCw className="w-4 h-4 text-[#8D786D] animate-spin" />
+          <RefreshCw className="w-4 h-4 text-[#52796F] animate-spin" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white p-5 rounded-2xl border border-[#E6DCD1] space-y-3">
-              <div className="h-4 w-32 bg-[#E6DCD1]/60 rounded-md animate-pulse" />
-              <div className="h-8 w-24 bg-[#E6DCD1]/80 rounded-md animate-pulse" />
-              <div className="h-3 w-full bg-[#E6DCD1]/40 rounded-md animate-pulse" />
+            <div key={i} className="bg-white p-5 rounded-2xl border border-[#E0ECE8] space-y-3">
+              <div className="h-4 w-32 bg-[#E0ECE8]/60 rounded-md animate-pulse" />
+              <div className="h-8 w-24 bg-[#E0ECE8]/80 rounded-md animate-pulse" />
+              <div className="h-3 w-full bg-[#E0ECE8]/40 rounded-md animate-pulse" />
             </div>
           ))}
         </div>
@@ -204,22 +204,25 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* 1. Module Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-card">
+      <div 
+        className="scroll-reveal flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-card"
+        style={{ '--reveal-delay': '0ms' } as React.CSSProperties}
+      >
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#493329] text-[#D0AE70] flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#112521] text-[#F5B85C] flex items-center justify-center font-bold shadow-2xs">
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-[#493329] tracking-tight">
+                <h1 className="text-xl font-bold text-[#112521] tracking-tight">
                   Aqlli biznes prognozi
                 </h1>
-                <span className="px-2 py-0.5 rounded-md bg-[#493329] text-[#D0AE70] text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-md bg-[#112521] text-[#F5B85C] text-[10px] font-bold">
                   ULTRA
                 </span>
               </div>
-              <p className="text-xs text-[#795640]">
+              <p className="text-xs text-[#173B35]">
                 30 kunlik tushum sur'ati, ombor to'ldirish ehtiyoji va kassa oqimi tahlili
               </p>
             </div>
@@ -230,7 +233,7 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
           <button
             onClick={loadData}
             title="Yangilash"
-            className="p-2.5 text-[#6B5549] hover:text-[#493329] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile"
+            className="p-2.5 text-[#52796F] hover:text-[#112521] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-xl transition-all btn-tactile"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -240,9 +243,12 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
       {/* 2. Top Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: 30-Day Revenue Projection */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-3">
+        <div 
+          className="scroll-reveal card-hover-effect bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-3"
+          style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#493329]">30 kunlik kutilayotgan tushum</span>
+            <span className="text-xs font-bold text-[#112521]">30 kunlik kutilayotgan tushum</span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
               Taxminiy
             </span>
@@ -253,15 +259,15 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
                 ? formatMoney(revenue.projected30DayPaidRevenue)
                 : "Yetarli emas"}
             </div>
-            <p className="text-[11px] text-[#795640] mt-1">
+            <p className="text-[11px] text-[#173B35] mt-1">
               {revenue.hasSufficientData
                 ? `Kunlik run-rate: ${formatMoney(revenue.dailyRunRatePaidRevenue)}/kun`
                 : `Kamida ${MIN_HISTORICAL_ORDERS} ta buyurtma va ${MIN_HISTORICAL_DAYS} kunlik tarix kerak`}
             </p>
           </div>
           {revenue.hasSufficientData && revenue.growthRatePercent !== null && (
-            <div className="pt-2 border-t border-[#E6DCD1]/60 flex items-center justify-between text-xs">
-              <span className="text-[#8D786D]">Savdo sur'ati:</span>
+            <div className="pt-2 border-t border-[#E0ECE8]/60 flex items-center justify-between text-xs">
+              <span className="text-[#52796F]">Savdo sur'ati:</span>
               <span
                 className={`font-bold inline-flex items-center gap-1 ${
                   revenue.growthRatePercent >= 0 ? 'text-emerald-700' : 'text-rose-700'
@@ -279,9 +285,12 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
         </div>
 
         {/* Card 2: Warehouse Depletion Alert Count */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-3">
+        <div 
+          className="scroll-reveal card-hover-effect bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-3"
+          style={{ '--reveal-delay': '80ms' } as React.CSSProperties}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#493329]">Tugash xavfi bor tovarlar</span>
+            <span className="text-xs font-bold text-[#112521]">Tugash xavfi bor tovarlar</span>
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
                 warehouse.itemsNeedingReorderCount > 0
@@ -293,23 +302,26 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
             </span>
           </div>
           <div>
-            <div className="text-2xl font-black text-[#493329]">
+            <div className="text-2xl font-black text-[#112521]">
               {warehouse.itemsNeedingReorderCount} ta mahsulot
             </div>
-            <p className="text-[11px] text-[#795640] mt-1">
+            <p className="text-[11px] text-[#173B35] mt-1">
               Kritik: {warehouse.criticalStockCount} ta | Kam qolgan: {warehouse.warningStockCount} ta
             </p>
           </div>
-          <div className="pt-2 border-t border-[#E6DCD1]/60 text-xs text-[#8D786D] flex items-center justify-between">
+          <div className="pt-2 border-t border-[#E0ECE8]/60 text-xs text-[#52796F] flex items-center justify-between">
             <span>Jami tovarlar turlari:</span>
-            <span className="font-bold text-[#493329]">{warehouse.totalProductsChecked} ta</span>
+            <span className="font-bold text-[#112521]">{warehouse.totalProductsChecked} ta</span>
           </div>
         </div>
 
         {/* Card 3: 30-Day Net Cash Flow Projection */}
-        <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-3">
+        <div 
+          className="scroll-reveal card-hover-effect bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-3"
+          style={{ '--reveal-delay': '120ms' } as React.CSSProperties}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#493329]">30 kunlik sof kassa oqimi</span>
+            <span className="text-xs font-bold text-[#112521]">30 kunlik sof kassa oqimi</span>
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
                 cashFlow.cashDeficitWarning
@@ -330,11 +342,11 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
                 ? formatMoney(cashFlow.projectedNetCashFlow)
                 : "Yetarli emas"}
             </div>
-            <p className="text-[11px] text-[#795640] mt-1">
+            <p className="text-[11px] text-[#173B35] mt-1">
               Kutilayotgan tushum - Ekstrapolyatsiya qilingan xarajatlar
             </p>
           </div>
-          <div className="pt-2 border-t border-[#E6DCD1]/60 text-xs text-[#8D786D] flex items-center justify-between">
+          <div className="pt-2 border-t border-[#E0ECE8]/60 text-xs text-[#52796F] flex items-center justify-between">
             <span>Kutilayotgan nasiya (kassadan tashqari):</span>
             <span className="font-bold text-amber-800">{formatMoney(cashFlow.unpaidDebtOutstanding)}</span>
           </div>
@@ -343,7 +355,10 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
 
       {/* Deficit Alert Warning if applicable */}
       {cashFlow.cashDeficitWarning && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-900">
+        <div 
+          className="scroll-reveal p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-900"
+          style={{ '--reveal-delay': '140ms' } as React.CSSProperties}
+        >
           <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <span className="font-bold">Kassa uzilishi (Cash gap) xavfi aniqlandi:</span>
@@ -357,15 +372,18 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
       )}
 
       {/* 3. Detailed Section A: 30-Day Revenue Projection */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E6DCD1]/60 pb-3">
+      <div 
+        className="scroll-reveal bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-4"
+        style={{ '--reveal-delay': '160ms' } as React.CSSProperties}
+      >
+        <div className="flex items-center justify-between border-b border-[#E0ECE8]/60 pb-3">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-[#493329]" />
+            <BarChart3 className="w-5 h-5 text-[#112521]" />
             <div>
-              <h2 className="text-sm font-bold text-[#493329]">
+              <h2 className="text-sm font-bold text-[#112521]">
                 A) 30 kunlik tushum prognozi va savdo tendensiyasi
               </h2>
-              <p className="text-[11px] text-[#795640]">
+              <p className="text-[11px] text-[#173B35]">
                 Faqat tasdiqlangan/yakunlangan buyurtmalar asosida. Bekor qilingan buyurtmalar hisobdan chiqarilgan.
               </p>
             </div>
@@ -373,9 +391,9 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
         </div>
 
         {!revenue.hasSufficientData ? (
-          <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1] text-xs text-[#795640] space-y-2">
-            <div className="flex items-center gap-2 text-[#493329] font-bold">
-              <Info className="w-4 h-4 text-[#D0AE70]" />
+          <div className="p-4 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] text-xs text-[#173B35] space-y-2">
+            <div className="flex items-center gap-2 text-[#112521] font-bold">
+              <Info className="w-4 h-4 text-[#F5B85C]" />
               <span>Prognoz berilmadi: {revenue.insufficientDataReason}</span>
             </div>
             <p className="leading-relaxed">
@@ -387,33 +405,33 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
         ) : (
           <div className="space-y-3">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="text-[#8D786D] block">Tahlil davri</span>
-                <span className="font-bold text-[#493329] text-sm mt-0.5 block">
+              <div className="p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="text-[#52796F] block">Tahlil davri</span>
+                <span className="font-bold text-[#112521] text-sm mt-0.5 block">
                   {revenue.historicalDaysSpan} kun
                 </span>
-                <span className="text-[10px] text-[#795640]">Tarixiy namunalar oralig'i</span>
+                <span className="text-[10px] text-[#173B35]">Tarixiy namunalar oralig'i</span>
               </div>
-              <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="text-[#8D786D] block">Tasdiqlangan buyurtmalar</span>
-                <span className="font-bold text-[#493329] text-sm mt-0.5 block">
+              <div className="p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="text-[#52796F] block">Tasdiqlangan buyurtmalar</span>
+                <span className="font-bold text-[#112521] text-sm mt-0.5 block">
                   {revenue.sampleSizeOrders} ta
                 </span>
-                <span className="text-[10px] text-[#795640]">Bekor qilinganlar chetlatilgan</span>
+                <span className="text-[10px] text-[#173B35]">Bekor qilinganlar chetlatilgan</span>
               </div>
-              <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="text-[#8D786D] block">O'rtacha kunlik naqd tushum</span>
+              <div className="p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="text-[#52796F] block">O'rtacha kunlik naqd tushum</span>
                 <span className="font-bold text-emerald-800 text-sm mt-0.5 block">
                   {formatMoney(revenue.dailyRunRatePaidRevenue)}
                 </span>
-                <span className="text-[10px] text-[#795640]">Haqiqiy to'langan pullar sur'ati</span>
+                <span className="text-[10px] text-[#173B35]">Haqiqiy to'langan pullar sur'ati</span>
               </div>
-              <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1]">
-                <span className="text-[#8D786D] block">O'rtacha kunlik buyurtmalar hajmi</span>
-                <span className="font-bold text-[#493329] text-sm mt-0.5 block">
+              <div className="p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                <span className="text-[#52796F] block">O'rtacha kunlik buyurtmalar hajmi</span>
+                <span className="font-bold text-[#112521] text-sm mt-0.5 block">
                   {formatMoney(revenue.dailyRunRateSalesVolume)}
                 </span>
-                <span className="text-[10px] text-[#795640]">Jami savdo miqdori sur'ati</span>
+                <span className="text-[10px] text-[#173B35]">Jami savdo miqdori sur'ati</span>
               </div>
             </div>
 
@@ -434,39 +452,42 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
       </div>
 
       {/* 4. Detailed Section B: Warehouse Needs & Stock Depletion Forecast */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E6DCD1]/60 pb-3">
+      <div 
+        className="scroll-reveal bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-4"
+        style={{ '--reveal-delay': '200ms' } as React.CSSProperties}
+      >
+        <div className="flex items-center justify-between border-b border-[#E0ECE8]/60 pb-3">
           <div className="flex items-center gap-2">
-            <Package className="w-5 h-5 text-[#493329]" />
+            <Package className="w-5 h-5 text-[#112521]" />
             <div>
-              <h2 className="text-sm font-bold text-[#493329]">
+              <h2 className="text-sm font-bold text-[#112521]">
                 B) Ombor ehtiyojlari va tovarlar tugash muddati prognozi
               </h2>
-              <p className="text-[11px] text-[#795640]">
+              <p className="text-[11px] text-[#173B35]">
                 Sotuv tezligi, joriy qoldiq va minimal zaxira buferi bo'yicha to'ldirish tavsiyalari
               </p>
             </div>
           </div>
-          <span className="text-xs font-semibold text-[#8D786D]">
+          <span className="text-xs font-semibold text-[#52796F]">
             {warehouse.items.length} ta mahsulot
           </span>
         </div>
 
         {!warehouse.hasSufficientData ? (
-          <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1] text-xs text-[#795640]">
+          <div className="p-4 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] text-xs text-[#173B35]">
             {warehouse.insufficientDataReason}
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="p-3 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1] text-xs text-[#795640]">
-              <span className="font-bold text-[#493329]">Metodologiya: </span>
+            <div className="p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] text-xs text-[#173B35]">
+              <span className="font-bold text-[#112521]">Metodologiya: </span>
               {warehouse.methodology}
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-[#FAF6F0] text-[#8D786D] font-bold border-b border-[#E6DCD1]">
+                  <tr className="bg-[#F6F8F7] text-[#52796F] font-bold border-b border-[#E0ECE8]">
                     <th className="p-3 rounded-l-xl">Mahsulot nomi</th>
                     <th className="p-3 text-right">Mavjud qoldiq</th>
                     <th className="p-3 text-right">Minimal chegara</th>
@@ -475,10 +496,10 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
                     <th className="p-3 text-right rounded-r-xl">Tavsiya (To'ldirish)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E6DCD1]/60">
+                <tbody className="divide-y divide-[#E0ECE8]/60">
                   {warehouse.items.map((it) => (
-                    <tr key={it.productId} className="hover:bg-[#FAF6F0]/60 transition-colors">
-                      <td className="p-3 font-semibold text-[#493329]">
+                    <tr key={it.productId} className="hover:bg-[#F6F8F7]/60 transition-colors">
+                      <td className="p-3 font-semibold text-[#112521]">
                         <div className="flex items-center gap-2">
                           <span
                             className={`w-2 h-2 rounded-full shrink-0 ${
@@ -492,13 +513,13 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
                           <span>{it.productName}</span>
                         </div>
                       </td>
-                      <td className="p-3 text-right font-bold text-[#493329]">
+                      <td className="p-3 text-right font-bold text-[#112521]">
                         {it.currentStock} {it.unit}
                       </td>
-                      <td className="p-3 text-right text-[#8D786D]">
+                      <td className="p-3 text-right text-[#52796F]">
                         {it.minStockAlert} {it.unit}
                       </td>
-                      <td className="p-3 text-right text-[#6B5549]">
+                      <td className="p-3 text-right text-[#52796F]">
                         {it.hasSufficientVelocityHistory
                           ? `${it.dailySalesVelocity} ${it.unit}/kun`
                           : "Yetarli tarix yo'q"}
@@ -517,7 +538,7 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
                             ~{it.estimatedDaysUntilStockout} kun
                           </span>
                         ) : (
-                          <span className="text-[#8D786D]">
+                          <span className="text-[#52796F]">
                             {it.currentStock === 0 ? "Tugagan" : "Harakatsiz"}
                           </span>
                         )}
@@ -541,15 +562,18 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
       </div>
 
       {/* 5. Detailed Section C: Cash Flow & Operating Expense Extrapolation */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E6DCD1]/60 pb-3">
+      <div 
+        className="scroll-reveal bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-4"
+        style={{ '--reveal-delay': '240ms' } as React.CSSProperties}
+      >
+        <div className="flex items-center justify-between border-b border-[#E0ECE8]/60 pb-3">
           <div className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-[#493329]" />
+            <DollarSign className="w-5 h-5 text-[#112521]" />
             <div>
-              <h2 className="text-sm font-bold text-[#493329]">
+              <h2 className="text-sm font-bold text-[#112521]">
                 C) 30 kunlik ehtiyotkor kassa oqimi (Cash Flow) tahlili
               </h2>
-              <p className="text-[11px] text-[#795640]">
+              <p className="text-[11px] text-[#173B35]">
                 Mijozlarning to'lanmagan qarzdorligi (nasiya) naqd pul deb hisoblanmaydi
               </p>
             </div>
@@ -577,8 +601,8 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
             </p>
           </div>
 
-          <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1] space-y-1">
-            <span className="text-[#493329] font-semibold block">Sof prognoz qilingan kassa oqimi</span>
+          <div className="p-3.5 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] space-y-1">
+            <span className="text-[#112521] font-semibold block">Sof prognoz qilingan kassa oqimi</span>
             <span
               className={`text-lg font-black block ${
                 cashFlow.projectedNetCashFlow >= 0 ? 'text-emerald-800' : 'text-rose-700'
@@ -587,26 +611,26 @@ export const BusinessForecastModule: React.FC<BusinessForecastModuleProps> = ({
               {cashFlow.projectedNetCashFlow >= 0 ? '+' : ''}
               {formatMoney(cashFlow.projectedNetCashFlow)}
             </span>
-            <p className="text-[10px] text-[#795640]">
+            <p className="text-[10px] text-[#173B35]">
               Kelgusi 30 kunlik taxminiy sof naqd pul saldosi
             </p>
           </div>
         </div>
 
         {/* Cautious assumptions disclosure */}
-        <div className="p-3.5 bg-[#FAF6F0] rounded-xl border border-[#E6DCD1] text-xs text-[#795640] space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[#493329] font-bold">
-            <Info className="w-4 h-4 text-[#D0AE70]" />
+        <div className="p-3.5 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] text-xs text-[#173B35] space-y-1.5">
+          <div className="flex items-center gap-1.5 text-[#112521] font-bold">
+            <Info className="w-4 h-4 text-[#F5B85C]" />
             <span>Kassa oqimi shaffofligi va taxminlar:</span>
           </div>
           <p className="leading-relaxed">
             {cashFlow.expenseAssumptionsNote}
           </p>
-          <div className="pt-1.5 border-t border-[#E6DCD1]/60 flex items-center justify-between text-[11px]">
-            <span className="text-[#8D786D]">Kutilayotgan nasiyalar / qarzlar miqdori:</span>
+          <div className="pt-1.5 border-t border-[#E0ECE8]/60 flex items-center justify-between text-[11px]">
+            <span className="text-[#52796F]">Kutilayotgan nasiyalar / qarzlar miqdori:</span>
             <span className="font-bold text-amber-900">{formatMoney(cashFlow.unpaidDebtOutstanding)}</span>
           </div>
-          <p className="text-[10px] text-[#8D786D] italic">
+          <p className="text-[10px] text-[#52796F] italic">
             * Eslatma: Moliyaviy xavfsizlik nuqtayi nazaridan, ushbu nasiyalar kassa prognoziga naqd pul sifatida
             qo'shilmagan. Ular mijozlardan amalda undirilgandagina kassa oqimiga aylanadi.
           </p>

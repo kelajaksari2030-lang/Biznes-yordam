@@ -175,23 +175,26 @@ Tahlilchi: BESTO AI Diagnostika`;
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-12">
       {/* Header Banner */}
-      <div className="bg-white border border-[#E6DCD1] rounded-3xl p-6 sm:p-8 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div 
+        className="scroll-reveal bg-white border border-[#E0ECE8] rounded-3xl p-6 sm:p-8 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6"
+        style={{ '--reveal-delay': '0ms' } as React.CSSProperties}
+      >
         <div className="space-y-2.5 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F6EFE3] text-[#795640] rounded-lg text-xs font-semibold border border-[#E8D6B7]/60">
-            <Sparkles className="w-3.5 h-3.5 text-[#D0AE70]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#D7F0E5] text-[#173B35] rounded-lg text-xs font-semibold border border-[#E0ECE8]/60">
+            <Sparkles className="w-3.5 h-3.5 text-[#F5B85C]" />
             <span>AI Biznes Diagnostikasi</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#493329]">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#112521]">
             Biznesingizni tahlil qiling va o'sish nuqtalarini toping
           </h1>
-          <p className="text-sm text-[#6B5549] leading-relaxed">
+          <p className="text-sm text-[#52796F] leading-relaxed">
             Biznesingiz holati, to'siqlar va maqsadlaringizni kiriting. Tizim eng muhim 3 ta xavf, 3 ta imkoniyat hamda keyingi 7 kun uchun bosqichma-bosqich amaliy harakatlar rejasini shakllantirib beradi.
           </p>
         </div>
 
-        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-[#EFE8DE] pt-4 sm:pt-0 sm:pl-6 text-xs text-[#8D786D] shrink-0 gap-2">
-          <div className="flex items-center gap-1.5 text-[#795640] font-semibold">
-            <CheckCircle2 className="w-4 h-4 text-[#D0AE70]" />
+        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-[#E0ECE8] pt-4 sm:pt-0 sm:pl-6 text-xs text-[#52796F] shrink-0 gap-2">
+          <div className="flex items-center gap-1.5 text-[#173B35] font-semibold">
+            <CheckCircle2 className="w-4 h-4 text-[#F5B85C]" />
             <span>Xavfsiz va maxfiy</span>
           </div>
           <span>Moliyaviy ma'lumotlar ixtiyoriy</span>
@@ -201,39 +204,42 @@ Tahlilchi: BESTO AI Diagnostika`;
       {/* Main Grid: Form + Result */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Input Form (5 cols on lg) */}
-        <div className="lg:col-span-5 bg-white border border-[#E6DCD1] rounded-2xl p-6 shadow-card space-y-6">
-          <div className="flex items-center justify-between border-b border-[#EFE8DE] pb-4">
-            <h2 className="text-base font-bold text-[#493329] flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#D0AE70]" />
+        <div 
+          className="scroll-reveal lg:col-span-5 bg-white border border-[#E0ECE8] rounded-2xl p-6 shadow-card space-y-6"
+          style={{ '--reveal-delay': '80ms' } as React.CSSProperties}
+        >
+          <div className="flex items-center justify-between border-b border-[#E0ECE8] pb-4">
+            <h2 className="text-base font-bold text-[#112521] flex items-center gap-2">
+              <Target className="w-4 h-4 text-[#F5B85C]" />
               <span>Biznes ma'lumotlari</span>
             </h2>
             <button
               type="button"
               onClick={handleLoadFromProfile}
               disabled={profileLoading}
-              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#493329] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile disabled:opacity-50"
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#112521] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-xl transition-all btn-tactile disabled:opacity-50"
               title="Saqlangan biznes profilingizdan ma'lumotlarni to'ldirish"
             >
               {profileLoading ? (
-                <Loader2 className="w-3.5 h-3.5 text-[#D0AE70] animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 text-[#F5B85C] animate-spin" />
               ) : (
-                <Building2 className="w-3.5 h-3.5 text-[#795640]" />
+                <Building2 className="w-3.5 h-3.5 text-[#173B35]" />
               )}
               <span>Profilimdan yuklash</span>
             </button>
           </div>
 
           {profileNotice && (
-            <div className="p-3 bg-[#FAF6F0] border border-[#E8D6B7] rounded-xl text-xs text-[#795640] flex items-start justify-between gap-2 animate-in fade-in">
+            <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-start justify-between gap-2 animate-in fade-in">
               <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+                <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
                 <span className="leading-snug">{profileNotice}</span>
               </div>
               {onOpenBusinessProfile && profileNotice.includes("profil") && (
                 <button
                   type="button"
                   onClick={onOpenBusinessProfile}
-                  className="text-[11px] font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] px-2.5 py-1 rounded-lg shrink-0 btn-tactile whitespace-nowrap"
+                  className="text-[11px] font-bold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] px-2.5 py-1 rounded-lg shrink-0 btn-tactile whitespace-nowrap"
                 >
                   Profil yaratish
                 </button>
@@ -244,13 +250,13 @@ Tahlilchi: BESTO AI Diagnostika`;
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             {/* Business Type */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-[#493329]">
+              <label className="font-semibold text-[#112521]">
                 Biznes turi <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.businessType}
                 onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#FAF6F0] text-[#34221A] text-xs focus:outline-none focus:ring-2 focus:ring-[#D0AE70] transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#F6F8F7] text-[#112521] text-xs focus:outline-none focus:ring-2 focus:ring-[#F5B85C] transition-colors"
                 required
               >
                 {POPULAR_BUSINESS_TYPES.map((type) => (
@@ -263,7 +269,7 @@ Tahlilchi: BESTO AI Diagnostika`;
 
             {/* Product / Service */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-[#493329]">
+              <label className="font-semibold text-[#112521]">
                 Mahsulot yoki xizmat nomi <span className="text-red-500">*</span>
               </label>
               <input
@@ -271,14 +277,14 @@ Tahlilchi: BESTO AI Diagnostika`;
                 value={formData.productOrService}
                 onChange={(e) => setFormData({ ...formData, productOrService: e.target.value })}
                 placeholder="Masalan: Erkaklar klassik kiyimlari yoki IELTS tayyorlov kursi"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#FAF6F0] text-[#34221A] text-xs focus:outline-none focus:ring-2 focus:ring-[#D0AE70] transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#F6F8F7] text-[#112521] text-xs focus:outline-none focus:ring-2 focus:ring-[#F5B85C] transition-colors"
                 required
               />
             </div>
 
             {/* Target Audience */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-[#493329]">
+              <label className="font-semibold text-[#112521]">
                 Mijozlar kimligi (Auditoriya) <span className="text-red-500">*</span>
               </label>
               <input
@@ -286,7 +292,7 @@ Tahlilchi: BESTO AI Diagnostika`;
                 value={formData.targetAudience}
                 onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
                 placeholder="Masalan: 20-40 yoshli ishbilarmon erkaklar yoki talabalar"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#FAF6F0] text-[#34221A] text-xs focus:outline-none focus:ring-2 focus:ring-[#D0AE70] transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#F6F8F7] text-[#112521] text-xs focus:outline-none focus:ring-2 focus:ring-[#F5B85C] transition-colors"
                 required
               />
             </div>
@@ -294,10 +300,10 @@ Tahlilchi: BESTO AI Diagnostika`;
             {/* Monthly Revenue (Optional) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="font-semibold text-[#493329]">
+                <label className="font-semibold text-[#112521]">
                   Oylik tushum / aylanma
                 </label>
-                <span className="text-[10px] text-[#8D786D] bg-[#F6EFE3] px-2 py-0.5 rounded-md font-medium">
+                <span className="text-[10px] text-[#52796F] bg-[#D7F0E5] px-2 py-0.5 rounded-md font-medium">
                   Ixtiyoriy
                 </span>
               </div>
@@ -306,16 +312,16 @@ Tahlilchi: BESTO AI Diagnostika`;
                 value={formData.monthlyRevenue}
                 onChange={(e) => setFormData({ ...formData, monthlyRevenue: e.target.value })}
                 placeholder="Masalan: 15-30 mln so'm (maxfiy bo'lsa bo'sh qoldiring)"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#FAF6F0] text-[#34221A] text-xs focus:outline-none focus:ring-2 focus:ring-[#D0AE70] transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#F6F8F7] text-[#112521] text-xs focus:outline-none focus:ring-2 focus:ring-[#F5B85C] transition-colors"
               />
-              <p className="text-[10px] text-[#8D786D] italic">
+              <p className="text-[10px] text-[#52796F] italic">
                 * Kiritilmasa, AI taxminni fakt deb ko'rsatmasdan, umumiy bozor mezonlariga tayanadi.
               </p>
             </div>
 
             {/* Main Problem */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-[#493329]">
+              <label className="font-semibold text-[#112521]">
                 Asosiy to'siq yoki muammo <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -323,7 +329,7 @@ Tahlilchi: BESTO AI Diagnostika`;
                 onChange={(e) => setFormData({ ...formData, mainProblem: e.target.value })}
                 placeholder="Sizni hozirda eng ko'p qiynayotgan muammoni yozing yoki pastdagi andozalardan tanlang..."
                 rows={2}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#FAF6F0] text-[#34221A] text-xs focus:outline-none focus:ring-2 focus:ring-[#D0AE70] transition-colors resize-none"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#F6F8F7] text-[#112521] text-xs focus:outline-none focus:ring-2 focus:ring-[#F5B85C] transition-colors resize-none"
                 required
               />
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -332,7 +338,7 @@ Tahlilchi: BESTO AI Diagnostika`;
                     key={i}
                     type="button"
                     onClick={() => setFormData({ ...formData, mainProblem: prob })}
-                    className="text-[10px] text-left px-2 py-1 bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-lg text-[#6B5549] transition-colors"
+                    className="text-[10px] text-left px-2 py-1 bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-lg text-[#52796F] transition-colors"
                   >
                     + {prob.slice(0, 32)}...
                   </button>
@@ -342,7 +348,7 @@ Tahlilchi: BESTO AI Diagnostika`;
 
             {/* Current Goal */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-[#493329]">
+              <label className="font-semibold text-[#112521]">
                 Hozirgi bosh maqsad <span className="text-red-500">*</span>
               </label>
               <input
@@ -350,7 +356,7 @@ Tahlilchi: BESTO AI Diagnostika`;
                 value={formData.currentGoal}
                 onChange={(e) => setFormData({ ...formData, currentGoal: e.target.value })}
                 placeholder="Masalan: Sotuvni 2 baravar oshirish yoki mijozlar bazasini kengaytirish"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#FAF6F0] text-[#34221A] text-xs focus:outline-none focus:ring-2 focus:ring-[#D0AE70] transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#D5C7B7] bg-[#F6F8F7] text-[#112521] text-xs focus:outline-none focus:ring-2 focus:ring-[#F5B85C] transition-colors"
                 required
               />
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -359,7 +365,7 @@ Tahlilchi: BESTO AI Diagnostika`;
                     key={i}
                     type="button"
                     onClick={() => setFormData({ ...formData, currentGoal: g })}
-                    className="text-[10px] text-left px-2 py-1 bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-lg text-[#6B5549] transition-colors"
+                    className="text-[10px] text-left px-2 py-1 bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-lg text-[#52796F] transition-colors"
                   >
                     + {g}
                   </button>
@@ -371,17 +377,17 @@ Tahlilchi: BESTO AI Diagnostika`;
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 px-4 py-3 bg-[#D0AE70] hover:bg-[#C39F60] text-[#34221A] font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 btn-tactile focus:outline-none focus:ring-2 focus:ring-[#D0AE70]"
+              className="w-full mt-4 px-4 py-3 bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 btn-tactile focus:outline-none focus:ring-2 focus:ring-[#F5B85C]"
             >
-              <Sparkles className="w-4 h-4 text-[#34221A]" />
+              <Sparkles className="w-4 h-4 text-[#112521]" />
               <span>{loading ? "Tahlil qilinmoqda..." : "Diagnostikani boshlash"}</span>
             </button>
           </form>
 
           {/* Saved History Quick Selector */}
           {savedHistory.length > 0 && (
-            <div className="pt-4 border-t border-[#EFE8DE] space-y-2">
-              <span className="text-[11px] font-semibold text-[#795640] block">
+            <div className="pt-4 border-t border-[#E0ECE8] space-y-2">
+              <span className="text-[11px] font-semibold text-[#173B35] block">
                 Oldingi saqlangan tahlillar ({savedHistory.length}):
               </span>
               <div className="space-y-1.5 max-h-36 overflow-y-auto">
@@ -392,12 +398,12 @@ Tahlilchi: BESTO AI Diagnostika`;
                       setFormData(hist.input);
                       setResult(hist);
                     }}
-                    className="w-full text-left p-2 rounded-lg bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] flex items-center justify-between text-xs transition-colors"
+                    className="w-full text-left p-2 rounded-lg bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] flex items-center justify-between text-xs transition-colors"
                   >
-                    <span className="truncate font-medium text-[#493329] max-w-[190px]">
+                    <span className="truncate font-medium text-[#112521] max-w-[190px]">
                       {hist.input.productOrService}
                     </span>
-                    <span className="text-[10px] text-[#8D786D] shrink-0">
+                    <span className="text-[10px] text-[#52796F] shrink-0">
                       {new Date(hist.createdAt).toLocaleDateString('uz-UZ')}
                     </span>
                   </button>
@@ -410,15 +416,15 @@ Tahlilchi: BESTO AI Diagnostika`;
         {/* Right Output Area (7 cols on lg) */}
         <div className="lg:col-span-7 space-y-6">
           {!result && !loading && (
-            <div className="bg-white border border-[#E6DCD1] border-dashed rounded-3xl p-8 sm:p-12 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#F6EFE3] text-[#795640] mx-auto flex items-center justify-center">
-                <BarChart2 className="w-8 h-8 text-[#D0AE70]" />
+            <div className="bg-white border border-[#E0ECE8] border-dashed rounded-3xl p-8 sm:p-12 text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#D7F0E5] text-[#173B35] mx-auto flex items-center justify-center">
+                <BarChart2 className="w-8 h-8 text-[#F5B85C]" />
               </div>
               <div className="space-y-1.5 max-w-md mx-auto">
-                <h3 className="text-base font-bold text-[#493329]">
+                <h3 className="text-base font-bold text-[#112521]">
                   Tahlil natijalari bu yerda chiqadi
                 </h3>
-                <p className="text-xs text-[#6B5549] leading-relaxed">
+                <p className="text-xs text-[#52796F] leading-relaxed">
                   Chap tarafdagi formani to'ldirib, "Diagnostikani boshlash" tugmasini bosing. Sizga 6 ta amaliy yo'nalish bo'yicha to'liq hisobot taqdim etiladi.
                 </p>
               </div>
@@ -426,14 +432,14 @@ Tahlilchi: BESTO AI Diagnostika`;
           )}
 
           {loading && (
-            <div className="bg-white border border-[#E6DCD1] rounded-3xl p-12 text-center space-y-4 animate-pulse">
-              <div className="w-14 h-14 rounded-2xl bg-[#493329] text-[#D0AE70] mx-auto flex items-center justify-center font-bold text-lg font-serif">
+            <div className="bg-white border border-[#E0ECE8] rounded-3xl p-12 text-center space-y-4 animate-pulse">
+              <div className="w-14 h-14 rounded-2xl bg-[#112521] text-[#F5B85C] mx-auto flex items-center justify-center font-bold text-lg font-serif">
                 B
               </div>
-              <h3 className="text-sm font-bold text-[#493329]">
+              <h3 className="text-sm font-bold text-[#112521]">
                 AI biznes diagnostikasi hisoblanmoqda...
               </h3>
-              <p className="text-xs text-[#8D786D] max-w-sm mx-auto">
+              <p className="text-xs text-[#52796F] max-w-sm mx-auto">
                 Muammolar, o'sish nuqtalari va 7 kunlik amaliy reja shakllantirilmoqda.
               </p>
             </div>
@@ -442,12 +448,15 @@ Tahlilchi: BESTO AI Diagnostika`;
           {result && !loading && (
             <div className="space-y-6">
               {/* Top Controls Toolbar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E6DCD1]">
+              <div 
+                className="scroll-reveal flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E0ECE8]"
+                style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
+              >
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#493329]">
+                  <span className="text-xs font-bold text-[#112521]">
                     Diagnostika hisoboti
                   </span>
-                  <span className="text-[10px] text-[#795640] bg-[#F6EFE3] px-2 py-0.5 rounded-full font-medium">
+                  <span className="text-[10px] text-[#173B35] bg-[#D7F0E5] px-2 py-0.5 rounded-full font-medium">
                     {new Date(result.createdAt).toLocaleDateString('uz-UZ')}
                   </span>
                 </div>
@@ -455,18 +464,18 @@ Tahlilchi: BESTO AI Diagnostika`;
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleCopyReport}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E6DCD1] bg-[#FAF6F0] hover:bg-[#F2ECE1] text-xs font-medium text-[#493329] transition-colors btn-tactile"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E0ECE8] bg-[#F6F8F7] hover:bg-[#E0ECE8] text-xs font-medium text-[#112521] transition-colors btn-tactile"
                   >
-                    <Copy className="w-3.5 h-3.5 text-[#795640]" />
+                    <Copy className="w-3.5 h-3.5 text-[#173B35]" />
                     <span>{copied ? "Nusxalandi!" : "Nusxa olish"}</span>
                   </button>
 
                   <button
                     onClick={handleSaveResult}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E6DCD1] bg-[#FAF6F0] hover:bg-[#F2ECE1] text-xs font-medium text-[#493329] transition-colors btn-tactile"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E0ECE8] bg-[#F6F8F7] hover:bg-[#E0ECE8] text-xs font-medium text-[#112521] transition-colors btn-tactile"
                     title="Natijani saqlash"
                   >
-                    <BookmarkCheck className="w-3.5 h-3.5 text-[#D0AE70]" />
+                    <BookmarkCheck className="w-3.5 h-3.5 text-[#F5B85C]" />
                     <span>Saqlash</span>
                   </button>
 
@@ -475,7 +484,7 @@ Tahlilchi: BESTO AI Diagnostika`;
                       setResult(null);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="p-1.5 rounded-xl border border-[#E6DCD1] hover:bg-[#FAF6F0] text-[#6B5549] transition-colors"
+                    className="p-1.5 rounded-xl border border-[#E0ECE8] hover:bg-[#F6F8F7] text-[#52796F] transition-colors"
                     title="Qayta to'ldirish"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
@@ -484,55 +493,64 @@ Tahlilchi: BESTO AI Diagnostika`;
               </div>
 
               {/* 1. Summary Card */}
-              <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#493329]">
-                  <span className="w-2 h-2 rounded-full bg-[#D0AE70]"></span>
+              <div 
+                className="scroll-reveal bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card space-y-3"
+                style={{ '--reveal-delay': '80ms' } as React.CSSProperties}
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-[#112521]">
+                  <span className="w-2 h-2 rounded-full bg-[#F5B85C]"></span>
                   <span>1. Biznes holatining qisqa tahlili</span>
                 </div>
-                <p className="text-xs text-[#493329] leading-relaxed">
+                <p className="text-xs text-[#112521] leading-relaxed">
                   {result.summary}
                 </p>
                 {result.confidenceNote && (
-                  <div className="flex items-start gap-2 p-2.5 bg-[#FAF6F0] border border-[#EFE8DE] rounded-xl text-[11px] text-[#795640]">
-                    <Info className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2 p-2.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-[11px] text-[#173B35]">
+                    <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
                     <span>{result.confidenceNote}</span>
                   </div>
                 )}
               </div>
 
               {/* 5. Primary Priority Task (Positioned with high prominence) */}
-              <div className="bg-linear-to-br from-[#493329] to-[#34221A] text-white rounded-2xl p-5 sm:p-6 shadow-card space-y-3 border border-[#6B5041]">
+              <div 
+                className="scroll-reveal bg-linear-to-br from-[#112521] to-[#112521] text-white rounded-2xl p-5 sm:p-6 shadow-card space-y-3 border border-[#6B5041]"
+                style={{ '--reveal-delay': '120ms' } as React.CSSProperties}
+              >
                 <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#D0AE70]/20 border border-[#D0AE70]/40 text-[#D0AE70] text-[10px] font-bold uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F5B85C]/20 border border-[#F5B85C]/40 text-[#F5B85C] text-[10px] font-bold uppercase tracking-wider">
                     <Target className="w-3 h-3" />
                     <span>Birinchi navbatdagi vazifa (Quick Win)</span>
                   </div>
-                  <span className="text-[11px] text-[#D0AE70] font-semibold">1-o'rindagi ustuvorlik</span>
+                  <span className="text-[11px] text-[#F5B85C] font-semibold">1-o'rindagi ustuvorlik</span>
                 </div>
 
                 <h4 className="text-sm sm:text-base font-bold text-white">
                   {result.primaryPriorityTask.title}
                 </h4>
 
-                <div className="space-y-1.5 text-xs text-[#E6DCD1] pt-1">
+                <div className="space-y-1.5 text-xs text-[#E0ECE8] pt-1">
                   <p>
-                    <strong className="text-[#D0AE70]">Sababi:</strong> {result.primaryPriorityTask.rationale}
+                    <strong className="text-[#F5B85C]">Sababi:</strong> {result.primaryPriorityTask.rationale}
                   </p>
                   <p>
-                    <strong className="text-[#D0AE70]">Kutiladigan natija:</strong> {result.primaryPriorityTask.expectedOutcome}
+                    <strong className="text-[#F5B85C]">Kutiladigan natija:</strong> {result.primaryPriorityTask.expectedOutcome}
                   </p>
                 </div>
               </div>
 
               {/* 2 & 3. Risks & Growth Opportunities Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div 
+                className="scroll-reveal grid grid-cols-1 md:grid-cols-2 gap-4"
+                style={{ '--reveal-delay': '160ms' } as React.CSSProperties}
+              >
                 {/* 2. Top 3 Risks */}
-                <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card space-y-3">
+                <div className="bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card space-y-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-[#A84234]">
                     <AlertTriangle className="w-4 h-4 text-[#A84234] shrink-0" />
                     <span>2. Eng muhim 3 ta xavf</span>
                   </div>
-                  <ul className="space-y-2 text-xs text-[#6B5549]">
+                  <ul className="space-y-2 text-xs text-[#52796F]">
                     {result.topRisks.map((risk, index) => (
                       <li key={index} className="flex items-start gap-2 bg-[#FDF9F8] p-2 rounded-xl border border-[#F3E2DF]">
                         <span className="w-4 h-4 rounded-full bg-[#A84234] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
@@ -545,15 +563,15 @@ Tahlilchi: BESTO AI Diagnostika`;
                 </div>
 
                 {/* 3. Growth Opportunities */}
-                <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#795640]">
-                    <TrendingUp className="w-4 h-4 text-[#D0AE70] shrink-0" />
+                <div className="bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#173B35]">
+                    <TrendingUp className="w-4 h-4 text-[#F5B85C] shrink-0" />
                     <span>3. O'sish uchun 3 ta imkoniyat</span>
                   </div>
-                  <ul className="space-y-2 text-xs text-[#6B5549]">
+                  <ul className="space-y-2 text-xs text-[#52796F]">
                     {result.growthOpportunities.map((opp, index) => (
-                      <li key={index} className="flex items-start gap-2 bg-[#FDFBF7] p-2 rounded-xl border border-[#EFE8DE]">
-                        <span className="w-4 h-4 rounded-full bg-[#D0AE70] text-[#34221A] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                      <li key={index} className="flex items-start gap-2 bg-[#FDFBF7] p-2 rounded-xl border border-[#E0ECE8]">
+                        <span className="w-4 h-4 rounded-full bg-[#F5B85C] text-[#112521] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
                           {index + 1}
                         </span>
                         <span className="leading-snug">{opp}</span>
@@ -564,31 +582,34 @@ Tahlilchi: BESTO AI Diagnostika`;
               </div>
 
               {/* 4. 7-Day Action Plan */}
-              <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card space-y-3">
-                <div className="flex items-center justify-between border-b border-[#EFE8DE] pb-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#493329]">
-                    <Calendar className="w-4 h-4 text-[#D0AE70]" />
+              <div 
+                className="scroll-reveal bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card space-y-3"
+                style={{ '--reveal-delay': '200ms' } as React.CSSProperties}
+              >
+                <div className="flex items-center justify-between border-b border-[#E0ECE8] pb-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#112521]">
+                    <Calendar className="w-4 h-4 text-[#F5B85C]" />
                     <span>4. Keyingi 7 kun uchun amaliy harakatlar rejasi</span>
                   </div>
-                  <span className="text-[10px] text-[#8D786D]">Ketma-ket tartib</span>
+                  <span className="text-[10px] text-[#52796F]">Ketma-ket tartib</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                   {result.sevenDayActionPlan.map((step, idx) => (
                     <div
                       key={idx}
-                      className="p-3 bg-[#FAF6F0] border border-[#EFE8DE] rounded-xl space-y-1 hover:border-[#D0AE70] transition-colors"
+                      className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl space-y-1 hover:border-[#F5B85C] transition-colors"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[#795640] uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-[#173B35] uppercase tracking-wider">
                           {step.day}
                         </span>
-                        <ChevronRight className="w-3.5 h-3.5 text-[#D0AE70]" />
+                        <ChevronRight className="w-3.5 h-3.5 text-[#F5B85C]" />
                       </div>
-                      <h5 className="text-xs font-semibold text-[#493329] leading-tight">
+                      <h5 className="text-xs font-semibold text-[#112521] leading-tight">
                         {step.task}
                       </h5>
-                      <p className="text-[11px] text-[#6B5549] leading-snug">
+                      <p className="text-[11px] text-[#52796F] leading-snug">
                         {step.details}
                       </p>
                     </div>
@@ -597,33 +618,36 @@ Tahlilchi: BESTO AI Diagnostika`;
               </div>
 
               {/* 6. Strategic Reasoning & Expected Outcome */}
-              <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#493329]">
-                  <HelpCircle className="w-4 h-4 text-[#D0AE70]" />
+              <div 
+                className="scroll-reveal bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card space-y-3"
+                style={{ '--reveal-delay': '240ms' } as React.CSSProperties}
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-[#112521]">
+                  <HelpCircle className="w-4 h-4 text-[#F5B85C]" />
                   <span>6. Tavsiyalarning sababi va kutiladigan natijasi</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[#6B5549]">
-                  <div className="space-y-1 p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DE]">
-                    <span className="font-semibold text-[#493329] block">Nima uchun bu choralar tanlandi?</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[#52796F]">
+                  <div className="space-y-1 p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                    <span className="font-semibold text-[#112521] block">Nima uchun bu choralar tanlandi?</span>
                     <p className="text-[11px] leading-relaxed">{result.reasoningAndOutcome.strategicReason}</p>
                   </div>
 
-                  <div className="space-y-1 p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DE]">
-                    <span className="font-semibold text-[#493329] block">Qanday samara kutiladi?</span>
+                  <div className="space-y-1 p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]">
+                    <span className="font-semibold text-[#112521] block">Qanday samara kutiladi?</span>
                     <p className="text-[11px] leading-relaxed">{result.reasoningAndOutcome.expectedImpact}</p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#EFE8DE] space-y-1.5">
-                  <span className="text-[11px] font-semibold text-[#795640] block">
+                <div className="pt-2 border-t border-[#E0ECE8] space-y-1.5">
+                  <span className="text-[11px] font-semibold text-[#173B35] block">
                     Kuzatilishi kerak bo'lgan asosiy ko'rsatkichlar (KPI):
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {result.reasoningAndOutcome.metricsToTrack.map((metric, i) => (
                       <span
                         key={i}
-                        className="px-2.5 py-1 bg-[#F6EFE3] text-[#795640] text-[10px] font-medium rounded-lg border border-[#E8D6B7]/60"
+                        className="px-2.5 py-1 bg-[#D7F0E5] text-[#173B35] text-[10px] font-medium rounded-lg border border-[#E0ECE8]/60"
                       >
                         ✓ {metric}
                       </span>

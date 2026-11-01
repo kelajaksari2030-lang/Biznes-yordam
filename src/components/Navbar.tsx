@@ -21,12 +21,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* Top Bar for Desktop and Tablet - Strict 3-zone contract with warm-luxury palette */}
-      <header className="sticky top-0 z-40 bg-[#FAF6F0]/95 backdrop-blur-md border-b border-[#E6DCD1] transition-colors">
+      <header className="sticky top-0 z-40 bg-[#F6F8F7]/95 backdrop-blur-md border-b border-[#E0ECE8] transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 sm:gap-6">
           {/* Zone 1: Brand Wordmark */}
           <button
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2.5 text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] rounded-xl p-1 btn-tactile"
+            className="flex items-center gap-2.5 text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] rounded-xl p-1 btn-tactile"
           >
             <div className="w-9 h-9 rounded-xl bg-[#173B35] border border-[#23584F] text-[#F5B85C] flex items-center justify-center font-bold shadow-xs">
               <span className="text-base tracking-tight font-serif">B</span>
@@ -37,78 +37,78 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Zone 2: Single-line Nav Links with subtle transitions */}
-          <nav className="hidden md:flex items-center gap-3 lg:gap-5 text-sm font-medium text-[#6B5549]">
+          <nav className="hidden md:flex items-center gap-3 lg:gap-5 text-sm font-medium text-[#52796F]">
             <button
               onClick={() => setActiveTab('home')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 ${
                 activeTab === 'home'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
               Bosh sahifa
             </button>
             <button
               onClick={() => setActiveTab('ad-generator')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 ${
                 activeTab === 'ad-generator'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
               Reklama matnlari
             </button>
             <button
               onClick={() => setActiveTab('ad-lab')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 flex items-center gap-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 flex items-center gap-1.5 ${
                 activeTab === 'ad-lab'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
-              <FlaskConical className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <FlaskConical className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Reklama Lab</span>
             </button>
             <button
               onClick={() => setActiveTab('profit-calculator')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 ${
                 activeTab === 'profit-calculator'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
               Foyda kalkulyatori
             </button>
             <button
               onClick={() => setActiveTab('reply-templates')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 ${
                 activeTab === 'reply-templates'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
               Mijozlarga javoblar
             </button>
             <button
               onClick={() => setActiveTab('business-diagnostics')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 flex items-center gap-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 flex items-center gap-1.5 ${
                 activeTab === 'business-diagnostics'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>AI Diagnostika</span>
             </button>
             <button
               onClick={() => setActiveTab('today-navigator')}
-              className={`hover:text-[#493329] transition-all whitespace-nowrap shrink-0 py-1.5 flex items-center gap-1.5 ${
+              className={`hover:text-[#112521] transition-all whitespace-nowrap shrink-0 py-1.5 flex items-center gap-1.5 ${
                 activeTab === 'today-navigator'
-                  ? 'text-[#493329] font-semibold border-b-2 border-[#D0AE70]'
-                  : 'hover:border-b-2 hover:border-[#E6DCD1]'
+                  ? 'text-[#112521] font-semibold border-b-2 border-[#F5B85C]'
+                  : 'hover:border-b-2 hover:border-[#E0ECE8]'
               }`}
             >
-              <Compass className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <Compass className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Bugun nima qilay?</span>
             </button>
           </nav>
@@ -118,9 +118,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Pricing Button */}
             <button
               onClick={onOpenPricing}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#6B5549] hover:text-[#493329] bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl transition-all btn-tactile whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#52796F] hover:text-[#112521] bg-white hover:bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl transition-all btn-tactile whitespace-nowrap"
             >
-              <Layers className="w-3.5 h-3.5 text-[#795640]" />
+              <Layers className="w-3.5 h-3.5 text-[#173B35]" />
               <span>Tariflar</span>
             </button>
 
@@ -128,26 +128,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             {user && (
               <button
                 onClick={onOpenAccount}
-                className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 bg-white hover:bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl transition-all btn-tactile text-left"
+                className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 bg-white hover:bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl transition-all btn-tactile text-left"
                 title="Hisob holati va sozlamalar"
               >
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || 'Profil'}
-                    className="w-7 h-7 rounded-lg object-cover border border-[#D0AE70]"
+                    className="w-7 h-7 rounded-lg object-cover border border-[#F5B85C]"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-lg bg-[#493329] text-[#D0AE70] font-bold text-xs flex items-center justify-center font-serif">
+                  <div className="w-7 h-7 rounded-lg bg-[#112521] text-[#F5B85C] font-bold text-xs flex items-center justify-center font-serif">
                     {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                   </div>
                 )}
                 <div className="hidden lg:block text-left">
-                  <span className="text-xs font-semibold text-[#493329] block leading-tight max-w-[100px] truncate">
+                  <span className="text-xs font-semibold text-[#112521] block leading-tight max-w-[100px] truncate">
                     {user.displayName?.split(' ')[0] || 'Hisob'}
                   </span>
-                  <span className="text-[10px] text-[#795640] block leading-tight font-medium">
+                  <span className="text-[10px] text-[#173B35] block leading-tight font-medium">
                     {currentPlan.badge}
                   </span>
                 </div>
@@ -157,9 +157,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Quick Action Button */}
             <button
               onClick={() => setActiveTab('profit-calculator')}
-              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl btn-tactile shadow-xs whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] border border-[#F5B85C]/50 rounded-xl btn-tactile shadow-xs whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
             >
-              <Calculator className="w-3.5 h-3.5 text-[#34221A]" />
+              <Calculator className="w-3.5 h-3.5 text-[#112521]" />
               <span>Hisoblash</span>
             </button>
           </div>
@@ -169,18 +169,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Fixed Bottom Navigation Bar - Ergonomic Thumb Zone (Height 60px) */}
       <nav
         aria-label="Mobil menyu"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF6F0]/95 backdrop-blur-md border-t border-[#E6DCD1] shadow-lg px-0.5 sm:px-2"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#F6F8F7]/95 backdrop-blur-md border-t border-[#E0ECE8] shadow-lg px-0.5 sm:px-2"
       >
         <div className="grid grid-cols-7 items-center h-16">
           <button
             onClick={() => setActiveTab('home')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'home'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <Home className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'home' ? 'text-[#D0AE70]' : ''}`} />
+            <Home className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'home' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Asosiy</span>
           </button>
 
@@ -188,11 +188,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('ad-generator')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'ad-generator'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <FileText className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'ad-generator' ? 'text-[#D0AE70]' : ''}`} />
+            <FileText className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'ad-generator' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Reklama</span>
           </button>
 
@@ -200,11 +200,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('ad-lab')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'ad-lab'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <FlaskConical className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'ad-lab' ? 'text-[#D0AE70]' : ''}`} />
+            <FlaskConical className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'ad-lab' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Lab</span>
           </button>
 
@@ -212,11 +212,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('today-navigator')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'today-navigator'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <Compass className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'today-navigator' ? 'text-[#D0AE70]' : ''}`} />
+            <Compass className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'today-navigator' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Reja</span>
           </button>
 
@@ -224,11 +224,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('profit-calculator')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'profit-calculator'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <Calculator className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'profit-calculator' ? 'text-[#D0AE70]' : ''}`} />
+            <Calculator className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'profit-calculator' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Hisob</span>
           </button>
 
@@ -236,11 +236,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('reply-templates')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'reply-templates'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <MessageSquare className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'reply-templates' ? 'text-[#D0AE70]' : ''}`} />
+            <MessageSquare className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'reply-templates' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Javob</span>
           </button>
 
@@ -248,11 +248,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setActiveTab('business-diagnostics')}
             className={`flex flex-col items-center justify-center min-h-[48px] py-1 transition-colors btn-tactile ${
               activeTab === 'business-diagnostics'
-                ? 'text-[#493329] font-semibold'
-                : 'text-[#8D786D] hover:text-[#493329]'
+                ? 'text-[#112521] font-semibold'
+                : 'text-[#52796F] hover:text-[#112521]'
             }`}
           >
-            <Sparkles className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'business-diagnostics' ? 'text-[#D0AE70]' : ''}`} />
+            <Sparkles className={`w-4 h-4 sm:w-5 sm:h-5 ${activeTab === 'business-diagnostics' ? 'text-[#F5B85C]' : ''}`} />
             <span className="text-[8px] sm:text-[10px] mt-1 tracking-tight">Audit</span>
           </button>
         </div>

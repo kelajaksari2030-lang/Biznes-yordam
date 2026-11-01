@@ -19,8 +19,8 @@ import {
   runTransaction,
   getDoc,
 } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType, logFirestoreOp } from './firebase';
-import { Order, OrderItem, OrderStatus, OrderPaymentStatus } from '../types/business';
+import { db, handleFirestoreError, OperationType, logFirestoreOp, sanitizeFirestorePayload } from './firebase';
+import { Order, OrderItem, OrderStatus, OrderPaymentStatus, DeductedStockItem } from '../types/business';
 import { Product } from '../types/inventory';
 import { Customer } from '../types/crm';
 
@@ -28,6 +28,7 @@ export interface CreateOrderInput {
   customerId: string;
   customerName: string;
   customerPhone?: string;
+  idempotencyKey?: string;
   items: {
     productId: string;
     productName: string;
@@ -35,6 +36,7 @@ export interface CreateOrderInput {
     unitPrice: number; // Snapshot of selling price
     unitCost: number;  // Snapshot of purchase/production cost
     unit?: string;
+    recipeSnapshot?: { ingredientProductId: string; quantity: number }[];
   }[];
   status?: OrderStatus;
   paymentStatus?: OrderPaymentStatus;
@@ -307,6 +309,7 @@ export async function createOrder(
     paymentStatus,
     paidAmount: initialPaidAmount,
     stockDeducted: false,
+    idempotencyKey: input.idempotencyKey || undefined,
     notes: input.notes?.trim() || '',
     createdAt: now,
     confirmedAt: null,
@@ -316,7 +319,7 @@ export async function createOrder(
   };
 
   try {
-    await setDoc(newOrderDoc, orderData);
+    await setDoc(newOrderDoc, sanitizeFirestorePayload(orderData));
     logFirestoreOp(OperationType.CREATE, docPath);
 
     // If autoConfirm requested, execute atomic stock deduction
@@ -352,7 +355,7 @@ export async function confirmOrder(userId: string, orderId: string): Promise<Ord
   try {
     const updatedOrder = await runTransaction(db, async (tx) => {
       // ==========================================
-      // PHASE 1: ALL READS FIRST
+      // PHASE 1: ALL READS FIRST (Strict Firestore rule)
       // ==========================================
       const orderSnap = await tx.get(orderRef);
       if (!orderSnap.exists()) {
@@ -364,7 +367,7 @@ export async function confirmOrder(userId: string, orderId: string): Promise<Ord
         throw new Error("Ruxsat berilmagan: Ushbu buyurtma sizga tegishli emas");
       }
 
-      // IDEMPOTENCY CHECK: If already delivered or confirmed and stock already deducted, return without duplicate deduction!
+      // IDEMPOTENCY CHECK: If already confirmed/delivered and stock already deducted, return without duplicate deduction!
       if (orderData.status === 'delivered') {
         return orderData;
       }
@@ -381,57 +384,148 @@ export async function confirmOrder(userId: string, orderId: string): Promise<Ord
         throw new Error("Bekor qilingan buyurtmani to'g'ridan-to'g'ri tasdiqlab bo'lmaydi. Yangi buyurtma yarating.");
       }
 
-      // Read all products involved in order items
-      const productDocs: { ref: any; currentData: Product; item: OrderItem }[] = [];
+      // Read ordered products
+      const loadedProducts = new Map<string, Product>();
 
       for (const item of orderData.items) {
-        const prodRef = doc(db, 'users', userId, 'products', item.productId);
-        const prodSnap = await tx.get(prodRef);
+        if (!loadedProducts.has(item.productId)) {
+          const prodRef = doc(db, 'users', userId, 'products', item.productId);
+          const prodSnap = await tx.get(prodRef);
 
-        if (!prodSnap.exists()) {
-          throw new Error(`Mahsulot omborda topilmadi: "${item.productName}"`);
+          if (!prodSnap.exists()) {
+            throw new Error(`Mahsulot omborda topilmadi: "${item.productName}"`);
+          }
+
+          const prodData = prodSnap.data() as Product;
+          if (prodData.userId !== userId) {
+            throw new Error(`Mahsulotga kirish huquqi yo'q: "${item.productName}"`);
+          }
+
+          loadedProducts.set(item.productId, prodData);
         }
+      }
 
-        const prodData = prodSnap.data() as Product;
-        if (prodData.userId !== userId) {
-          throw new Error(`Mahsulotga kirish huquqi yo'q: "${item.productName}"`);
+      // Check if any product has a recipe, read all ingredient products not yet loaded
+      for (const item of orderData.items) {
+        const prodData = loadedProducts.get(item.productId)!;
+        if (prodData.recipe && Array.isArray(prodData.recipe) && prodData.recipe.length > 0) {
+          for (const rItem of prodData.recipe) {
+            if (!loadedProducts.has(rItem.ingredientProductId)) {
+              const ingRef = doc(db, 'users', userId, 'products', rItem.ingredientProductId);
+              const ingSnap = await tx.get(ingRef);
+
+              if (!ingSnap.exists()) {
+                throw new Error(
+                  `"${prodData.name}" retseptidagi xomashyo omborda topilmadi (ID: ${rItem.ingredientProductId})`
+                );
+              }
+
+              const ingData = ingSnap.data() as Product;
+              if (ingData.userId !== userId) {
+                throw new Error(`Xomashyoga kirish huquqi yo'q: "${ingData.name}"`);
+              }
+
+              loadedProducts.set(rItem.ingredientProductId, ingData);
+            }
+          }
         }
+      }
 
-        // Stock sufficiency check
+      // Aggregate required deductions across all items (ingredients or finished goods)
+      const deductionsMap = new Map<
+        string,
+        {
+          requiredQty: number;
+          name: string;
+          unit: string;
+          isIngredient: boolean;
+          finishedProductId?: string;
+        }
+      >();
+
+      for (const item of orderData.items) {
+        const prodData = loadedProducts.get(item.productId)!;
+        const requestedItemQty = Number(item.quantity) || 0;
+
+        if (prodData.recipe && Array.isArray(prodData.recipe) && prodData.recipe.length > 0) {
+          // Deduct ingredients per recipe BOM
+          for (const rItem of prodData.recipe) {
+            const ingProd = loadedProducts.get(rItem.ingredientProductId)!;
+            const neededQty = requestedItemQty * (Number(rItem.quantity) || 0);
+
+            const existing = deductionsMap.get(rItem.ingredientProductId);
+            if (existing) {
+              existing.requiredQty += neededQty;
+            } else {
+              deductionsMap.set(rItem.ingredientProductId, {
+                requiredQty: neededQty,
+                name: ingProd.name,
+                unit: ingProd.unit || 'dona',
+                isIngredient: true,
+                finishedProductId: item.productId,
+              });
+            }
+          }
+        } else {
+          // Regular product deduction
+          const existing = deductionsMap.get(item.productId);
+          if (existing) {
+            existing.requiredQty += requestedItemQty;
+          } else {
+            deductionsMap.set(item.productId, {
+              requiredQty: requestedItemQty,
+              name: prodData.name,
+              unit: prodData.unit || 'dona',
+              isIngredient: false,
+            });
+          }
+        }
+      }
+
+      // Stock sufficiency verification
+      for (const [prodId, ded] of deductionsMap.entries()) {
+        const prodData = loadedProducts.get(prodId)!;
         const currentQty = Number(prodData.quantity) || 0;
-        const requestedQty = Number(item.quantity) || 0;
 
-        if (currentQty < requestedQty) {
+        if (currentQty < ded.requiredQty) {
+          const roleLabel = ded.isIngredient ? "Xomashyo / ingredient" : "Mahsulot";
           throw new Error(
-            `Omborda mahsulot yetarli emas: "${item.productName}". Mavjud: ${currentQty} ${prodData.unit || 'dona'}, so'ralgan: ${requestedQty} ${prodData.unit || 'dona'}.`
+            `Omborda ${roleLabel.toLowerCase()} yetarli emas: "${ded.name}". Mavjud: ${currentQty} ${ded.unit}, so'ralgan: ${ded.requiredQty} ${ded.unit}.`
           );
         }
-
-        productDocs.push({
-          ref: prodRef,
-          currentData: prodData,
-          item,
-        });
       }
 
       // ==========================================
       // PHASE 2: ALL WRITES AFTER READS
       // ==========================================
       const now = new Date().toISOString();
+      const deductedStockItems: DeductedStockItem[] = [];
 
-      // 1. Deduct stock from each product
-      for (const entry of productDocs) {
-        const newQty = (Number(entry.currentData.quantity) || 0) - (Number(entry.item.quantity) || 0);
-        tx.update(entry.ref, {
+      for (const [prodId, ded] of deductionsMap.entries()) {
+        const prodData = loadedProducts.get(prodId)!;
+        const currentQty = Number(prodData.quantity) || 0;
+        const newQty = currentQty - ded.requiredQty;
+
+        const prodRef = doc(db, 'users', userId, 'products', prodId);
+        tx.update(prodRef, {
           quantity: newQty,
           updatedAt: now,
         });
+
+        deductedStockItems.push({
+          productId: prodId,
+          productName: ded.name,
+          quantity: ded.requiredQty,
+          unit: ded.unit,
+          isIngredient: ded.isIngredient,
+          finishedProductId: ded.finishedProductId,
+        });
       }
 
-      // 2. Mark order as confirmed and stockDeducted = true
       const orderUpdatePayload: Partial<Order> = {
         status: 'confirmed',
         stockDeducted: true,
+        deductedStockItems,
         confirmedAt: now,
         updatedAt: now,
       };
@@ -456,7 +550,7 @@ export async function confirmOrder(userId: string, orderId: string): Promise<Ord
  * Cancels an order ATOMICALLY with Firestore Transaction:
  * 1. Reads order doc.
  * 2. Checks idempotency: if already cancelled, returns immediately (no duplicate refund).
- * 3. If stock was deducted (stockDeducted === true), restores the exact quantities back to products.
+ * 3. If stock was deducted (stockDeducted === true), restores the exact quantities back to products (including ingredients).
  * 4. Marks order status as 'cancelled' and stockDeducted = false.
  * 
  * Strict rule: All reads are performed before any writes in runTransaction.
@@ -492,22 +586,42 @@ export async function cancelOrder(userId: string, orderId: string): Promise<Orde
         throw new Error("Yetkazilgan ('delivered') buyurtmani to'g'ridan-to'g'ri bekor qilib bo'lmaydi. Mahsulotlar mijozga topshirilgan.");
       }
 
-      const productDocs: { ref: any; currentData: Product; item: OrderItem }[] = [];
+      const productsToRestore: { ref: any; currentQty: number; restoreQty: number }[] = [];
 
-      // Only need to read products if stock was actually deducted earlier
+      // Only need to restore if stock was actually deducted earlier
       if (orderData.stockDeducted) {
-        for (const item of orderData.items) {
-          const prodRef = doc(db, 'users', userId, 'products', item.productId);
-          const prodSnap = await tx.get(prodRef);
+        if (orderData.deductedStockItems && Array.isArray(orderData.deductedStockItems) && orderData.deductedStockItems.length > 0) {
+          // Restore exact deducted items (including ingredients)
+          for (const item of orderData.deductedStockItems) {
+            const prodRef = doc(db, 'users', userId, 'products', item.productId);
+            const prodSnap = await tx.get(prodRef);
 
-          if (prodSnap.exists()) {
-            const prodData = prodSnap.data() as Product;
-            if (prodData.userId === userId) {
-              productDocs.push({
-                ref: prodRef,
-                currentData: prodData,
-                item,
-              });
+            if (prodSnap.exists()) {
+              const prodData = prodSnap.data() as Product;
+              if (prodData.userId === userId) {
+                productsToRestore.push({
+                  ref: prodRef,
+                  currentQty: Number(prodData.quantity) || 0,
+                  restoreQty: Number(item.quantity) || 0,
+                });
+              }
+            }
+          }
+        } else {
+          // Legacy fallback: items in orderData.items
+          for (const item of orderData.items) {
+            const prodRef = doc(db, 'users', userId, 'products', item.productId);
+            const prodSnap = await tx.get(prodRef);
+
+            if (prodSnap.exists()) {
+              const prodData = prodSnap.data() as Product;
+              if (prodData.userId === userId) {
+                productsToRestore.push({
+                  ref: prodRef,
+                  currentQty: Number(prodData.quantity) || 0,
+                  restoreQty: Number(item.quantity) || 0,
+                });
+              }
             }
           }
         }
@@ -518,10 +632,9 @@ export async function cancelOrder(userId: string, orderId: string): Promise<Orde
       // ==========================================
       const now = new Date().toISOString();
 
-      // Restore stock if previously deducted
       if (orderData.stockDeducted) {
-        for (const entry of productDocs) {
-          const newQty = (Number(entry.currentData.quantity) || 0) + (Number(entry.item.quantity) || 0);
+        for (const entry of productsToRestore) {
+          const newQty = entry.currentQty + entry.restoreQty;
           tx.update(entry.ref, {
             quantity: newQty,
             updatedAt: now,

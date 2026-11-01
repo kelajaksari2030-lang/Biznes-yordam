@@ -19,6 +19,7 @@ import {
   RefreshCw,
   ExternalLink,
   ReceiptText,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Order, OrderItem, OrderStatus, OrderPaymentStatus } from '../types/business';
@@ -39,6 +40,7 @@ import {
   CreateOrderInput,
 } from '../services/orderService';
 import { ModuleHelpGuide, HelpGuideButton, HelpStep } from './ModuleHelpGuide';
+import { QuickSaleModal } from './QuickSaleModal';
 
 export const OrdersModule: React.FC = () => {
   const { user } = useAuth();
@@ -50,6 +52,9 @@ export const OrdersModule: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Quick Sale (POS) State
+  const [isQuickSaleOpen, setIsQuickSaleOpen] = useState(false);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,7 +108,7 @@ export const OrdersModule: React.FC = () => {
       visual: (
         <svg viewBox="0 0 500 220" className="w-full max-w-lg h-auto rounded-xl">
           <rect width="500" height="220" rx="16" fill="#F6F8F7" stroke="#D7F0E5" strokeWidth="2" />
-          <rect x="20" y="20" width="460" height="40" rx="10" fill="#FFFFFF" stroke="#E6DCD1" strokeWidth="1" />
+          <rect x="20" y="20" width="460" height="40" rx="10" fill="#FFFFFF" stroke="#E0ECE8" strokeWidth="1" />
           <rect x="35" y="32" width="16" height="16" rx="4" fill="#D7F0E5" />
           <text x="60" y="44" fill="#173B35" fontSize="11" fontWeight="bold">Savdo Buyurtmalari</text>
           <rect x="310" y="26" width="155" height="28" rx="8" fill="#F5B85C" />
@@ -114,7 +119,7 @@ export const OrdersModule: React.FC = () => {
           <rect x="70" y="108" width="360" height="28" rx="8" fill="#FAF8F5" stroke="#D7F0E5" strokeWidth="1" />
           <text x="85" y="126" fill="#173B35" fontSize="10" fontWeight="bold">Anvar Qodirov (+998901234567)</text>
 
-          <text x="70" y="155" fill="#6B5549" fontSize="9">Mijoz tanlanganda uning telefon raqami avtomatik ravishda birikadi.</text>
+          <text x="70" y="155" fill="#52796F" fontSize="9">Mijoz tanlanganda uning telefon raqami avtomatik ravishda birikadi.</text>
         </svg>
       ),
     },
@@ -130,7 +135,7 @@ export const OrdersModule: React.FC = () => {
 
           <rect x="30" y="68" width="440" height="70" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1" />
           <text x="45" y="90" fill="#173B35" fontSize="11" fontWeight="bold">Erkaklar klassik charm poyabzali</text>
-          <text x="45" y="115" fill="#6B5549" fontSize="10">Soni: 2 dona × 210 000 so'm = 420 000 so'm</text>
+          <text x="45" y="115" fill="#52796F" fontSize="10">Soni: 2 dona × 210 000 so'm = 420 000 so'm</text>
 
           <rect x="30" y="148" width="440" height="52" rx="10" fill="#D7F0E5" stroke="#173B35" strokeWidth="1" />
           <text x="45" y="170" fill="#173B35" fontSize="11" fontWeight="bold">Jami sotuv: 420 000 so'm</text>
@@ -148,12 +153,12 @@ export const OrdersModule: React.FC = () => {
           <rect x="20" y="30" width="120" height="40" rx="8" fill="#FEF3C7" stroke="#FDE047" strokeWidth="1" />
           <text x="30" y="54" fill="#854D0E" fontSize="10" fontWeight="bold">Kutilmoqda (Draft)</text>
 
-          <text x="148" y="54" fill="#8D786D" fontSize="12">➔</text>
+          <text x="148" y="54" fill="#52796F" fontSize="12">➔</text>
 
           <rect x="165" y="30" width="165" height="40" rx="8" fill="#2563EB" />
           <text x="175" y="54" fill="#FFFFFF" fontSize="10" fontWeight="bold">✓ Tasdiqlash (Ombor yechildi)</text>
 
-          <text x="338" y="54" fill="#8D786D" fontSize="12">➔</text>
+          <text x="338" y="54" fill="#52796F" fontSize="12">➔</text>
 
           <rect x="355" y="30" width="125" height="40" rx="8" fill="#D1FAE5" stroke="#6EE7B7" strokeWidth="1" />
           <text x="375" y="54" fill="#065F46" fontSize="10" fontWeight="bold">Yetkazildi</text>
@@ -161,7 +166,7 @@ export const OrdersModule: React.FC = () => {
           <rect x="30" y="95" width="440" height="95" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
           <text x="45" y="120" fill="#173B35" fontSize="11" fontWeight="bold">⚠️ Bekor qilish tugmasi amali:</text>
           <text x="45" y="142" fill="#A93C3E" fontSize="10" fontWeight="bold">Bekor qilinganda ombordan yechilgan tovarlar avtomatik orqaga qaytariladi!</text>
-          <text x="45" y="162" fill="#6B5549" fontSize="10">Kassa va omboringiz har doim aniq muvozanatda turadi.</text>
+          <text x="45" y="162" fill="#52796F" fontSize="10">Kassa va omboringiz har doim aniq muvozanatda turadi.</text>
         </svg>
       ),
     },
@@ -183,7 +188,7 @@ export const OrdersModule: React.FC = () => {
 
           <rect x="30" y="85" width="440" height="110" rx="12" fill="#FFFFFF" stroke="#D7F0E5" strokeWidth="1.5" />
           <text x="45" y="110" fill="#173B35" fontSize="11" fontWeight="bold">Buyurtma to'lov summasi ko'rinishi:</text>
-          <text x="45" y="132" fill="#493329" fontSize="11">Jami: 420 000 so'm</text>
+          <text x="45" y="132" fill="#112521" fontSize="11">Jami: 420 000 so'm</text>
           <text x="180" y="132" fill="#047857" fontSize="11" fontWeight="bold">To'landi: 200 000 so'm</text>
           <text x="330" y="132" fill="#BE123C" fontSize="11" fontWeight="bold">Qarz: 220 000 so'm</text>
         </svg>
@@ -526,33 +531,41 @@ export const OrdersModule: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* 1. Header Banner & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-card">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#493329] text-[#D0AE70] flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#112521] text-[#F5B85C] flex items-center justify-center font-bold shadow-2xs">
               <ShoppingBag className="w-5 h-5" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-bold text-[#493329] tracking-tight">
+                <h1 className="text-xl font-bold text-[#112521] tracking-tight">
                   Savdo buyurtmalari
                 </h1>
                 <HelpGuideButton onClick={() => setIsHelpOpen(true)} />
               </div>
-              <p className="text-xs text-[#795640]">
+              <p className="text-xs text-[#2A5C52]">
                 Mijozlar buyurtmalari, savdo hisobi va ombor bilan atomik bog'lanish
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={loadData}
             title="Yangilash"
-            className="p-2.5 text-[#6B5549] hover:text-[#493329] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile"
+            className="p-2.5 text-[#173B35] hover:text-[#112521] bg-white hover:bg-[#D7F0E5]/30 border border-[#E0ECE8] rounded-xl transition-all btn-tactile cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+
+          <button
+            onClick={() => setIsQuickSaleOpen(true)}
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-[#173B35] hover:bg-[#112521] border border-[#173B35] rounded-xl transition-all btn-tactile shadow-2xs cursor-pointer"
+          >
+            <Zap className="w-4 h-4 text-[#F5B85C]" />
+            <span>⚡ Tezkor Savdo (Kassa)</span>
           </button>
 
           <button
@@ -560,7 +573,7 @@ export const OrdersModule: React.FC = () => {
               setFormErrors([]);
               setIsCreateModalOpen(true);
             }}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile shadow-2xs"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-[#173B35] bg-[#F5B85C] hover:bg-[#E5A74B] border border-[#F5B85C] rounded-xl transition-all btn-tactile shadow-2xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Yangi buyurtma yaratish</span>
@@ -596,39 +609,39 @@ export const OrdersModule: React.FC = () => {
 
       {/* 3. Summary Statistics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
-          <span className="text-[11px] font-semibold text-[#8D786D] block mb-1">Jami buyurtmalar</span>
-          <span className="text-xl font-bold text-[#493329]">{stats.totalOrders} ta</span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+        <div className="bg-white p-4 rounded-xl border border-[#E0ECE8] shadow-2xs">
+          <span className="text-[11px] font-semibold text-[#52796F] block mb-1">Jami buyurtmalar</span>
+          <span className="text-xl font-bold text-[#112521]">{stats.totalOrders} ta</span>
+          <span className="text-[10px] text-[#173B35] block mt-1">
             {stats.draftCount} ta kutilmoqda
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-[#E0ECE8] shadow-2xs">
           <span className="text-[11px] font-semibold text-blue-700 block mb-1">Tasdiqlangan</span>
           <span className="text-xl font-bold text-blue-900">{stats.confirmedCount} ta</span>
           <span className="text-[10px] text-blue-600 block mt-1">Ombordan yechilgan</span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-[#E0ECE8] shadow-2xs">
           <span className="text-[11px] font-semibold text-emerald-700 block mb-1">Yetkazilgan</span>
           <span className="text-xl font-bold text-emerald-900">{stats.deliveredCount} ta</span>
           <span className="text-[10px] text-emerald-600 block mt-1">Muvaffaqiyatli savdo</span>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-xl border border-[#E0ECE8] shadow-2xs">
           <span className="text-[11px] font-semibold text-emerald-800 block mb-1">Haqiqiy tushum (To'langan)</span>
           <span className="text-base sm:text-lg font-bold text-emerald-700 truncate block">
             {formatPrice(stats.paidRevenue)}
           </span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+          <span className="text-[10px] text-[#173B35] block mt-1">
             Nasiya/kutilmoqda: {formatPrice(stats.unpaidRevenue)}
           </span>
         </div>
 
-        <div className="col-span-2 lg:col-span-1 bg-[#FAF6F0] p-4 rounded-xl border border-[#D0AE70]/60 shadow-2xs">
-          <span className="text-[11px] font-semibold text-[#66493B] block mb-1">Kutilgan sof foyda</span>
-          <span className="text-base sm:text-lg font-bold text-[#493329] truncate block">
+        <div className="col-span-2 lg:col-span-1 bg-[#F6F8F7] p-4 rounded-xl border border-[#F5B85C]/60 shadow-2xs">
+          <span className="text-[11px] font-semibold text-[#173B35] block mb-1">Kutilgan sof foyda</span>
+          <span className="text-base sm:text-lg font-bold text-[#112521] truncate block">
             {formatPrice(stats.totalProfit)}
           </span>
           <span className="text-[10px] text-emerald-700 font-semibold block mt-1">
@@ -638,16 +651,16 @@ export const OrdersModule: React.FC = () => {
       </div>
 
       {/* 4. Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-[#E0ECE8] shadow-2xs space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#8D786D] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#52796F] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Mijoz ismi, telefon, buyurtma raqami yoki mahsulot bo'yicha qidirish..."
-              className="w-full pl-9 pr-4 py-2 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] placeholder-[#8D786D] focus:outline-hidden focus:border-[#D0AE70] focus:ring-1 focus:ring-[#D0AE70]"
+              className="w-full pl-9 pr-4 py-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] placeholder-[#52796F] focus:outline-hidden focus:border-[#F5B85C] focus:ring-1 focus:ring-[#F5B85C]"
             />
             {searchQuery && (
               <button
@@ -673,8 +686,8 @@ export const OrdersModule: React.FC = () => {
                 onClick={() => setStatusFilter(st.id as any)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   statusFilter === st.id
-                    ? 'bg-[#493329] text-[#D0AE70] shadow-xs'
-                    : 'bg-[#FAF6F0] text-[#6B5549] hover:bg-[#F2ECE1] border border-[#E6DCD1]'
+                    ? 'bg-[#112521] text-[#F5B85C] shadow-xs'
+                    : 'bg-[#F6F8F7] text-[#52796F] hover:bg-[#E0ECE8] border border-[#E0ECE8]'
                 }`}
               >
                 {st.label}
@@ -686,18 +699,18 @@ export const OrdersModule: React.FC = () => {
 
       {/* 5. Orders Listing */}
       {loading ? (
-        <div className="bg-white p-12 rounded-2xl border border-[#E6DCD1] text-center space-y-3">
-          <RefreshCw className="w-8 h-8 text-[#D0AE70] animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#795640]">Buyurtmalar yuklanmoqda...</p>
+        <div className="bg-white p-12 rounded-2xl border border-[#E0ECE8] text-center space-y-3">
+          <RefreshCw className="w-8 h-8 text-[#F5B85C] animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#173B35]">Buyurtmalar yuklanmoqda...</p>
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-[#E6DCD1] text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#FAF6F0] border border-[#E6DCD1] text-[#795640] flex items-center justify-center mx-auto">
+        <div className="bg-white p-12 rounded-2xl border border-[#E0ECE8] text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#F6F8F7] border border-[#E0ECE8] text-[#173B35] flex items-center justify-center mx-auto">
             <ShoppingBag className="w-7 h-7" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-[#493329]">Hozircha buyurtmalar yo'q</h3>
-            <p className="text-xs text-[#8D786D] max-w-sm mx-auto">
+            <h3 className="text-base font-bold text-[#112521]">Hozircha buyurtmalar yo'q</h3>
+            <p className="text-xs text-[#52796F] max-w-sm mx-auto">
               {searchQuery || statusFilter !== 'all'
                 ? "Qidiruv parametrlariga mos keladigan buyurtma topilmadi."
                 : "Birinchi buyurtmangizni qo'shing. CRM mijozi va ombordagi mahsulotlarni tanlab, darhol hisob-kitob qiling."}
@@ -705,7 +718,7 @@ export const OrdersModule: React.FC = () => {
           </div>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] rounded-xl transition-all btn-tactile shadow-2xs"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] rounded-xl transition-all btn-tactile shadow-2xs"
           >
             <Plus className="w-4 h-4" />
             <span>Yangi buyurtma yaratish</span>
@@ -719,35 +732,35 @@ export const OrdersModule: React.FC = () => {
             return (
               <div
                 key={order.id}
-                className="bg-white border border-[#E6DCD1] hover:border-[#D0AE70] rounded-2xl p-4 sm:p-5 shadow-card transition-all space-y-4"
+                className="bg-white border border-[#E0ECE8] hover:border-[#F5B85C] rounded-2xl p-4 sm:p-5 shadow-card transition-all space-y-4"
               >
                 {/* Header row: Order number, date, customer info, badges */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#FAF6F0] pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F6F8F7] pb-3">
                   <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] border border-[#E6DCD1] text-[#493329] flex items-center justify-center shrink-0 font-mono text-xs font-bold">
+                    <div className="w-9 h-9 rounded-xl bg-[#F6F8F7] border border-[#E0ECE8] text-[#112521] flex items-center justify-center shrink-0 font-mono text-xs font-bold">
                       {order.orderNumber ? order.orderNumber.slice(-4) : 'ORD'}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-[#493329]">{order.customerName}</span>
+                        <span className="text-sm font-bold text-[#112521]">{order.customerName}</span>
                         {order.orderNumber && (
-                          <span className="text-[10px] font-mono text-[#8D786D] bg-[#FAF6F0] px-1.5 py-0.5 rounded border border-[#E6DCD1]">
+                          <span className="text-[10px] font-mono text-[#52796F] bg-[#F6F8F7] px-1.5 py-0.5 rounded border border-[#E0ECE8]">
                             {order.orderNumber}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[#795640] mt-0.5">
+                      <div className="flex items-center gap-3 text-xs text-[#173B35] mt-0.5">
                         {order.customerPhone && (
                           <a
                             href={`tel:${order.customerPhone}`}
-                            className="inline-flex items-center gap-1 hover:text-[#493329] hover:underline"
+                            className="inline-flex items-center gap-1 hover:text-[#112521] hover:underline"
                           >
-                            <Phone className="w-3 h-3 text-[#D0AE70]" />
+                            <Phone className="w-3 h-3 text-[#F5B85C]" />
                             <span>{order.customerPhone}</span>
                           </a>
                         )}
                         <span>·</span>
-                        <span className="text-[11px] text-[#8D786D]">
+                        <span className="text-[11px] text-[#52796F]">
                           {new Date(order.createdAt).toLocaleDateString('uz-UZ', {
                             day: '2-digit',
                             month: 'short',
@@ -799,24 +812,24 @@ export const OrdersModule: React.FC = () => {
                 </div>
 
                 {/* Items preview list */}
-                <div className="bg-[#FAF6F0] p-3 rounded-xl border border-[#EFE8DE] space-y-2">
-                  <div className="text-[11px] font-semibold text-[#8D786D] uppercase tracking-wider">
+                <div className="bg-[#F6F8F7] p-3 rounded-xl border border-[#E0ECE8] space-y-2">
+                  <div className="text-[11px] font-semibold text-[#52796F] uppercase tracking-wider">
                     Buyurtma tarkibi ({order.items.length} xil mahsulot)
                   </div>
-                  <div className="divide-y divide-[#E6DCD1]/60">
+                  <div className="divide-y divide-[#E0ECE8]/60">
                     {order.items.map((item, idx) => (
                       <div key={idx} className="py-1.5 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-[#493329]">{item.productName}</span>
-                          <span className="text-[#8D786D]">
+                          <span className="font-medium text-[#112521]">{item.productName}</span>
+                          <span className="text-[#52796F]">
                             × {item.quantity} {item.unit || 'dona'}
                           </span>
                         </div>
                         <div className="text-right">
-                          <span className="font-bold text-[#493329]">
+                          <span className="font-bold text-[#112521]">
                             {formatPrice(item.totalPrice)}
                           </span>
-                          <span className="text-[10px] text-[#8D786D] block">
+                          <span className="text-[10px] text-[#52796F] block">
                             (tannarx: {formatPrice(item.totalCost)})
                           </span>
                         </div>
@@ -825,7 +838,7 @@ export const OrdersModule: React.FC = () => {
                   </div>
 
                   {order.notes && (
-                    <div className="pt-2 border-t border-[#E6DCD1]/60 text-xs text-[#795640] italic">
+                    <div className="pt-2 border-t border-[#E0ECE8]/60 text-xs text-[#173B35] italic">
                       Izoh: {order.notes}
                     </div>
                   )}
@@ -835,14 +848,14 @@ export const OrdersModule: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
                   <div className="flex items-baseline gap-4 flex-wrap">
                     <div>
-                      <span className="text-[10px] font-semibold text-[#8D786D] block">Jami summa:</span>
-                      <span className="text-base font-extrabold text-[#493329]">
+                      <span className="text-[10px] font-semibold text-[#52796F] block">Jami summa:</span>
+                      <span className="text-base font-extrabold text-[#112521]">
                         {formatPrice(order.totalAmount)}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] font-semibold text-[#8D786D] block">
+                      <span className="text-[10px] font-semibold text-[#52796F] block">
                         {order.paymentStatus === 'paid'
                           ? "To'langan:"
                           : order.paymentStatus === 'partially_paid'
@@ -868,7 +881,7 @@ export const OrdersModule: React.FC = () => {
 
                     {order.paymentStatus === 'partially_paid' && (
                       <div>
-                        <span className="text-[10px] font-semibold text-[#8D786D] block">Qolgan qarz:</span>
+                        <span className="text-[10px] font-semibold text-[#52796F] block">Qolgan qarz:</span>
                         <span className="text-sm font-bold text-rose-700">
                           {formatPrice(Math.max(0, order.totalAmount - (order.paidAmount || 0)))}
                         </span>
@@ -876,7 +889,7 @@ export const OrdersModule: React.FC = () => {
                     )}
 
                     <div>
-                      <span className="text-[10px] font-semibold text-[#8D786D] block">Sof foyda:</span>
+                      <span className="text-[10px] font-semibold text-[#52796F] block">Sof foyda:</span>
                       <span className="text-sm font-bold text-emerald-700">
                         {formatPrice(order.totalProfit)}
                       </span>
@@ -925,7 +938,7 @@ export const OrdersModule: React.FC = () => {
 
                     {/* Cancelled state */}
                     {order.status === 'cancelled' && (
-                      <span className="text-xs text-[#8D786D] italic">
+                      <span className="text-xs text-[#52796F] italic">
                         Ombor qoldig'i tiklangan
                       </span>
                     )}
@@ -951,18 +964,18 @@ export const OrdersModule: React.FC = () => {
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
           <div
-            className="bg-white rounded-2xl border border-[#E6DCD1] shadow-2xl max-w-2xl w-full flex flex-col overflow-hidden"
+            className="bg-white rounded-2xl border border-[#E0ECE8] shadow-2xl max-w-2xl w-full flex flex-col overflow-hidden"
             style={{ maxHeight: 'calc(100dvh - 32px)' }}
           >
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-[#E6DCD1] bg-[#FAF6F0] flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-[#E0ECE8] bg-[#F6F8F7] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#493329] text-[#D0AE70] flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-[#112521] text-[#F5B85C] flex items-center justify-center font-bold">
                   <ShoppingBag className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#493329]">Yangi buyurtma yaratish</h3>
-                  <p className="text-[11px] text-[#795640]">Mijoz va tovarlarni tanlang</p>
+                  <h3 className="text-base font-bold text-[#112521]">Yangi buyurtma yaratish</h3>
+                  <p className="text-[11px] text-[#173B35]">Mijoz va tovarlarni tanlang</p>
                 </div>
               </div>
               <button
@@ -988,13 +1001,13 @@ export const OrdersModule: React.FC = () => {
 
               {/* 1. Customer Selection */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-[#493329]">
+                <label className="block text-xs font-bold text-[#112521]">
                   1. Mijozni tanlang (CRM)
                 </label>
                 <select
                   value={selectedCustomerId}
                   onChange={(e) => setSelectedCustomerId(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden focus:border-[#D0AE70]"
+                  className="w-full px-3 py-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-hidden focus:border-[#F5B85C]"
                 >
                   <option value="">-- Mavjud mijozlardan birini tanlang --</option>
                   {customers.map((c) => (
@@ -1013,7 +1026,7 @@ export const OrdersModule: React.FC = () => {
                         placeholder="Mijoz to'liq ismi *"
                         value={customCustomerName}
                         onChange={(e) => setCustomCustomerName(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-[#E6DCD1] rounded-xl text-xs"
+                        className="w-full px-3 py-2 bg-white border border-[#E0ECE8] rounded-xl text-xs"
                       />
                     </div>
                     <div>
@@ -1022,7 +1035,7 @@ export const OrdersModule: React.FC = () => {
                         placeholder="Telefon raqami (masalan: +998901234567)"
                         value={customCustomerPhone}
                         onChange={(e) => setCustomCustomerPhone(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-[#E6DCD1] rounded-xl text-xs"
+                        className="w-full px-3 py-2 bg-white border border-[#E0ECE8] rounded-xl text-xs"
                       />
                     </div>
                   </div>
@@ -1032,10 +1045,10 @@ export const OrdersModule: React.FC = () => {
               {/* 2. Product selection & items */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-[#493329]">
+                  <label className="block text-xs font-bold text-[#112521]">
                     2. Mahsulotlar (Ombor bilan integratsiya)
                   </label>
-                  <span className="text-[11px] text-[#8D786D]">
+                  <span className="text-[11px] text-[#52796F]">
                     {products.length} ta tovar mavjud
                   </span>
                 </div>
@@ -1045,7 +1058,7 @@ export const OrdersModule: React.FC = () => {
                   <select
                     value={selectedProductIdToAdd}
                     onChange={(e) => handleAddProductToDraft(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden focus:border-[#D0AE70]"
+                    className="flex-1 px-3 py-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-hidden focus:border-[#F5B85C]"
                   >
                     <option value="">+ Mahsulot qo'shish uchun tanlang</option>
                     {products.map((p) => (
@@ -1058,19 +1071,19 @@ export const OrdersModule: React.FC = () => {
 
                 {/* Added items list */}
                 {orderItems.length === 0 ? (
-                  <div className="p-4 border-2 border-dashed border-[#E6DCD1] rounded-xl text-center text-xs text-[#8D786D]">
+                  <div className="p-4 border-2 border-dashed border-[#E0ECE8] rounded-xl text-center text-xs text-[#52796F]">
                     Yuqoridagi ro'yxatdan buyurtmaga kamida 1 ta mahsulot tanlang
                   </div>
                 ) : (
-                  <div className="space-y-2 border border-[#E6DCD1] rounded-xl p-3 bg-[#FAF6F0]">
+                  <div className="space-y-2 border border-[#E0ECE8] rounded-xl p-3 bg-[#F6F8F7]">
                     {orderItems.map((item, idx) => (
                       <div
                         key={idx}
-                        className="bg-white p-3 rounded-lg border border-[#E6DCD1] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                        className="bg-white p-3 rounded-lg border border-[#E0ECE8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                       >
                         <div className="min-w-0">
-                          <div className="font-bold text-[#493329] truncate">{item.productName}</div>
-                          <div className="text-[10px] text-[#8D786D]">
+                          <div className="font-bold text-[#112521] truncate">{item.productName}</div>
+                          <div className="text-[10px] text-[#52796F]">
                             Ombordagi qoldiq: <span className="font-semibold">{item.stockAvailable}</span> {item.unit} · Tannarx: {item.unitCost.toLocaleString()} so'm
                           </div>
                         </div>
@@ -1078,27 +1091,27 @@ export const OrdersModule: React.FC = () => {
                         <div className="flex items-center gap-3">
                           {/* Quantity */}
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-[#6B5549]">Soni:</span>
+                            <span className="text-[11px] text-[#52796F]">Soni:</span>
                             <input
                               type="number"
                               min="1"
                               value={item.quantity}
                               onChange={(e) => handleUpdateItemQty(idx, parseInt(e.target.value) || 1)}
-                              className="w-16 px-2 py-1 bg-[#FAF6F0] border border-[#E6DCD1] rounded-lg text-center font-bold"
+                              className="w-16 px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-center font-bold"
                             />
-                            <span className="text-[10px] text-[#8D786D]">{item.unit}</span>
+                            <span className="text-[10px] text-[#52796F]">{item.unit}</span>
                           </div>
 
                           {/* Unit selling price */}
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-[#6B5549]">Narx:</span>
+                            <span className="text-[11px] text-[#52796F]">Narx:</span>
                             <input
                               type="number"
                               min="0"
                               step="1000"
                               value={item.unitPrice}
                               onChange={(e) => handleUpdateItemPrice(idx, parseInt(e.target.value) || 0)}
-                              className="w-24 px-2 py-1 bg-[#FAF6F0] border border-[#E6DCD1] rounded-lg text-right font-bold"
+                              className="w-24 px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-right font-bold"
                             />
                           </div>
 
@@ -1118,20 +1131,20 @@ export const OrdersModule: React.FC = () => {
 
               {/* 3. Live Financial Summary */}
               {orderItems.length > 0 && (
-                <div className="bg-[#FAF6F0] p-4 rounded-xl border border-[#D0AE70]/60 space-y-2">
+                <div className="bg-[#F6F8F7] p-4 rounded-xl border border-[#F5B85C]/60 space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#6B5549]">Jami sotuv qiymati:</span>
-                    <span className="text-base font-extrabold text-[#493329]">
+                    <span className="text-[#52796F]">Jami sotuv qiymati:</span>
+                    <span className="text-base font-extrabold text-[#112521]">
                       {formatPrice(newOrderCalculations.totalAmount)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#6B5549]">Jami tovarlar tannarxi:</span>
-                    <span className="font-semibold text-[#795640]">
+                    <span className="text-[#52796F]">Jami tovarlar tannarxi:</span>
+                    <span className="font-semibold text-[#173B35]">
                       {formatPrice(newOrderCalculations.totalCost)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs pt-1.5 border-t border-[#E6DCD1]">
+                  <div className="flex items-center justify-between text-xs pt-1.5 border-t border-[#E0ECE8]">
                     <span className="font-bold text-emerald-800">Kutilayotgan sof foyda:</span>
                     <span className="text-base font-bold text-emerald-700">
                       {formatPrice(newOrderCalculations.totalProfit)}
@@ -1143,13 +1156,13 @@ export const OrdersModule: React.FC = () => {
               {/* 4. Payment status & options */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#493329] mb-1">
+                  <label className="block text-xs font-bold text-[#112521] mb-1">
                     To'lov holati
                   </label>
                   <select
                     value={orderPaymentStatus}
                     onChange={(e) => setOrderPaymentStatus(e.target.value as OrderPaymentStatus)}
-                    className="w-full px-3 py-2 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden"
+                    className="w-full px-3 py-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-hidden"
                   >
                     <option value="unpaid">To'lanmagan</option>
                     <option value="partially_paid">Qisman to'langan</option>
@@ -1158,7 +1171,7 @@ export const OrdersModule: React.FC = () => {
 
                   {orderPaymentStatus === 'partially_paid' && (
                     <div className="mt-2.5 space-y-1">
-                      <label className="block text-[11px] font-bold text-[#6B5549]">
+                      <label className="block text-[11px] font-bold text-[#52796F]">
                         To'langan qisman summa (so'm)
                       </label>
                       <input
@@ -1168,9 +1181,9 @@ export const OrdersModule: React.FC = () => {
                         value={orderPartialPaidAmount || ''}
                         onChange={(e) => setOrderPartialPaidAmount(Math.max(0, parseInt(e.target.value) || 0))}
                         placeholder="Masalan: 300000"
-                        className="w-full px-3 py-1.5 bg-white border border-[#D0AE70] rounded-lg text-xs font-bold text-[#493329]"
+                        className="w-full px-3 py-1.5 bg-white border border-[#F5B85C] rounded-lg text-xs font-bold text-[#112521]"
                       />
-                      <span className="text-[10px] text-[#8D786D] block">
+                      <span className="text-[10px] text-[#52796F] block">
                         Qolgan qarz: {formatPrice(Math.max(0, newOrderCalculations.totalAmount - orderPartialPaidAmount))}
                       </span>
                     </div>
@@ -1178,7 +1191,7 @@ export const OrdersModule: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#493329] mb-1">
+                  <label className="block text-xs font-bold text-[#112521] mb-1">
                     Izoh (ixtiyoriy)
                   </label>
                   <input
@@ -1186,7 +1199,7 @@ export const OrdersModule: React.FC = () => {
                     placeholder="Yetkazish manzili yoki alohida talablar..."
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden"
+                    className="w-full px-3 py-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -1209,18 +1222,18 @@ export const OrdersModule: React.FC = () => {
               </div>
 
               {/* Form Actions */}
-              <div className="pt-3 border-t border-[#E6DCD1] flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-[#E0ECE8] flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-[#6B5549] hover:bg-[#FAF6F0] rounded-xl border border-[#E6DCD1] transition-all"
+                  className="px-4 py-2 text-xs font-semibold text-[#52796F] hover:bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] transition-all"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submittingOrder || orderItems.length === 0}
-                  className="px-5 py-2 text-xs font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile shadow-2xs disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 text-xs font-bold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] border border-[#F5B85C]/50 rounded-xl transition-all btn-tactile shadow-2xs disabled:opacity-50 flex items-center gap-2"
                 >
                   {submittingOrder ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -1234,6 +1247,22 @@ export const OrdersModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Quick Sale (POS) Modal */}
+      <QuickSaleModal
+        isOpen={isQuickSaleOpen}
+        onClose={() => setIsQuickSaleOpen(false)}
+        products={products}
+        customers={customers}
+        userId={user?.uid || ''}
+        onSaleCompleted={() => {
+          loadData();
+          setFeedbackMessage({
+            type: 'success',
+            text: "Tezkor sotuv muvaffaqiyatli amalga oshirildi va ombor qoldig'i yangilandi!",
+          });
+        }}
+      />
 
       {/* Module Help Guide */}
       <ModuleHelpGuide

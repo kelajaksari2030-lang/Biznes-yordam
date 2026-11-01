@@ -199,30 +199,30 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
       role="presentation"
     >
       <div 
-        className="bg-white rounded-3xl max-w-xl w-full p-4 sm:p-7 shadow-modal border border-[#E6DCD1] flex flex-col max-h-[calc(100vh-24px)] max-h-[calc(100dvh-24px)] my-auto animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+        className="bg-white rounded-3xl max-w-xl w-full p-4 sm:p-7 shadow-modal border border-[#E0ECE8] flex flex-col max-h-[calc(100vh-24px)] max-h-[calc(100dvh-24px)] my-auto animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="business-profile-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="shrink-0 flex items-center justify-between border-b border-[#EFE8DE] pb-3 mb-4 bg-white z-10">
+        <div className="shrink-0 flex items-center justify-between border-b border-[#E0ECE8] pb-3 mb-4 bg-white z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] border border-[#E6DCD1] flex items-center justify-center text-[#795640] shrink-0">
-              <Building2 className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-[#F6F8F7] border border-[#D7F0E5] flex items-center justify-center text-[#173B35] shrink-0">
+              <Building2 className="w-5 h-5 text-[#173B35]" />
             </div>
             <div>
-              <h3 id="business-profile-modal-title" className="text-base sm:text-lg font-bold text-[#493329]">
+              <h3 id="business-profile-modal-title" className="text-base sm:text-lg font-bold text-[#173B35]">
                 Yagona Biznes Profili
               </h3>
-              <p className="text-xs text-[#8D786D]">
+              <p className="text-xs text-[#173B35]/70">
                 Diagnostika, reklama va kunlik vazifalar uchun yagona ma'lumot manbai
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-[#8D786D] hover:text-[#493329] p-1.5 rounded-lg transition-colors shrink-0"
+            className="text-[#173B35]/60 hover:text-[#173B35] p-1.5 rounded-lg hover:bg-[#D7F0E5]/30 transition-colors shrink-0 cursor-pointer"
             aria-label="Yopish"
           >
             <X className="w-5 h-5" />
@@ -231,8 +231,8 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
 
         {loading ? (
           <div className="py-12 flex flex-col items-center justify-center space-y-3 flex-1">
-            <Loader2 className="w-7 h-7 text-[#D0AE70] animate-spin" />
-            <span className="text-xs text-[#795640] font-medium">
+            <Loader2 className="w-7 h-7 text-[#173B35] animate-spin" />
+            <span className="text-xs text-[#173B35] font-semibold">
               Biznes profilingiz yuklanmoqda...
             </span>
           </div>
@@ -254,8 +254,8 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
 
             {/* 1. Company Name */}
             <div>
-              <label className="block text-xs font-bold text-[#493329] mb-1.5 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <label className="block text-xs font-bold text-[#173B35] mb-1.5 flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5 text-[#173B35]" />
                 Kompaniya yoki Do'kon nomi <span className="text-red-500">*</span>
               </label>
               <input
@@ -263,7 +263,7 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="Masalan: Rayhon Fashion, Tezkor Kuryer, Oshxona.uz"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] focus:ring-1 focus:ring-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#173B35] focus:ring-1 focus:ring-[#173B35] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                 required
               />
             </div>
@@ -271,14 +271,14 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
             {/* 2. Category & Region in Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-[#D0AE70]" />
+                <label className="block text-xs font-bold text-[#173B35] mb-1.5 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-[#173B35]" />
                   Faoliyat sohasi <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#173B35] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                 >
                   {CATEGORY_PRESETS.map((cat) => (
                     <option key={cat} value={cat}>
@@ -289,8 +289,8 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#D0AE70]" />
+                <label className="block text-xs font-bold text-[#173B35] mb-1.5 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#173B35]" />
                   Shahar / Hudud (Ixtiyoriy)
                 </label>
                 <input
@@ -298,15 +298,15 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                   value={cityOrRegion}
                   onChange={(e) => setCityOrRegion(e.target.value)}
                   placeholder="Masalan: Toshkent shahri / Butun O'zbekiston"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C7B8] focus:border-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#173B35] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                 />
               </div>
             </div>
 
             {/* 3. Target Audience */}
             <div>
-              <label className="block text-xs font-bold text-[#493329] mb-1.5 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <label className="block text-xs font-bold text-[#173B35] mb-1.5 flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-[#173B35]" />
                 Maqsadli mijozlar (Auditoriya) <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -314,15 +314,15 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                 onChange={(e) => setTargetAudience(e.target.value)}
                 placeholder="Masalan: Toshkent va viloyatlardagi 20-40 yoshli ayollar, yosh onalar, sifatli kiyimlarni qidiruvchilar"
                 rows={2}
-                className="w-full px-3.5 py-2 rounded-xl border border-[#D5C7B8] focus:border-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                className="w-full px-3.5 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#173B35] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                 required
               />
             </div>
 
             {/* 4. Sales Channels */}
             <div>
-              <label className="block text-xs font-bold text-[#493329] mb-1.5 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-[#D0AE70]" />
+              <label className="block text-xs font-bold text-[#173B35] mb-1.5 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-[#173B35]" />
                 Asosiy savdo va reklama kanallari
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -333,18 +333,18 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                       key={opt.id}
                       type="button"
                       onClick={() => handleToggleChannel(opt.id)}
-                      className={`px-3 py-2 rounded-xl text-xs font-medium text-left border transition-all flex items-center gap-2 ${
+                      className={`px-3 py-2 rounded-xl text-xs font-medium text-left border transition-all flex items-center gap-2 cursor-pointer ${
                         isChecked
-                          ? 'bg-[#493329] text-[#FAF6F0] border-[#493329]'
-                          : 'bg-[#FAF6F0] text-[#634839] border-[#E6DCD1] hover:border-[#D0AE70]'
+                          ? 'bg-[#173B35] text-white border-[#173B35]'
+                          : 'bg-[#F6F8F7] text-[#173B35] border-[#E0ECE8] hover:border-[#D7F0E5]'
                       }`}
                     >
                       <div
                         className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center shrink-0 ${
-                          isChecked ? 'border-[#FAF6F0] bg-white/20' : 'border-[#8D786D]'
+                          isChecked ? 'border-white bg-white/20' : 'border-[#173B35]/40'
                         }`}
                       >
-                        {isChecked && <CheckCircle2 className="w-3 h-3 text-[#D0AE70]" />}
+                        {isChecked && <CheckCircle2 className="w-3 h-3 text-[#F5B85C]" />}
                       </div>
                       <span className="truncate">{opt.label}</span>
                     </button>
@@ -356,18 +356,18 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
             {/* 5. Currency & Description */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#493329] mb-1.5 flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-[#D0AE70]" />
+                <label className="block text-xs font-bold text-[#173B35] mb-1.5 flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5 text-[#173B35]" />
                   Asosiy valyuta
                 </label>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setCurrency('UZS')}
-                    className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
+                    className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                       currency === 'UZS'
-                        ? 'bg-[#493329] text-white border-[#493329]'
-                        : 'bg-[#FAF6F0] text-[#795640] border-[#E6DCD1]'
+                        ? 'bg-[#173B35] text-white border-[#173B35]'
+                        : 'bg-[#F6F8F7] text-[#173B35] border-[#E0ECE8]'
                     }`}
                   >
                     UZS (So'm)
@@ -375,10 +375,10 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setCurrency('USD')}
-                    className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
+                    className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                       currency === 'USD'
-                        ? 'bg-[#493329] text-white border-[#493329]'
-                        : 'bg-[#FAF6F0] text-[#795640] border-[#E6DCD1]'
+                        ? 'bg-[#173B35] text-white border-[#173B35]'
+                        : 'bg-[#F6F8F7] text-[#173B35] border-[#E0ECE8]'
                     }`}
                   >
                     USD ($)
@@ -387,7 +387,7 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-[#493329] mb-1.5">
+                <label className="block text-xs font-bold text-[#173B35] mb-1.5">
                   Qo'shimcha biznes tavsifi (Ixtiyoriy)
                 </label>
                 <input
@@ -395,24 +395,24 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Masalan: Turkiyadan to'g'ridan-to'g'ri olib kelinadi"
-                  className="w-full px-3.5 py-2 rounded-xl border border-[#D5C7B8] focus:border-[#493329] outline-none text-sm text-[#34221A] bg-[#FAF8F5]"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#173B35] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                 />
               </div>
             </div>
 
             {/* Footer Buttons */}
-            <div className="pt-3 border-t border-[#EFE8DE] flex items-center justify-end gap-3 sticky bottom-0 bg-white pt-2 mt-2">
+            <div className="pt-3 border-t border-[#E0ECE8] flex items-center justify-end gap-3 sticky bottom-0 bg-white pt-2 mt-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl border border-[#D5C7B8] text-xs font-bold text-[#634839] hover:bg-[#FAF6F0] transition-colors"
+                className="px-4 py-2.5 rounded-xl border border-[#E0ECE8] text-xs font-bold text-[#173B35] hover:bg-[#F6F8F7] transition-colors cursor-pointer"
               >
                 Bekor qilish
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2.5 rounded-xl bg-[#493329] hover:bg-[#34221A] text-[#FAF6F0] text-xs font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-[#173B35] hover:bg-[#112521] text-white text-xs font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {saving ? (
                   <>
@@ -421,7 +421,7 @@ export const BusinessProfileModal: React.FC<BusinessProfileModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <Save className="w-3.5 h-3.5 text-[#D0AE70]" />
+                    <Save className="w-3.5 h-3.5 text-[#F5B85C]" />
                     Profilni saqlash
                   </>
                 )}

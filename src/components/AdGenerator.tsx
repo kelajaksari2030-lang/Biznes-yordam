@@ -267,37 +267,43 @@ export const AdGenerator: React.FC = () => {
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header with Plan Limit indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div 
+        className="scroll-reveal flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        style={{ '--reveal-delay': '0ms' } as React.CSSProperties}
+      >
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#493329]">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#112521]">
             Reklama matnlari yaratuvchisi
           </h1>
-          <p className="text-sm text-[#6B5549] mt-1 max-w-2xl">
+          <p className="text-sm text-[#52796F] mt-1 max-w-2xl">
             Mahsulot yoki xizmat ma'lumotlarini kiriting, tizim sizga Telegram va Instagram uchun tayyor sotuvchi reklama qoralamasini server orqali tuzib beradi.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto bg-white border border-[#E6DCD1] px-3.5 py-1.5 rounded-xl shadow-xs">
-          <Database className="w-4 h-4 text-[#D0AE70]" />
-          <span className="text-xs text-[#6B5549]">
-            Kunlik sarf: <strong className="text-[#493329] font-mono">{adCount} / {currentPlan.dailyAdLimit}</strong> ({currentPlan.name})
+        <div className="flex items-center gap-2.5 self-start sm:self-auto bg-white border border-[#E0ECE8] px-3.5 py-1.5 rounded-xl shadow-xs">
+          <Database className="w-4 h-4 text-[#F5B85C]" />
+          <span className="text-xs text-[#52796F]">
+            Kunlik sarf: <strong className="text-[#112521] font-mono">{adCount} / {currentPlan.dailyAdLimit}</strong> ({currentPlan.name})
           </span>
         </div>
       </div>
 
       {/* Unauthenticated Alert Prompt */}
       {!user && (
-        <div className="p-4 bg-[#FAF6F0] border border-[#E8D6B7] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div 
+          className="scroll-reveal p-4 bg-[#F6F8F7] border border-[#E0ECE8] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
+        >
           <div className="flex items-center gap-3">
-            <Info className="w-5 h-5 text-[#D0AE70] shrink-0" />
-            <div className="text-xs sm:text-sm text-[#6B5549]">
-              <strong className="text-[#493329]">Tizimga kirmagansiz:</strong> Yangi reklama matnlarini server orqali generatsiya qilish uchun Google orqali kiring (Bepul tarifda kuniga 5 ta bepul matn beriladi).
+            <Info className="w-5 h-5 text-[#F5B85C] shrink-0" />
+            <div className="text-xs sm:text-sm text-[#52796F]">
+              <strong className="text-[#112521]">Tizimga kirmagansiz:</strong> Yangi reklama matnlarini server orqali generatsiya qilish uchun Google orqali kiring (Bepul tarifda kuniga 5 ta bepul matn beriladi).
             </div>
           </div>
           <button
             type="button"
             onClick={signInWithGoogle}
-            className="px-4 py-2 bg-[#D0AE70] hover:bg-[#C39F60] text-[#34221A] text-xs font-semibold rounded-xl flex items-center gap-1.5 shrink-0 transition-all btn-tactile"
+            className="px-4 py-2 bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] text-xs font-semibold rounded-xl flex items-center gap-1.5 shrink-0 transition-all btn-tactile"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>Kirish</span>
@@ -307,8 +313,11 @@ export const AdGenerator: React.FC = () => {
 
       {/* Daily limit advisory notice if reached */}
       {isLimitReached && (
-        <div className="p-3.5 bg-[#FAF6F0] border border-[#E8D6B7] rounded-2xl text-xs text-[#6B5549] flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+        <div 
+          className="scroll-reveal p-3.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-2xl text-xs text-[#52796F] flex items-start gap-2.5"
+          style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
+        >
+          <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
           <div>
             <strong>Kunlik limit ko'rsatkichi:</strong> Bugun uchun belgilangan {currentPlan.dailyAdLimit} ta reklama yaratish ko'rsatkichiga yetdingiz ({currentPlan.name}). Yangi kvota ertaga Toshkent vaqti bilan 00:00 da beriladi.
           </div>
@@ -318,24 +327,27 @@ export const AdGenerator: React.FC = () => {
       {/* Main Grid: Form on Left, Output on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Form Inputs (6 cols) */}
-        <div className="lg:col-span-6 bg-white border border-[#E6DCD1] rounded-2xl p-5 sm:p-6 shadow-card space-y-5">
-          <h2 className="text-base font-semibold text-[#493329] border-b border-[#EFE8DE] pb-3">
+        <div 
+          className="scroll-reveal lg:col-span-6 bg-white border border-[#E0ECE8] rounded-2xl p-5 sm:p-6 shadow-card space-y-5"
+          style={{ '--reveal-delay': '80ms' } as React.CSSProperties}
+        >
+          <h2 className="text-base font-semibold text-[#112521] border-b border-[#E0ECE8] pb-3">
             Reklama parametrlari
           </h2>
 
           {/* Platform selection */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Qaysi platforma uchun yaratmoqchisiz?
             </label>
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => handleInputChange('platform', 'telegram')}
-                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] ${
+                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] ${
                   formData.platform === 'telegram'
-                    ? 'border-[#795640] bg-[#FAF6F0] text-[#493329] ring-1 ring-[#795640]'
-                    : 'border-[#E6DCD1] bg-white text-[#6B5549] hover:bg-[#FAF6F0]'
+                    ? 'border-[#173B35] bg-[#F6F8F7] text-[#112521] ring-1 ring-[#173B35]'
+                    : 'border-[#E0ECE8] bg-white text-[#52796F] hover:bg-[#F6F8F7]'
                 }`}
               >
                 <Send className="w-4 h-4 text-sky-500" />
@@ -345,10 +357,10 @@ export const AdGenerator: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleInputChange('platform', 'instagram')}
-                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] ${
+                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] ${
                   formData.platform === 'instagram'
-                    ? 'border-[#795640] bg-[#FAF6F0] text-[#493329] ring-1 ring-[#795640]'
-                    : 'border-[#E6DCD1] bg-white text-[#6B5549] hover:bg-[#FAF6F0]'
+                    ? 'border-[#173B35] bg-[#F6F8F7] text-[#112521] ring-1 ring-[#173B35]'
+                    : 'border-[#E0ECE8] bg-white text-[#52796F] hover:bg-[#F6F8F7]'
                 }`}
               >
                 <Instagram className="w-4 h-4 text-pink-600" />
@@ -359,8 +371,8 @@ export const AdGenerator: React.FC = () => {
 
           {/* Product Name */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
-              Mahsulot yoki xizmat nomi <span className="text-[#D0AE70]">*</span>
+            <label className="block text-xs font-semibold text-[#112521]">
+              Mahsulot yoki xizmat nomi <span className="text-[#F5B85C]">*</span>
             </label>
             <input
               type="text"
@@ -373,7 +385,7 @@ export const AdGenerator: React.FC = () => {
 
           {/* Target Audience */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Maqsadli auditoriya (Mijoz kim?)
             </label>
             <input
@@ -389,7 +401,7 @@ export const AdGenerator: React.FC = () => {
                   type="button"
                   key={item}
                   onClick={() => handleInputChange('targetAudience', item)}
-                  className="px-2.5 py-1 text-[11px] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] text-[#6B5549] hover:text-[#493329] rounded-lg transition-all btn-tactile"
+                  className="px-2.5 py-1 text-[11px] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] text-[#52796F] hover:text-[#112521] rounded-lg transition-all btn-tactile"
                 >
                   {item}
                 </button>
@@ -399,7 +411,7 @@ export const AdGenerator: React.FC = () => {
 
           {/* Key Benefits */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Asosiy afzalliklari (Har bir qatorga bittadan)
             </label>
             <textarea
@@ -415,7 +427,7 @@ export const AdGenerator: React.FC = () => {
                   type="button"
                   key={b}
                   onClick={() => handleAddBenefit(b)}
-                  className="px-2.5 py-1 text-[11px] bg-[#FAF6F0] hover:bg-[#F6EFE3] hover:text-[#795640] border border-[#E6DCD1] text-[#6B5549] rounded-lg transition-all btn-tactile"
+                  className="px-2.5 py-1 text-[11px] bg-[#F6F8F7] hover:bg-[#D7F0E5] hover:text-[#173B35] border border-[#E0ECE8] text-[#52796F] rounded-lg transition-all btn-tactile"
                 >
                   + {b}
                 </button>
@@ -427,7 +439,7 @@ export const AdGenerator: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Ad Format Variant */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#493329]">
+              <label className="block text-xs font-semibold text-[#112521]">
                 Matn uslubi (Formati)
               </label>
               <select
@@ -444,7 +456,7 @@ export const AdGenerator: React.FC = () => {
 
             {/* Tone */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#493329]">
+              <label className="block text-xs font-semibold text-[#112521]">
                 Murojaat ohangi
               </label>
               <select
@@ -462,7 +474,7 @@ export const AdGenerator: React.FC = () => {
 
           {/* Special offer / Discount */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Maxsus taklif yoki chegirma (ixtiyoriy)
             </label>
             <input
@@ -476,7 +488,7 @@ export const AdGenerator: React.FC = () => {
 
           {/* Contact details */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#493329]">
+            <label className="block text-xs font-semibold text-[#112521]">
               Bog'lanish va buyurtma ma'lumotlari
             </label>
             <textarea
@@ -490,7 +502,7 @@ export const AdGenerator: React.FC = () => {
 
           {/* Generation Error Alert */}
           {generationError && (
-            <div className="p-3 bg-[#FAF6F0] border border-[#E8D6B7] rounded-xl text-xs text-[#9E2A2B] flex items-start gap-2.5 animate-in fade-in">
+            <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#9E2A2B] flex items-start gap-2.5 animate-in fade-in">
               <AlertCircle className="w-4 h-4 text-[#9E2A2B] shrink-0 mt-0.5" />
               <div className="leading-relaxed">
                 <strong>Xatolik:</strong> {generationError}
@@ -499,48 +511,48 @@ export const AdGenerator: React.FC = () => {
           )}
 
           {/* Primary Action Button: Authoritative Server-Side Generation */}
-          <div className="pt-2 border-t border-[#EFE8DE]">
+          <div className="pt-2 border-t border-[#E0ECE8]">
             <button
               type="button"
               onClick={handleGenerateAd}
               disabled={isGenerating || isLimitReached || !user}
-              className={`w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70] ${
+              className={`w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs btn-tactile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C] ${
                 isLimitReached || !user
-                  ? 'bg-[#EFE8DE] text-[#8D786D] cursor-not-allowed border border-[#E6DCD1]'
+                  ? 'bg-[#E0ECE8] text-[#52796F] cursor-not-allowed border border-[#E0ECE8]'
                   : isGenerating
-                  ? 'bg-[#D0AE70]/80 text-[#34221A] cursor-wait'
-                  : 'bg-[#D0AE70] hover:bg-[#C39F60] text-[#34221A] border border-[#BF9E60]/50'
+                  ? 'bg-[#F5B85C]/80 text-[#112521] cursor-wait'
+                  : 'bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] border border-[#F5B85C]/50'
               }`}
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#34221A]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#112521]" />
                   <span>Serverda matn yaratilmoqda...</span>
                 </>
               ) : isLimitReached ? (
                 <>
-                  <AlertTriangle className="w-4 h-4 text-[#795640]" />
+                  <AlertTriangle className="w-4 h-4 text-[#173B35]" />
                   <span>Kunlik limit to'lgan ({adCount}/{currentPlan.dailyAdLimit})</span>
                 </>
               ) : !user ? (
                 <>
-                  <LogIn className="w-4 h-4 text-[#795640]" />
+                  <LogIn className="w-4 h-4 text-[#173B35]" />
                   <span>Matn yaratish uchun Google orqali kiring</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-[#34221A]" />
+                  <Sparkles className="w-4 h-4 text-[#112521]" />
                   <span>Reklama matnini yaratish ({currentPlan.dailyAdLimit - adCount} ta qoldi)</span>
                 </>
               )}
             </button>
             {statusMessage && (
-              <div className="p-2.5 mt-2 bg-[#FAF6F0] border border-[#E8D6B7] rounded-xl text-xs text-[#795640] flex items-center gap-2 animate-in fade-in">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D0AE70] shrink-0" />
+              <div className="p-2.5 mt-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-center gap-2 animate-in fade-in">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#F5B85C] shrink-0" />
                 <span>{statusMessage}</span>
               </div>
             )}
-            <p className="text-[11px] text-[#8D786D] text-center mt-2">
+            <p className="text-[11px] text-[#52796F] text-center mt-2">
               Kvota Firebase tranzaksiyasi orqali Toshkent vaqti bilan hisoblanadi
             </p>
           </div>
@@ -548,16 +560,19 @@ export const AdGenerator: React.FC = () => {
 
         {/* Right Output Side (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 sm:p-6 shadow-card space-y-4">
-            <div className="flex items-center justify-between gap-2 border-b border-[#EFE8DE] pb-3">
+          <div 
+            className="scroll-reveal bg-white border border-[#E0ECE8] rounded-2xl p-5 sm:p-6 shadow-card space-y-4"
+            style={{ '--reveal-delay': '120ms' } as React.CSSProperties}
+          >
+            <div className="flex items-center justify-between gap-2 border-b border-[#E0ECE8] pb-3">
               <div>
-                <h3 className="text-base font-semibold text-[#493329] flex items-center gap-2">
+                <h3 className="text-base font-semibold text-[#112521] flex items-center gap-2">
                   <span>Tayyor reklama qoralamasi</span>
-                  <span className="text-[11px] font-medium text-[#795640] bg-[#F6EFE3] px-2 py-0.5 rounded-lg border border-[#E8D6B7]">
+                  <span className="text-[11px] font-medium text-[#173B35] bg-[#D7F0E5] px-2 py-0.5 rounded-lg border border-[#E0ECE8]">
                     {formData.platform === 'telegram' ? 'Telegram format' : 'Instagram format'}
                   </span>
                 </h3>
-                <p className="text-xs text-[#8D786D] mt-0.5">
+                <p className="text-xs text-[#52796F] mt-0.5">
                   Matnni to'g'ridan-to'g'ri shu yerda tahrirlashingiz mumkin
                 </p>
               </div>
@@ -566,26 +581,26 @@ export const AdGenerator: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="px-3 py-1.5 text-xs font-medium text-[#493329] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+                  className="px-3 py-1.5 text-xs font-medium text-[#112521] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-xl transition-all btn-tactile flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
                   title="Qoralamani saqlash"
                 >
-                  <Bookmark className="w-3.5 h-3.5 text-[#795640]" />
+                  <Bookmark className="w-3.5 h-3.5 text-[#173B35]" />
                   <span className="hidden sm:inline">Saqlash</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleCopyText}
-                  className="px-4 py-2 text-xs font-semibold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D0AE70]"
+                  className="px-4 py-2 text-xs font-semibold text-[#112521] bg-[#F5B85C] hover:bg-[#E5A749] border border-[#F5B85C]/50 rounded-xl transition-all btn-tactile flex items-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B85C]"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-4 h-4 text-[#34221A]" />
+                      <Check className="w-4 h-4 text-[#112521]" />
                       <span>Nusxalandi!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 text-[#34221A]" />
+                      <Copy className="w-4 h-4 text-[#112521]" />
                       <span>Nusxa olish</span>
                     </>
                   )}
@@ -595,23 +610,23 @@ export const AdGenerator: React.FC = () => {
 
             {/* Notification badge / generation success */}
             {generationSuccess && (
-              <div className="p-2.5 bg-[#F6EFE3] border border-[#E8D6B7] rounded-xl text-xs text-[#795640] font-medium flex items-center gap-2 animate-in fade-in duration-200">
-                <Check className="w-4 h-4 text-[#D0AE70] shrink-0" />
+              <div className="p-2.5 bg-[#D7F0E5] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] font-medium flex items-center gap-2 animate-in fade-in duration-200">
+                <Check className="w-4 h-4 text-[#F5B85C] shrink-0" />
                 <span>Yangi reklama matni serverda muvaffaqiyatli yaratildi!</span>
               </div>
             )}
 
             {/* Notification badge / save success */}
             {saveSuccess && (
-              <div className="p-2.5 bg-[#F6EFE3] border border-[#E8D6B7] rounded-xl text-xs text-[#795640] font-medium flex items-center gap-2 animate-in fade-in duration-200">
-                <Check className="w-4 h-4 text-[#D0AE70] shrink-0" />
+              <div className="p-2.5 bg-[#D7F0E5] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] font-medium flex items-center gap-2 animate-in fade-in duration-200">
+                <Check className="w-4 h-4 text-[#F5B85C] shrink-0" />
                 <span>Qoralama saqlandi! Pastdagi ro'yxatdan qayta yuklab olishingiz mumkin.</span>
               </div>
             )}
 
             {/* Draft Warning Banner */}
-            <div className="p-3 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#795640] flex items-start gap-2.5">
-              <Info className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+            <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
               <div className="leading-relaxed">
                 <strong>Eslatma:</strong> Bu tayyor marketing andozasi asosidagi qoralama. Chop etishdan oldin telefon raqamingiz, buyurtma shartlari va aniq narxlarni ko'rib chiqing.
               </div>
@@ -623,18 +638,18 @@ export const AdGenerator: React.FC = () => {
                 rows={14}
                 value={generatedDraft}
                 onChange={(e) => setGeneratedDraft(e.target.value)}
-                className="w-full p-4 text-sm font-sans text-[#34221A] bg-[#FCFAF7] border border-[#E6DCD1] rounded-xl focus:outline-none focus:border-[#795640] focus:ring-2 focus:ring-[#D0AE70]/40 focus:bg-white transition-all leading-relaxed"
+                className="w-full p-4 text-sm font-sans text-[#112521] bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl focus:outline-none focus:border-[#173B35] focus:ring-2 focus:ring-[#F5B85C]/40 focus:bg-white transition-all leading-relaxed"
                 spellCheck={false}
               />
-              <div className="flex items-center justify-between text-[11px] text-[#8D786D] mt-1 px-1">
+              <div className="flex items-center justify-between text-[11px] text-[#52796F] mt-1 px-1">
                 <span>Belgilar: {generatedDraft.length} ta</span>
                 <span>Qatorlar: {generatedDraft.split('\n').length} ta</span>
               </div>
             </div>
 
             {/* Platform tips */}
-            <div className="p-3.5 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#6B5549] space-y-1.5">
-              <span className="font-semibold text-[#493329] block">
+            <div className="p-3.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#52796F] space-y-1.5">
+              <span className="font-semibold text-[#112521] block">
                 {formData.platform === 'telegram'
                   ? '💡 Telegram uchun foydali maslahat:'
                   : '💡 Instagram uchun foydali maslahat:'}
@@ -653,24 +668,27 @@ export const AdGenerator: React.FC = () => {
 
           {/* Saved Drafts List */}
           {savedDrafts.length > 0 && (
-            <div className="bg-white border border-[#E6DCD1] rounded-2xl p-5 shadow-card">
-              <div className="flex items-center justify-between mb-3 border-b border-[#EFE8DE] pb-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#795640]">
+            <div 
+              className="scroll-reveal bg-white border border-[#E0ECE8] rounded-2xl p-5 shadow-card"
+              style={{ '--reveal-delay': '160ms' } as React.CSSProperties}
+            >
+              <div className="flex items-center justify-between mb-3 border-b border-[#E0ECE8] pb-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#173B35]">
                   Saqlangan qoralamalar ({savedDrafts.length})
                 </h3>
               </div>
 
-              <div className="divide-y divide-[#EFE8DE] max-h-56 overflow-y-auto">
+              <div className="divide-y divide-[#E0ECE8] max-h-56 overflow-y-auto">
                 {savedDrafts.map((draft) => (
                   <div
                     key={draft.id}
-                    className="py-2.5 flex items-center justify-between gap-3 hover:bg-[#FAF6F0] px-2 rounded-xl transition-colors"
+                    className="py-2.5 flex items-center justify-between gap-3 hover:bg-[#F6F8F7] px-2 rounded-xl transition-colors"
                   >
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-[#493329] truncate">
+                      <p className="text-xs font-semibold text-[#112521] truncate">
                         {draft.title}
                       </p>
-                      <div className="flex items-center gap-2 text-[11px] text-[#8D786D] mt-0.5">
+                      <div className="flex items-center gap-2 text-[11px] text-[#52796F] mt-0.5">
                         <span>{draft.createdAt}</span>
                         <span>·</span>
                         <span>{draft.content.length} belgi</span>
@@ -680,13 +698,13 @@ export const AdGenerator: React.FC = () => {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={() => handleRestoreDraft(draft)}
-                        className="px-2.5 py-1 text-xs font-medium text-[#493329] hover:bg-white rounded-lg border border-[#E6DCD1] transition-all btn-tactile"
+                        className="px-2.5 py-1 text-xs font-medium text-[#112521] hover:bg-white rounded-lg border border-[#E0ECE8] transition-all btn-tactile"
                       >
                         Tiklash
                       </button>
                       <button
                         onClick={() => handleDeleteDraft(draft.id)}
-                        className="p-1 text-[#8D786D] hover:text-[#9E2A2B] transition-colors btn-tactile"
+                        className="p-1 text-[#52796F] hover:text-[#9E2A2B] transition-colors btn-tactile"
                         title="O'chirish"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

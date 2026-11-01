@@ -357,17 +357,17 @@ export const FinanceModule: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* 1. Module Banner Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-subtle">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#493329] text-[#D0AE70] flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#173B35] text-[#D7F0E5] flex items-center justify-center font-bold shadow-2xs">
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-[#493329] tracking-tight">
+              <h1 className="text-xl font-bold text-[#112521] tracking-tight">
                 Moliya & Xarajatlar hisobi
               </h1>
-              <p className="text-xs text-[#795640]">
+              <p className="text-xs text-[#52796F]">
                 Kassa tushumi, mahsulotlar tannarxi (COGS), xarajatlar va taxminiy sof foyda
               </p>
             </div>
@@ -378,7 +378,7 @@ export const FinanceModule: React.FC = () => {
           <button
             onClick={loadData}
             title="Yangilash"
-            className="p-2.5 text-[#6B5549] hover:text-[#493329] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile"
+            className="p-2.5 text-[#52796F] hover:text-[#112521] bg-[#F6F8F7] hover:bg-[#E0ECE8]/50 border border-[#E0ECE8] rounded-xl transition-all btn-tactile cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -388,12 +388,12 @@ export const FinanceModule: React.FC = () => {
               onClick={handleExportCsv}
               disabled={isExporting || loading}
               title="Moliyaviy hisobotni CSV formatida yuklab olish"
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-bold text-[#493329] bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#E6DCD1] rounded-xl transition-all btn-tactile disabled:opacity-50 animate-fadeIn"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-bold text-[#173B35] bg-white hover:bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl transition-all btn-tactile disabled:opacity-50 shadow-subtle cursor-pointer"
             >
               {isExporting ? (
-                <RefreshCw className="w-4 h-4 animate-spin text-[#D0AE70]" />
+                <RefreshCw className="w-4 h-4 animate-spin text-[#173B35]" />
               ) : (
-                <Download className="w-4 h-4 text-[#D0AE70]" />
+                <Download className="w-4 h-4 text-[#173B35]" />
               )}
               <span>Hisobotni yuklash (CSV)</span>
             </button>
@@ -401,9 +401,9 @@ export const FinanceModule: React.FC = () => {
 
           <button
             onClick={handleOpenCreateModal}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] border border-[#BF9E60]/50 rounded-xl transition-all btn-tactile shadow-2xs"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-[#173B35] hover:bg-[#112521] border border-[#173B35] rounded-xl transition-all btn-tactile shadow-xs cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-[#F5B85C]" />
             <span>Yangi xarajat kiritish</span>
           </button>
         </div>
@@ -436,60 +436,60 @@ export const FinanceModule: React.FC = () => {
       )}
 
       {/* 3. Date Range Filter Controls */}
-      <div className="bg-white p-4 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-[#E0ECE8] shadow-subtle space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#8D786D]" />
-            <span className="text-xs font-bold text-[#493329]">Hisobot davri:</span>
+            <Calendar className="w-4 h-4 text-[#55756E]" />
+            <span className="text-xs font-bold text-[#112521]">Hisobot davri:</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setDatePreset('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 datePreset === 'all'
-                  ? 'bg-[#493329] text-[#D0AE70]'
-                  : 'bg-[#FAF6F0] text-[#6B5549] hover:bg-[#F2ECE1]'
+                  ? 'bg-[#173B35] text-white shadow-xs'
+                  : 'bg-[#F6F8F7] text-[#2C4C45] hover:bg-[#E0ECE8]'
               }`}
             >
               Barcha davr
             </button>
             <button
               onClick={() => setDatePreset('today')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 datePreset === 'today'
-                  ? 'bg-[#493329] text-[#D0AE70]'
-                  : 'bg-[#FAF6F0] text-[#6B5549] hover:bg-[#F2ECE1]'
+                  ? 'bg-[#173B35] text-white shadow-xs'
+                  : 'bg-[#F6F8F7] text-[#2C4C45] hover:bg-[#E0ECE8]'
               }`}
             >
               Bugun
             </button>
             <button
               onClick={() => setDatePreset('this_week')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 datePreset === 'this_week'
-                  ? 'bg-[#493329] text-[#D0AE70]'
-                  : 'bg-[#FAF6F0] text-[#6B5549] hover:bg-[#F2ECE1]'
+                  ? 'bg-[#173B35] text-white shadow-xs'
+                  : 'bg-[#F6F8F7] text-[#2C4C45] hover:bg-[#E0ECE8]'
               }`}
             >
               Shu hafta
             </button>
             <button
               onClick={() => setDatePreset('this_month')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 datePreset === 'this_month'
-                  ? 'bg-[#493329] text-[#D0AE70]'
-                  : 'bg-[#FAF6F0] text-[#6B5549] hover:bg-[#F2ECE1]'
+                  ? 'bg-[#173B35] text-white shadow-xs'
+                  : 'bg-[#F6F8F7] text-[#2C4C45] hover:bg-[#E0ECE8]'
               }`}
             >
               Shu oy
             </button>
             <button
               onClick={() => setDatePreset('custom')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 datePreset === 'custom'
-                  ? 'bg-[#493329] text-[#D0AE70]'
-                  : 'bg-[#FAF6F0] text-[#6B5549] hover:bg-[#F2ECE1]'
+                  ? 'bg-[#173B35] text-white shadow-xs'
+                  : 'bg-[#F6F8F7] text-[#2C4C45] hover:bg-[#E0ECE8]'
               }`}
             >
               Moslashtirilgan
@@ -498,23 +498,23 @@ export const FinanceModule: React.FC = () => {
         </div>
 
         {datePreset === 'custom' && (
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 border-t border-[#E6DCD1]/60 animate-fadeIn">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 border-t border-[#E0ECE8] animate-fadeIn">
             <div className="flex-1 w-full flex items-center gap-2">
-              <span className="text-xs text-[#8D786D] shrink-0">Boshlanish:</span>
+              <span className="text-xs text-[#55756E] shrink-0">Boshlanish:</span>
               <input
                 type="date"
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
-                className="w-full px-3 py-1.5 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A]"
+                className="w-full px-3 py-1.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-none focus:border-[#173B35]"
               />
             </div>
             <div className="flex-1 w-full flex items-center gap-2">
-              <span className="text-xs text-[#8D786D] shrink-0">Tugash:</span>
+              <span className="text-xs text-[#55756E] shrink-0">Tugash:</span>
               <input
                 type="date"
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
-                className="w-full px-3 py-1.5 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A]"
+                className="w-full px-3 py-1.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-none focus:border-[#173B35]"
               />
             </div>
           </div>
@@ -524,87 +524,87 @@ export const FinanceModule: React.FC = () => {
       {/* 4. Financial Summary Cards (5 Metrics) */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
         {/* Card 1: Paid Revenue */}
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border border-[#E0ECE8] shadow-subtle">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[11px] font-semibold text-emerald-800">Haqiqiy tushum</span>
             <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
           </div>
-          <span className="text-base sm:text-lg font-bold text-emerald-900 truncate block">
+          <span className="text-base sm:text-lg font-bold text-emerald-900 truncate block font-mono">
             {formatMoney(metrics.paidRevenue)}
           </span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+          <span className="text-[10px] text-[#55756E] block mt-1">
             Muvaffaqiyatli qabul qilingan pullar ({metrics.orderCount} buyurtma)
           </span>
         </div>
 
         {/* Card 2: Remaining Debt */}
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border border-[#E0ECE8] shadow-subtle">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[11px] font-semibold text-rose-800">Qolgan qarz</span>
             <Clock className="w-3.5 h-3.5 text-rose-500" />
           </div>
-          <span className="text-base sm:text-lg font-bold text-rose-900 truncate block">
+          <span className="text-base sm:text-lg font-bold text-rose-900 truncate block font-mono">
             {formatMoney(metrics.unpaidDebt)}
           </span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+          <span className="text-[10px] text-[#55756E] block mt-1">
             Mijozlardan kutilayotgan nasiya
           </span>
         </div>
 
         {/* Card 3: COGS */}
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border border-[#E0ECE8] shadow-subtle">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-semibold text-[#8D786D]">Mahsulot tannarxi</span>
-            <ShoppingBag className="w-3.5 h-3.5 text-[#8D786D]" />
+            <span className="text-[11px] font-semibold text-[#55756E]">Mahsulot tannarxi</span>
+            <ShoppingBag className="w-3.5 h-3.5 text-[#55756E]" />
           </div>
-          <span className="text-base sm:text-lg font-bold text-[#493329] truncate block">
+          <span className="text-base sm:text-lg font-bold text-[#112521] truncate block font-mono">
             {formatMoney(metrics.costOfGoodsSold)}
           </span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+          <span className="text-[10px] text-[#55756E] block mt-1">
             Sotilgan tovarlar tannarxi (COGS)
           </span>
         </div>
 
         {/* Card 4: Total Expenses */}
-        <div className="bg-white p-4 rounded-xl border border-[#E6DCD1] shadow-2xs">
+        <div className="bg-white p-4 rounded-2xl border border-[#E0ECE8] shadow-subtle">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[11px] font-semibold text-amber-800">Operatsion xarajatlar</span>
             <ArrowDownRight className="w-3.5 h-3.5 text-amber-600" />
           </div>
-          <span className="text-base sm:text-lg font-bold text-amber-900 truncate block">
+          <span className="text-base sm:text-lg font-bold text-amber-900 truncate block font-mono">
             {formatMoney(metrics.totalExpenses)}
           </span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+          <span className="text-[10px] text-[#55756E] block mt-1">
             Qo'lda kiritilgan xarajatlar ({metrics.expenseCount} ta)
           </span>
         </div>
 
         {/* Card 5: Estimated Net Profit */}
-        <div className="col-span-2 lg:col-span-1 bg-[#FAF6F0] p-4 rounded-xl border border-[#D0AE70]/60 shadow-2xs">
+        <div className="col-span-2 lg:col-span-1 bg-[#D7F0E5]/60 p-4 rounded-2xl border border-[#B5E2D1] shadow-subtle">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-semibold text-[#66493B]">Taxminiy sof foyda</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+            <span className="text-[11px] font-bold text-[#173B35]">Taxminiy sof foyda</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-[#173B35] border border-[#B5E2D1]">
               {metrics.profitMarginPercent}% marja
             </span>
           </div>
           <span
-            className={`text-base sm:text-lg font-extrabold truncate block ${
-              metrics.estimatedNetProfit >= 0 ? 'text-emerald-800' : 'text-rose-700'
+            className={`text-base sm:text-lg font-extrabold truncate block font-mono ${
+              metrics.estimatedNetProfit >= 0 ? 'text-[#173B35]' : 'text-rose-700'
             }`}
           >
             {formatMoney(metrics.estimatedNetProfit)}
           </span>
-          <span className="text-[10px] text-[#795640] block mt-1">
+          <span className="text-[10px] text-[#2C4C45] block mt-1 font-medium">
             Tushum - COGS - Xarajatlar
           </span>
         </div>
       </div>
 
       {/* 5. Disclaimer Notice */}
-      <div className="bg-[#FAF6F0] p-3.5 rounded-xl border border-[#E6DCD1] flex items-start gap-2.5 text-xs text-[#795640]">
-        <HelpCircle className="w-4 h-4 text-[#D0AE70] shrink-0 mt-0.5" />
+      <div className="bg-[#F6F8F7] p-3.5 rounded-2xl border border-[#E0ECE8] flex items-start gap-2.5 text-xs text-[#2C4C45]">
+        <HelpCircle className="w-4 h-4 text-[#173B35] shrink-0 mt-0.5" />
         <div>
-          <span className="font-bold text-[#493329]">Hisobiy izoh:</span> "Taxminiy sof foyda"
+          <span className="font-bold text-[#112521]">Hisobiy izoh:</span> "Taxminiy sof foyda"
           mavjud kassa tushumidan amalda sotilgan tovarlar tannarxi va qo'lda kiritilgan operatsion
           xarajatlarni ayirish orqali hisoblangan. Davlat soliqlari va kiritilmagan qo'shimcha
           rasmiy xarajatlar bu hisobga o'zboshimchalik bilan qo'shilmagan.
@@ -612,11 +612,11 @@ export const FinanceModule: React.FC = () => {
       </div>
 
       {/* 6. Expenses List Section */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E6DCD1] shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E6DCD1]/60">
+      <div className="bg-white p-5 rounded-2xl border border-[#E0ECE8] shadow-subtle space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E0ECE8]">
           <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-[#493329]" />
-            <h2 className="text-sm font-bold text-[#493329]">
+            <Receipt className="w-5 h-5 text-[#173B35]" />
+            <h2 className="text-sm font-bold text-[#112521]">
               Xarajatlar daftari ({filteredTransactions.length} ta yozuv)
             </h2>
           </div>
@@ -626,7 +626,7 @@ export const FinanceModule: React.FC = () => {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value as ExpenseCategory | 'all')}
-              className="px-3 py-1.5 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden"
+              className="px-3 py-1.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-none focus:border-[#173B35]"
             >
               <option value="all">Barcha kategoriyalar</option>
               {EXPENSE_CATEGORIES.map((c) => (
@@ -638,13 +638,13 @@ export const FinanceModule: React.FC = () => {
 
             {/* Search Bar */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#8D786D] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[#55756E] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Izoh yoki summa bo'yicha..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] placeholder-[#8D786D] focus:outline-hidden"
+                className="pl-8 pr-3 py-1.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] placeholder-[#55756E] focus:outline-none focus:border-[#173B35]"
               />
               {searchQuery && (
                 <button
@@ -660,24 +660,24 @@ export const FinanceModule: React.FC = () => {
 
         {/* Expenses Table */}
         {loading ? (
-          <div className="py-12 text-center text-xs text-[#8D786D] flex flex-col items-center gap-2">
-            <RefreshCw className="w-5 h-5 animate-spin text-[#D0AE70]" />
+          <div className="py-12 text-center text-xs text-[#55756E] flex flex-col items-center gap-2">
+            <RefreshCw className="w-5 h-5 animate-spin text-[#173B35]" />
             <span>Xarajatlar yuklanmoqda...</span>
           </div>
         ) : filteredTransactions.length === 0 ? (
-          <div className="py-12 text-center text-xs text-[#8D786D] space-y-2 border-2 border-dashed border-[#E6DCD1] rounded-xl">
-            <Receipt className="w-8 h-8 text-[#D0AE70] mx-auto opacity-60" />
-            <div className="font-bold text-[#493329]">Hech qanday xarajat yozuvi topilmadi</div>
-            <p className="max-w-md mx-auto text-[11px]">
+          <div className="py-12 text-center text-xs text-[#55756E] space-y-2 border border-dashed border-[#E0ECE8] rounded-2xl bg-[#F6F8F7]/50">
+            <Receipt className="w-8 h-8 text-[#173B35] mx-auto opacity-50" />
+            <div className="font-bold text-[#112521]">Hech qanday xarajat yozuvi topilmadi</div>
+            <p className="max-w-md mx-auto text-[11px] text-[#55756E]">
               {searchQuery || categoryFilter !== 'all' || datePreset !== 'all'
                 ? "Filtr bo'yicha hech qanday xarajat mos kelmadi. Filtr va qidiruvni tozalab ko'ring."
                 : "Biznesingizning ijara, reklama, ish haqi va boshqa xarajatlarini kiritib boring."}
             </p>
             <button
               onClick={handleOpenCreateModal}
-              className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] rounded-xl transition-all btn-tactile"
+              className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#173B35] hover:bg-[#112521] rounded-xl transition-all btn-tactile cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 text-[#F5B85C]" />
               <span>Yangi xarajat qo'shish</span>
             </button>
           </div>
@@ -685,7 +685,7 @@ export const FinanceModule: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#FAF6F0] text-[#8D786D] font-bold border-b border-[#E6DCD1]">
+                <tr className="bg-[#F6F8F7] text-[#55756E] font-bold border-b border-[#E0ECE8]">
                   <th className="p-3 rounded-l-xl">Sana</th>
                   <th className="p-3">Kategoriya</th>
                   <th className="p-3">Izoh</th>
@@ -693,26 +693,26 @@ export const FinanceModule: React.FC = () => {
                   <th className="p-3 text-right rounded-r-xl">Amallar</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E6DCD1]/60">
+              <tbody className="divide-y divide-[#E0ECE8]">
                 {filteredTransactions.map((tx) => {
                   const catLabel =
                     EXPENSE_CATEGORIES.find((c) => c.id === tx.category)?.label || tx.category;
                   const isProcessing = actionLoadingId === tx.id;
 
                   return (
-                    <tr key={tx.id} className="hover:bg-[#FAF6F0]/60 transition-colors">
-                      <td className="p-3 font-semibold text-[#493329] shrink-0">
+                    <tr key={tx.id} className="hover:bg-[#F6F8F7]/70 transition-colors">
+                      <td className="p-3 font-semibold text-[#112521] shrink-0 font-mono">
                         {tx.date}
                       </td>
                       <td className="p-3">
-                        <span className="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold">
+                        <span className="inline-block px-2.5 py-1 rounded-lg bg-[#D7F0E5]/60 text-[#173B35] border border-[#B5E2D1] text-[11px] font-semibold">
                           {catLabel}
                         </span>
                       </td>
-                      <td className="p-3 text-[#6B5549] max-w-xs truncate">
+                      <td className="p-3 text-[#2C4C45] max-w-xs truncate">
                         {tx.description || '—'}
                       </td>
-                      <td className="p-3 text-right font-extrabold text-rose-700">
+                      <td className="p-3 text-right font-extrabold text-rose-700 font-mono">
                         -{formatMoney(tx.amount)}
                       </td>
                       <td className="p-3 text-right">
@@ -721,7 +721,7 @@ export const FinanceModule: React.FC = () => {
                             onClick={() => handleOpenEditModal(tx)}
                             disabled={isProcessing}
                             title="Tahrirlash"
-                            className="p-1.5 text-gray-500 hover:text-[#493329] hover:bg-[#F2ECE1] rounded-lg transition-colors"
+                            className="p-1.5 text-gray-500 hover:text-[#173B35] hover:bg-[#D7F0E5]/30 rounded-lg transition-colors cursor-pointer"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -729,7 +729,7 @@ export const FinanceModule: React.FC = () => {
                             onClick={() => handleDeleteExpense(tx)}
                             disabled={isProcessing}
                             title="O'chirish"
-                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                           >
                             {isProcessing ? (
                               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -750,26 +750,26 @@ export const FinanceModule: React.FC = () => {
 
       {/* 7. Create/Edit Expense Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white rounded-2xl border border-[#E6DCD1] shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90dvh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-[#E0ECE8] shadow-modal w-full max-w-md overflow-hidden flex flex-col max-h-[90dvh]">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-[#E6DCD1] bg-[#FAF6F0] flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#493329] text-[#D0AE70] flex items-center justify-center font-bold">
+            <div className="p-4 sm:p-5 border-b border-[#E0ECE8] bg-[#F6F8F7] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#173B35] text-[#F5B85C] flex items-center justify-center font-bold">
                   <Receipt className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[#493329]">
+                  <h3 className="text-sm font-bold text-[#112521]">
                     {editingTransaction ? "Xarajatni tahrirlash" : "Yangi xarajat kiritish"}
                   </h3>
-                  <p className="text-[11px] text-[#795640]">
+                  <p className="text-[11px] text-[#55756E]">
                     Biznes operatsion va ma'muriy xarajatlari
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-[#EFE8DE]"
+                className="p-1.5 text-[#55756E] hover:text-[#112521] rounded-xl hover:bg-[#E0ECE8] transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -790,13 +790,13 @@ export const FinanceModule: React.FC = () => {
 
               {/* Category */}
               <div>
-                <label className="block font-bold text-[#493329] mb-1">
+                <label className="block font-bold text-[#112521] mb-1">
                   Xarajat kategoriyasi *
                 </label>
                 <select
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value as ExpenseCategory)}
-                  className="w-full px-3 py-2 bg-[#FAF6F0] border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] font-medium focus:outline-hidden focus:border-[#D0AE70]"
+                  className="w-full px-3 py-2 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#112521] font-medium focus:outline-none focus:border-[#173B35]"
                 >
                   {EXPENSE_CATEGORIES.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -808,7 +808,7 @@ export const FinanceModule: React.FC = () => {
 
               {/* Amount */}
               <div>
-                <label className="block font-bold text-[#493329] mb-1">
+                <label className="block font-bold text-[#112521] mb-1">
                   Xarajat summasi * ({businessProfile?.currency || 'UZS'})
                 </label>
                 <input
@@ -819,13 +819,13 @@ export const FinanceModule: React.FC = () => {
                   placeholder="Masalan: 1200000"
                   value={formAmount}
                   onChange={(e) => setFormAmount(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-[#E6DCD1] rounded-xl text-xs font-bold text-[#493329] focus:outline-hidden focus:border-[#D0AE70]"
+                  className="w-full px-3 py-2 bg-white border border-[#E0ECE8] rounded-xl text-xs font-bold text-[#112521] focus:outline-none focus:border-[#173B35] font-mono"
                 />
               </div>
 
               {/* Date */}
               <div>
-                <label className="block font-bold text-[#493329] mb-1">
+                <label className="block font-bold text-[#112521] mb-1">
                   Xarajat qilingan sana *
                 </label>
                 <input
@@ -833,13 +833,13 @@ export const FinanceModule: React.FC = () => {
                   required
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden focus:border-[#D0AE70]"
+                  className="w-full px-3 py-2 bg-white border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-none focus:border-[#173B35]"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block font-bold text-[#493329] mb-1">
+                <label className="block font-bold text-[#112521] mb-1">
                   Izoh / Tafsilot (ixtiyoriy)
                 </label>
                 <textarea
@@ -847,23 +847,23 @@ export const FinanceModule: React.FC = () => {
                   placeholder="Masalan: Avgust oyi uchun do'kon ijarasi..."
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-[#E6DCD1] rounded-xl text-xs text-[#34221A] focus:outline-hidden focus:border-[#D0AE70]"
+                  className="w-full px-3 py-2 bg-white border border-[#E0ECE8] rounded-xl text-xs text-[#112521] focus:outline-none focus:border-[#173B35]"
                 />
               </div>
 
               {/* Modal Footer Actions */}
-              <div className="pt-3 border-t border-[#E6DCD1] flex items-center justify-end gap-2 shrink-0">
+              <div className="pt-3 border-t border-[#E0ECE8] flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-[#6B5549] bg-[#FAF6F0] hover:bg-[#F2ECE1] rounded-xl transition-all"
+                  className="px-4 py-2 text-xs font-bold text-[#2C4C45] bg-[#F6F8F7] hover:bg-[#E0ECE8] rounded-xl transition-all cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submittingForm}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#34221A] bg-[#D0AE70] hover:bg-[#C39F60] rounded-xl transition-all btn-tactile disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#173B35] hover:bg-[#112521] rounded-xl transition-all btn-tactile disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   {submittingForm && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingTransaction ? "Saqlash" : "Xarajatni kiritish"}</span>
