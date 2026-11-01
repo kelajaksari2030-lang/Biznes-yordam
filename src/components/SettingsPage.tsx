@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { AppSettings } from '../types/modules';
 import { getAppSettings, saveAppSettings, exportUserDataBundle } from '../services/settingsService';
 import { sendTelegramMessage } from '../services/telegramService';
+import { BestoTelegramBotCard } from './BestoTelegramBotCard';
 import {
   User,
   CreditCard,
@@ -268,11 +269,16 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
 
           {/* SECTION 4: Telegram */}
           {activeSection === 'telegram' && settings && (
-            <div className="space-y-5">
-              <div className="border-b border-[#E0ECE8] pb-3">
-                <h3 className="font-bold text-lg text-[#112521]">Telegram Bot Integratsiyasi</h3>
-                <p className="text-xs text-gray-500">Ombor kam qolganda va yirik sotuvda xabarnomalar olish</p>
-              </div>
+            <div className="space-y-6">
+              {/* BESTO Telegram bot (Yangi karta) */}
+              <BestoTelegramBotCard />
+
+              {/* Mavjud Telegram Bot Integratsiyasi kartasi */}
+              <div className="space-y-5 pt-2">
+                <div className="border-b border-[#E0ECE8] pb-3">
+                  <h3 className="font-bold text-lg text-[#112521]">Telegram Bot Integratsiyasi</h3>
+                  <p className="text-xs text-gray-500">Shaxsiy bot tokeni orqali ombor kam qolganda va yirik sotuvda xabarnomalar olish</p>
+                </div>
 
               <div className="space-y-3">
                 <div>
@@ -360,7 +366,8 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
           {/* SECTION 5: Security */}
           {activeSection === 'security' && (

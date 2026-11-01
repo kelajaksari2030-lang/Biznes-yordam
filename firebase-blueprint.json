@@ -149,6 +149,31 @@
         "createdAt": { "type": "string", "maxLength": 64 }
       },
       "required": ["id", "userId", "transferNumber", "sourceWarehouseId", "destWarehouseId"]
+    },
+    "TelegramLinkCode": {
+      "title": "TelegramLinkCode",
+      "description": "Telegram botini ulash uchun bir martalik 8 belgili kod",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["pending", "linked", "expired"] },
+        "createdAt": { "type": "string" },
+        "expiresAt": { "type": "string" }
+      },
+      "required": ["userId", "status", "expiresAt"]
+    },
+    "TelegramChat": {
+      "title": "TelegramChat",
+      "description": "Foydalanuvchiga ulangan Telegram chat yozuvi",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "chatId": { "type": "string", "maxLength": 64 },
+        "username": { "type": "string", "maxLength": 128 },
+        "firstName": { "type": "string", "maxLength": 128 },
+        "linkedAt": { "type": "string" }
+      },
+      "required": ["userId", "chatId"]
     }
   },
   "firestore": {
@@ -187,6 +212,15 @@
     "/users/{userId}/transfers/{transferId}": {
       "schema": "StockTransfer",
       "description": "Omborlararo transferlar"
+    },
+    "/telegramLinkCodes/{code}": {
+      "schema": "TelegramLinkCode",
+      "description": "Telegram botiga hisobni ulash uchun bir martalik 8 belgili kodlar"
+    },
+    "/telegramChats/{chatId}": {
+      "schema": "TelegramChat",
+      "description": "Foydalanuvchiga ulangan Telegram chatlari"
     }
   }
 }
+

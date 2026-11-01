@@ -216,5 +216,20 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
+
+    match /telegramLinkCodes/{code} {
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == "pending"
+        && code.matches("[A-Z0-9]{8}");
+      allow get: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow list, update, delete: if false;
+    }
+
+    match /telegramChats/{chatId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
   }
 }
+
