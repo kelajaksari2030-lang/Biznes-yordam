@@ -1095,8 +1095,29 @@ export const OrdersModule: React.FC = () => {
                             <input
                               type="number"
                               min="1"
-                              value={item.quantity}
-                              onChange={(e) => handleUpdateItemQty(idx, parseInt(e.target.value) || 1)}
+                              value={item.quantity || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') {
+                                  setOrderItems((prev) =>
+                                    prev.map((it, i) => (i === idx ? { ...it, quantity: 0 } : it))
+                                  );
+                                } else {
+                                  const parsed = parseFloat(val);
+                                  if (!isNaN(parsed) && parsed >= 0) {
+                                    setOrderItems((prev) =>
+                                      prev.map((it, i) => (i === idx ? { ...it, quantity: parsed } : it))
+                                    );
+                                  }
+                                }
+                              }}
+                              onBlur={() => {
+                                if (!item.quantity || item.quantity < 1) {
+                                  setOrderItems((prev) =>
+                                    prev.map((it, i) => (i === idx ? { ...it, quantity: 1 } : it))
+                                  );
+                                }
+                              }}
                               className="w-16 px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-center font-bold"
                             />
                             <span className="text-[10px] text-[#52796F]">{item.unit}</span>

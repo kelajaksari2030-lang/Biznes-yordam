@@ -599,10 +599,31 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                               <input
                                 type="number"
                                 min="1"
-                                value={item.quantity}
-                                onChange={(e) =>
-                                  updateQuantity(item.product.id, Math.max(1, Number(e.target.value)))
-                                }
+                                value={item.quantity || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (val === '') {
+                                    setCart((prev) =>
+                                      prev.map((it) =>
+                                        it.product.id === item.product.id ? { ...it, quantity: 0 } : it
+                                      )
+                                    );
+                                  } else {
+                                    const parsed = parseFloat(val);
+                                    if (!isNaN(parsed) && parsed >= 0) {
+                                      setCart((prev) =>
+                                        prev.map((it) =>
+                                          it.product.id === item.product.id ? { ...it, quantity: parsed } : it
+                                        )
+                                      );
+                                    }
+                                  }
+                                }}
+                                onBlur={() => {
+                                  if (!item.quantity || item.quantity < 1) {
+                                    updateQuantity(item.product.id, 1);
+                                  }
+                                }}
                                 className="w-12 text-center font-mono font-bold text-xs py-1 border border-[#E0ECE8] rounded-lg"
                               />
                               <button

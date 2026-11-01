@@ -33,6 +33,7 @@ import {
   calculateInventoryStats,
   calculateRecipeCost,
   isLowStock,
+  isOutOfStock,
 } from '../services/inventoryService';
 import { formatUzbekSom, formatNumber } from '../utils/numberFormat';
 import { getBusinessProfile } from '../services/businessService';
@@ -49,6 +50,7 @@ export const InventoryModule: React.FC = () => {
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLowStockOnly, setFilterLowStockOnly] = useState(false);
+  const [filterOutOfStockOnly, setFilterOutOfStockOnly] = useState(false);
   const [currencySymbol, setCurrencySymbol] = useState("so'm");
 
   // CSV Modal state
@@ -300,8 +302,8 @@ export const InventoryModule: React.FC = () => {
 
   // Filtered list
   const filteredProducts = useMemo(() => {
-    return filterProducts(products, searchQuery, filterLowStockOnly);
-  }, [products, searchQuery, filterLowStockOnly]);
+    return filterProducts(products, searchQuery, filterLowStockOnly, filterOutOfStockOnly);
+  }, [products, searchQuery, filterLowStockOnly, filterOutOfStockOnly]);
 
   // Aggregated Statistics
   const stats = useMemo(() => {
@@ -493,8 +495,8 @@ export const InventoryModule: React.FC = () => {
         </div>
       )}
 
-      {/* 4 Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 5 Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         {/* Total products */}
         <div className="p-4 sm:p-5 bg-white border border-[#E0ECE8] rounded-2xl shadow-card">
           <div className="flex items-center justify-between">
@@ -509,9 +511,44 @@ export const InventoryModule: React.FC = () => {
           </span>
         </div>
 
+        {/* Out of Stock Alert */}
+        <div
+          onClick={() => {
+            setFilterOutOfStockOnly((prev) => !prev);
+            if (!filterOutOfStockOnly) setFilterLowStockOnly(false);
+          }}
+          className={`p-4 sm:p-5 rounded-2xl shadow-card cursor-pointer transition-all border ${
+            stats.outOfStockCount > 0
+              ? 'bg-rose-50/60 border-rose-300 hover:border-rose-400'
+              : 'bg-white border-[#E0ECE8]'
+          }`}
+          title="Tugaganlarni saralash"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-rose-800 flex items-center gap-1">
+              <X className="w-3.5 h-3.5 text-rose-600" />
+              <span>Tugagan</span>
+            </span>
+            {stats.outOfStockCount > 0 && (
+              <span className="text-[10px] font-bold text-rose-800 bg-rose-200/80 px-2 py-0.5 rounded-full">
+                0 dona
+              </span>
+            )}
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-rose-950 font-mono mt-2">
+            {stats.outOfStockCount}
+          </div>
+          <span className="text-[11px] text-rose-900 mt-1 block font-medium">
+            {filterOutOfStockOnly ? "Filtr faol (barchasini ko'rish)" : "Qoldiq 0 bo'lgan tovarlar"}
+          </span>
+        </div>
+
         {/* Low Stock Alert */}
         <div
-          onClick={() => setFilterLowStockOnly((prev) => !prev)}
+          onClick={() => {
+            setFilterLowStockOnly((prev) => !prev);
+            if (!filterLowStockOnly) setFilterOutOfStockOnly(false);
+          }}
           className={`p-4 sm:p-5 rounded-2xl shadow-card cursor-pointer transition-all border ${
             stats.lowStockCount > 0
               ? 'bg-amber-50/60 border-amber-300 hover:border-amber-400'
@@ -589,25 +626,51 @@ export const InventoryModule: React.FC = () => {
             )}
           </div>
 
-          {/* Low Stock Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setFilterLowStockOnly((prev) => !prev)}
-            className={`px-3.5 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all btn-tactile shrink-0 ${
-              filterLowStockOnly
-                ? 'bg-amber-100 border-amber-300 text-amber-900 shadow-xs'
-                : 'bg-[#F6F8F7] border-[#E0ECE8] text-[#52796F] hover:bg-[#E0ECE8]'
-            }`}
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-            <span>Faqat kam qolganlar ({stats.lowStockCount})</span>
-          </button>
+          {/* Toggle Filter Buttons */}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setFilterOutOfStockOnly((prev) => !prev);
+                if (!filterOutOfStockOnly) setFilterLowStockOnly(false);
+              }}
+              className={`px-3 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all btn-tactile ${
+                filterOutOfStockOnly
+                  ? 'bg-rose-100 border-rose-300 text-rose-900 shadow-xs'
+                  : 'bg-[#F6F8F7] border-[#E0ECE8] text-[#52796F] hover:bg-[#E0ECE8]'
+              }`}
+            >
+              <X className="w-3.5 h-3.5 text-rose-600" />
+              <span>Tugagan ({stats.outOfStockCount})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setFilterLowStockOnly((prev) => !prev);
+                if (!filterLowStockOnly) setFilterOutOfStockOnly(false);
+              }}
+              className={`px-3 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all btn-tactile ${
+                filterLowStockOnly
+                  ? 'bg-amber-100 border-amber-300 text-amber-900 shadow-xs'
+                  : 'bg-[#F6F8F7] border-[#E0ECE8] text-[#52796F] hover:bg-[#E0ECE8]'
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+              <span>Kam qolganlar ({stats.lowStockCount})</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between text-xs text-[#52796F] pt-1">
           <span>
             Ko'rsatilmoqda: <strong className="text-[#112521] font-mono">{filteredProducts.length}</strong> ta tovar
           </span>
+          {filterOutOfStockOnly && (
+            <span className="text-rose-800 text-[11px] font-medium bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200">
+              Tugagan tovarlar filtri faol
+            </span>
+          )}
           {filterLowStockOnly && (
             <span className="text-amber-800 text-[11px] font-medium bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200">
               Kam qolgan tovarlar filtri faol
@@ -694,7 +757,12 @@ export const InventoryModule: React.FC = () => {
                         </strong>
                       </div>
 
-                      {low ? (
+                      {isOutOfStock(prod) ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-800 bg-rose-100 border border-rose-300 px-2 py-0.5 rounded-md">
+                          <X className="w-3 h-3 text-rose-600" />
+                          <span>Tugagan! ({formatNumber(prod.quantity)} {prod.unit})</span>
+                        </span>
+                      ) : isLowStock(prod) ? (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md">
                           <AlertTriangle className="w-3 h-3 text-amber-600" />
                           <span>Qoldiq oz qoldi! (min: {prod.minStockAlert})</span>

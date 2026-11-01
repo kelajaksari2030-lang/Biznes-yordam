@@ -21,6 +21,7 @@ import { ParsedProductRow } from '../utils/csvProductParser';
 export interface InventoryStats {
   totalProducts: number;
   lowStockCount: number;
+  outOfStockCount: number;
   totalQuantity: number;
   totalPurchaseValue: number;
   totalSellingValue: number;
@@ -28,10 +29,18 @@ export interface InventoryStats {
 }
 
 /**
- * Checks whether a product has hit or gone below the minimal stock threshold
+ * Checks whether a product quantity is 0 or less (Tugagan / Out of Stock)
+ */
+export function isOutOfStock(product: Pick<Product, 'quantity'>): boolean {
+  return Number(product.quantity) <= 0;
+}
+
+/**
+ * Checks whether a product quantity is strictly positive but less than or equal to minimal stock threshold (Kam qolgan / Low Stock)
  */
 export function isLowStock(product: Pick<Product, 'quantity' | 'minStockAlert'>): boolean {
-  return Number(product.quantity) <= Number(product.minStockAlert);
+  const qty = Number(product.quantity);
+  return qty > 0 && qty <= Number(product.minStockAlert);
 }
 
 /**
@@ -475,18 +484,21 @@ export async function deleteProduct(
 }
 
 /**
- * Filters products client-side by search query and low-stock flag
+ * Filters products client-side by search query, low-stock flag, and out-of-stock flag
  */
 export function filterProducts(
   products: Product[],
   searchQuery: string,
-  filterLowStockOnly?: boolean
+  filterLowStockOnly?: boolean,
+  filterOutOfStockOnly?: boolean
 ): Product[] {
   const queryClean = searchQuery.toLowerCase().trim();
 
   return products.filter((p) => {
-    if (filterLowStockOnly && !isLowStock(p)) {
-      return false;
+    if (filterOutOfStockOnly) {
+      if (!isOutOfStock(p)) return false;
+    } else if (filterLowStockOnly) {
+      if (!isLowStock(p)) return false;
     }
 
     if (!queryClean) return true;
@@ -504,12 +516,15 @@ export function filterProducts(
  */
 export function calculateInventoryStats(products: Product[]): InventoryStats {
   let lowStockCount = 0;
+  let outOfStockCount = 0;
   let totalQuantity = 0;
   let totalPurchaseValue = 0;
   let totalSellingValue = 0;
 
   for (const p of products) {
-    if (isLowStock(p)) {
+    if (isOutOfStock(p)) {
+      outOfStockCount++;
+    } else if (isLowStock(p)) {
       lowStockCount++;
     }
     const qty = Number(p.quantity) || 0;
@@ -521,6 +536,7 @@ export function calculateInventoryStats(products: Product[]): InventoryStats {
   return {
     totalProducts: products.length,
     lowStockCount,
+    outOfStockCount,
     totalQuantity,
     totalPurchaseValue,
     totalSellingValue,

@@ -507,10 +507,10 @@ export async function confirmOrder(userId: string, orderId: string): Promise<Ord
         const newQty = currentQty - ded.requiredQty;
 
         const prodRef = doc(db, 'users', userId, 'products', prodId);
-        tx.update(prodRef, {
+        tx.update(prodRef, sanitizeFirestorePayload({
           quantity: newQty,
           updatedAt: now,
-        });
+        }));
 
         deductedStockItems.push({
           productId: prodId,
@@ -522,13 +522,13 @@ export async function confirmOrder(userId: string, orderId: string): Promise<Ord
         });
       }
 
-      const orderUpdatePayload: Partial<Order> = {
+      const orderUpdatePayload: Partial<Order> = sanitizeFirestorePayload({
         status: 'confirmed',
         stockDeducted: true,
         deductedStockItems,
         confirmedAt: now,
         updatedAt: now,
-      };
+      });
 
       tx.update(orderRef, orderUpdatePayload);
 
@@ -635,19 +635,19 @@ export async function cancelOrder(userId: string, orderId: string): Promise<Orde
       if (orderData.stockDeducted) {
         for (const entry of productsToRestore) {
           const newQty = entry.currentQty + entry.restoreQty;
-          tx.update(entry.ref, {
+          tx.update(entry.ref, sanitizeFirestorePayload({
             quantity: newQty,
             updatedAt: now,
-          });
+          }));
         }
       }
 
-      const orderUpdatePayload: Partial<Order> = {
+      const orderUpdatePayload: Partial<Order> = sanitizeFirestorePayload({
         status: 'cancelled',
         stockDeducted: false,
         cancelledAt: now,
         updatedAt: now,
-      };
+      });
 
       tx.update(orderRef, orderUpdatePayload);
 

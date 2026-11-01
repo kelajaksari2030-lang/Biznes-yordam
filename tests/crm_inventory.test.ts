@@ -21,6 +21,7 @@ import {
 import {
   validateProductInput,
   isLowStock,
+  isOutOfStock,
   calculateInventoryStats,
   filterProducts
 } from '../src/services/inventoryService';
@@ -157,9 +158,55 @@ assert(prodNegQty.isValid === false, 'Negative quantity fails validation');
 assert(prodNegQty.errors.some(e => e.toLowerCase().includes('miqdor')), 'Negative quantity error caught');
 
 // ----------------------------------------------------
-// 4. Low-Stock Alert & Stats Calculation Tests
+// 4. Low-Stock & Out-of-Stock Alert & Stats Calculation Tests
 // ----------------------------------------------------
-console.log('\n--- 4. Low-Stock Alert & Stats Calculation ---');
+console.log('\n--- 4. Low-Stock & Out-of-Stock Alert & Stats Calculation ---');
+
+const testProd1 = { quantity: 0, minStockAlert: 5 };
+assert(isOutOfStock(testProd1) === true && isLowStock(testProd1) === false, 'quantity = 0, minStockAlert = 5 -> Tugagan');
+
+const testProd2 = { quantity: 3, minStockAlert: 5 };
+assert(isOutOfStock(testProd2) === false && isLowStock(testProd2) === true, 'quantity = 3, minStockAlert = 5 -> Kam qolgan');
+
+const testProd3 = { quantity: 5, minStockAlert: 5 };
+assert(isOutOfStock(testProd3) === false && isLowStock(testProd3) === true, 'quantity = 5, minStockAlert = 5 -> Kam qolgan');
+
+const testProd4 = { quantity: 6, minStockAlert: 5 };
+assert(isOutOfStock(testProd4) === false && isLowStock(testProd4) === false, 'quantity = 6, minStockAlert = 5 -> Yetarli');
+
+// Empty catalog test
+const emptyStats = calculateInventoryStats([]);
+assert(
+  emptyStats.totalProducts === 0 &&
+  emptyStats.totalQuantity === 0 &&
+  emptyStats.lowStockCount === 0 &&
+  emptyStats.outOfStockCount === 0,
+  'Empty catalog produces all 0 stats'
+);
+
+// Single product with quantity = 0
+const singleZeroProd: Product[] = [{
+  id: 'p0',
+  userId: 'u1',
+  name: 'Tugagan mahsulot',
+  sku: 'OUT-01',
+  purchasePrice: 10000,
+  sellingPrice: 20000,
+  quantity: 0,
+  unit: 'dona',
+  minStockAlert: 5,
+  category: 'Test',
+  createdAt: '2026-11-01T10:00:00Z',
+  updatedAt: '2026-11-01T10:00:00Z'
+}];
+const singleZeroStats = calculateInventoryStats(singleZeroProd);
+assert(
+  singleZeroStats.totalProducts === 1 &&
+  singleZeroStats.totalQuantity === 0 &&
+  singleZeroStats.outOfStockCount === 1 &&
+  singleZeroStats.lowStockCount === 0,
+  'Single product with qty = 0 yields totalProducts 1, totalQuantity 0, outOfStock 1, lowStock 0'
+);
 
 const mockProducts: Product[] = [
   {
@@ -197,7 +244,7 @@ const mockProducts: Product[] = [
     sku: 'EAR-03',
     purchasePrice: 100000,
     sellingPrice: 180000,
-    quantity: 0, // Out of stock: 0 <= 2
+    quantity: 0, // Out of stock: 0 <= 0
     unit: 'dona',
     minStockAlert: 2,
     category: 'Elektronika',
@@ -208,11 +255,13 @@ const mockProducts: Product[] = [
 
 assert(isLowStock(mockProducts[0]) === true, 'Product with qty 3 and alert 5 flagged as low stock');
 assert(isLowStock(mockProducts[1]) === false, 'Product with qty 25 and alert 10 is NOT flagged as low stock');
-assert(isLowStock(mockProducts[2]) === true, 'Product with qty 0 and alert 2 flagged as low stock');
+assert(isOutOfStock(mockProducts[2]) === true, 'Product with qty 0 flagged as out of stock');
+assert(isLowStock(mockProducts[2]) === false, 'Product with qty 0 is NOT flagged as low stock');
 
 const stats = calculateInventoryStats(mockProducts);
 assert(stats.totalProducts === 3, `Total products calculated correctly (${stats.totalProducts})`);
-assert(stats.lowStockCount === 2, `Low stock count calculated correctly (${stats.lowStockCount})`);
+assert(stats.lowStockCount === 1, `Low stock count calculated correctly (${stats.lowStockCount})`);
+assert(stats.outOfStockCount === 1, `Out of stock count calculated correctly (${stats.outOfStockCount})`);
 
 // p1: 3 * 20000 = 60000, p2: 25 * 15000 = 375000, p3: 0 * 100000 = 0 => total = 435000
 const expectedCost = 3 * 20000 + 25 * 15000;
@@ -230,8 +279,11 @@ assert(stats.potentialProfit === expectedProfit, `Potential profit (${stats.pote
 // ----------------------------------------------------
 console.log('\n--- 5. Inventory Search & Low-Stock Filtering ---');
 
-const lowStockFiltered = filterProducts(mockProducts, '', true);
-assert(lowStockFiltered.length === 2, 'Low stock filter returns exactly 2 products');
+const lowStockFiltered = filterProducts(mockProducts, '', true, false);
+assert(lowStockFiltered.length === 1 && lowStockFiltered[0].id === 'p1', 'Low stock filter returns exactly 1 product with qty > 0');
+
+const outOfStockFiltered = filterProducts(mockProducts, '', false, true);
+assert(outOfStockFiltered.length === 1 && outOfStockFiltered[0].id === 'p3', 'Out of stock filter returns exactly 1 product with qty <= 0');
 
 const skuSearch = filterProducts(mockProducts, 'CAB-02', false);
 assert(skuSearch.length === 1 && skuSearch[0].id === 'p2', 'Search by SKU returns exact matching product');
