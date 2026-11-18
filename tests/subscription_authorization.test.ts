@@ -1,4 +1,5 @@
 import { resolveActivePaidPlan } from '../server/src/subscriptionAuthorization.js';
+import { resolveActivePaidPlan as resolveCloudFunctionPaidPlan } from '../functions/src/subscriptionAuthorization';
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`FAIL: ${message}`);
@@ -17,3 +18,7 @@ assert(resolveActivePaidPlan('pro', 'active', null, now) === null, 'Missing expi
 assert(resolveActivePaidPlan('ultra', 'active', 'not-a-date', now) === null, 'Malformed expiry fails closed');
 assert(resolveActivePaidPlan('free', 'active', future, now) === null, 'Free plan never resolves as paid');
 assert(resolveActivePaidPlan('pro', 'active', now, now) === null, 'Expiry at current instant is expired');
+
+assert(resolveCloudFunctionPaidPlan('pro', 'active', future, now) === 'pro', 'Cloud Functions fallback allows active Pro with future expiry');
+assert(resolveCloudFunctionPaidPlan('ultra', 'active', past, now) === null, 'Cloud Functions fallback rejects expired Ultra');
+assert(resolveCloudFunctionPaidPlan('pro', 'active', null, now) === null, 'Cloud Functions fallback rejects missing expiry');
