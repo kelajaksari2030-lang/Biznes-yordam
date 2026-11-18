@@ -54,7 +54,7 @@ Xuddi shu sahifada yoki ochilgan xizmatning **Environment** bo'limida quyidagi o
 | :--- | :--- | :--- |
 | `NODE_ENV` | `production` | Ha |
 | `PORT` | `10000` (Render o'zi avtomatik ham o'rnatadi) | Ha |
-| `CORS_ORIGIN` | `*` (yoki frontend domeningiz manzili) | Ha |
+| `CORS_ORIGIN` | Frontend domen(lar)i, vergul bilan ajratiladi; `*` ishlatmang | Ha |
 | `FIREBASE_PROJECT_ID` | `gen-lang-client-0498548617` | Ha |
 | `FIRESTORE_DATABASE_ID` | `ai-studio-biznesyordam-e0d6389f-9af4-4469-a3e0-1826035a54fd` | Ha |
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | 1-qadamda yuklab olingan `.json` fayl ichidagi barcha matn | **Ha (A varianti)** |
@@ -93,3 +93,8 @@ Shundan so'ng frontenddagi "Reklama matnini yaratish" tugmasi avtomatik tarzda R
 ### Admin huquqlarini xavfsiz sozlash
 
 Admin vakolati endi email manziliga qarab berilmaydi. Firestore qoidalarida faqat Firebase Admin SDK tomonidan serverda berilgan `admin: true` custom claim qabul qilinadi. Backenddagi ixtiyoriy `ADMIN_UIDS` o'zgaruvchisi vergul bilan ajratilgan Firebase Authentication UID'lari orqali faqat backend kvota/simulyatsiya huquqini beradi; u Firestore Security Rules o'rnini bosmaydi. UID'ni Firebase Console → Authentication → Users bo'limidan olish mumkin. Hech qachon email yoki client-editable Firestore profil maydonidan admin huquqi sifatida foydalanmang.
+
+
+### CORS ruxsat etilgan domenlari
+
+`CORS_ORIGIN` qiymatiga frontendning aniq origin manzilini kiriting (masalan, `https://sizning-frontend.onrender.com`). Bir nechta domen bo'lsa, vergul bilan ajrating. Brauzer so'rovlari ro'yxatda bo'lmagan originlardan CORS orqali ruxsat olmaydi. Render va AI Studio Preview domenlari o'zgarsa, ularni alohida ro'yxatga kiriting.
