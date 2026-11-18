@@ -23,10 +23,12 @@ import {
   NAMED_DATABASE_ID,
   PROJECT_ID,
   adminDb,
+  adminAuth,
   serviceAccountEmail,
 } from './firebaseAdmin.js';
 
 import { AdFormData } from './adGenerator.js';
+import { provisionAdminClaims } from './adminClaimProvisioning.js';
 
 dotenv.config();
 
@@ -238,6 +240,18 @@ app.post(
     }
   }
 );
+
+if (isFirebaseAdminInitialized) {
+  void provisionAdminClaims(adminAuth, process.env.FIREBASE_ADMIN_CLAIM_UIDS)
+    .then(({ updated, unchanged }) => {
+      if (updated || unchanged) {
+        console.log(`[Admin Claim Provisioning] updated=${updated}, unchanged=${unchanged}`);
+      }
+    })
+    .catch((error) => {
+      console.error('[Admin Claim Provisioning] Failed to provision configured admin claims:', error);
+    });
+}
 
 app.listen(PORT, () => {
   console.log(`[BiznesYordam Backend] Server listening on port ${PORT}`);
