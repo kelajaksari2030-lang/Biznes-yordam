@@ -175,7 +175,7 @@ app.post(
     };
 
     try {
-      const result = await enforceQuotaAndGenerateAd(userId, formData);
+      const result = await enforceQuotaAndGenerateAd(userId, formData, req.user?.admin === true);
 
       return res.status(200).json({
         success: true,
