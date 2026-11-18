@@ -13,7 +13,6 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { resolveAuthorizedQuota } from './subscriptionAuthorization';
 import {
   getTashkentDateKey,
-  PLAN_DAILY_LIMITS,
   PlanType,
   AdFormData,
   generateAdText,
