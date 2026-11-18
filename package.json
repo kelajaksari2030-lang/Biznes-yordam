@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx tests/quota.test.ts && tsx tests/today_navigator.test.ts && tsx tests/navigation.test.ts && tsx tests/business_profile.test.ts && tsx tests/crm_inventory.test.ts && tsx tests/orders.test.ts && tsx tests/finance.test.ts && tsx tests/pro_features.test.ts && tsx tests/phase2_features.test.ts && tsx tests/click_payment.test.ts && tsx tests/phase3_new_modules.test.ts && tsx tests/profile_menu.test.ts && tsx tests/security_hardening.test.ts && tsx tests/telegram_bot.test.ts",
+    "test": "tsx tests/quota.test.ts && tsx tests/today_navigator.test.ts && tsx tests/navigation.test.ts && tsx tests/business_profile.test.ts && tsx tests/crm_inventory.test.ts && tsx tests/orders.test.ts && tsx tests/finance.test.ts && tsx tests/pro_features.test.ts && tsx tests/phase2_features.test.ts && tsx tests/click_payment.test.ts && tsx tests/phase3_new_modules.test.ts && tsx tests/profile_menu.test.ts && tsx tests/security_hardening.test.ts && tsx tests/telegram_bot.test.ts && tsx tests/subscription_authorization.test.ts",
     "build:server": "cd server && tsc"
   },
   "dependencies": {
