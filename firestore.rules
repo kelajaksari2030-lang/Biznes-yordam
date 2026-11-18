@@ -17,11 +17,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Admin authorization is granted only by a server-assigned Firebase custom claim.
+    // Never use email claims as an authorization mechanism.
     function isAdmin() {
-      return isSignedIn() && (
-        (request.auth.token.admin == true) ||
-        (request.auth.token.email != null && request.auth.token.email.lower() == 'kelajaksari2030@gmail.com')
-      );
+      return isSignedIn() && request.auth.token.admin == true;
     }
 
     function incoming() {
