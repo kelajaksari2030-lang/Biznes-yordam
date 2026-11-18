@@ -58,6 +58,7 @@ Xuddi shu sahifada yoki ochilgan xizmatning **Environment** bo'limida quyidagi o
 | `FIREBASE_PROJECT_ID` | `gen-lang-client-0498548617` | Ha |
 | `FIRESTORE_DATABASE_ID` | `ai-studio-biznesyordam-e0d6389f-9af4-4469-a3e0-1826035a54fd` | Ha |
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | 1-qadamda yuklab olingan `.json` fayl ichidagi barcha matn | **Ha (A varianti)** |
+| `ADMIN_UIDS` | Backend admin huquqi uchun Firebase Auth UID(lar), vergul bilan ajratiladi | Yo'q (ixtiyoriy) |
 
 *(Agar telefoningizda butun JSON ni nusxalash qiyin bo'lsa, JSON ichidagi `client_email` ni `FIREBASE_CLIENT_EMAIL`, va `private_key` ni `FIREBASE_PRIVATE_KEY` o'zgaruvchilariga alohida ham kiritishingiz mumkin).*
 
@@ -87,3 +88,8 @@ Shundan so'ng frontenddagi "Reklama matnini yaratish" tugmasi avtomatik tarzda R
 - **Uyqu rejimi**: Render'ning bepul veb-xizmatlari 15 daqiqa davomida hech kim kirmasa, resurs tejash uchun avtomatik "uyqu" (spin down) holatiga o'tadi.
 - **Uyg'onish vaqti**: 15 daqiqadan so'ng kimdir birinchi marta reklama yaratmoqchi bo'lsa, server uyg'onishi uchun taxminan **30-50 soniya** vaqt oladi.
 - BiznesYordam frontendida ushbu holat uchun maxsus qulay bildirishnoma tayyorlangan — mijoz kutib tursa, server uyg'ongach so'rov muvaffaqiyatli bajariladi va keyingi barcha so'rovlar soniyaning ulushlarida tez ishlaydi.
+
+
+### Admin huquqlarini xavfsiz sozlash
+
+Admin vakolati endi email manziliga qarab berilmaydi. Firestore qoidalarida faqat Firebase Admin SDK tomonidan serverda berilgan `admin: true` custom claim qabul qilinadi. Backenddagi ixtiyoriy `ADMIN_UIDS` o'zgaruvchisi vergul bilan ajratilgan Firebase Authentication UID'lari orqali faqat backend kvota/simulyatsiya huquqini beradi; u Firestore Security Rules o'rnini bosmaydi. UID'ni Firebase Console → Authentication → Users bo'limidan olish mumkin. Hech qachon email yoki client-editable Firestore profil maydonidan admin huquqi sifatida foydalanmang.
