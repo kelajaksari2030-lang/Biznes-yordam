@@ -1,3 +1,5 @@
+import { isAdminUser, parseAdminUids } from '../server/src/adminAuthorization.js';
+
 /**
  * BiznesYordam - Security Hardening Test Suite (SEC-01 & SEC-02)
  *
@@ -128,6 +130,28 @@ assert(
 assert(
   isAdmin(emailOnlyAdminReq) === false,
   'A matching email address without the admin custom claim is NOT authorized'
+);
+
+// Production backend authorization helper regression tests.
+assert(
+  isAdminUser('uid_admin_claim', true, new Set()) === true,
+  'Production backend helper accepts a server-assigned admin custom claim'
+);
+assert(
+  isAdminUser('uid_email_only', false, new Set()) === false,
+  'Production backend helper does not grant admin access based on email/profile data'
+);
+assert(
+  isAdminUser('uid_allowlisted', false, parseAdminUids(' uid_other, uid_allowlisted , ')) === true,
+  'Production backend helper accepts an exact UID from the server-side allowlist'
+);
+assert(
+  isAdminUser('uid_other', false, parseAdminUids(' uid_allowlisted, ')) === false,
+  'Production backend helper rejects UIDs absent from the allowlist'
+);
+assert(
+  isAdminUser(undefined, true, new Set()) === false,
+  'Production backend helper rejects missing UID even when a claim flag is supplied'
 );
 assert(
   isAdmin(regularUserReq) === false,
