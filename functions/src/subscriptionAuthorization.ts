@@ -26,3 +26,35 @@ export function resolveActivePaidPlan(
   const expiry = toExpiryDate(planExpiresAt);
   return expiry && expiry.getTime() > now.getTime() ? plan : null;
 }
+
+export type AuthorizedPlan = 'free' | 'pro' | 'ultra';
+
+export interface AuthorizedQuota {
+  plan: AuthorizedPlan;
+  dailyLimit: number;
+}
+
+/**
+ * Server-verified admin claims bypass paid-plan expiry and retain the admin quota.
+ * Non-admin users must have an active paid plan with a valid future expiry.
+ */
+export function resolveAuthorizedQuota(
+  plan: unknown,
+  subscriptionStatus: unknown,
+  planExpiresAt: unknown,
+  isAdmin: boolean,
+  now: Date = new Date()
+): AuthorizedQuota {
+  if (isAdmin) return { plan: 'ultra', dailyLimit: 999999 };
+
+  const activePaidPlan = resolveActivePaidPlan(
+    plan,
+    subscriptionStatus,
+    planExpiresAt,
+    now
+  );
+
+  if (activePaidPlan === 'pro') return { plan: 'pro', dailyLimit: 50 };
+  if (activePaidPlan === 'ultra') return { plan: 'ultra', dailyLimit: 200 };
+  return { plan: 'free', dailyLimit: 5 };
+}
