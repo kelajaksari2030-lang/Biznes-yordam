@@ -29,6 +29,7 @@ import {
 
 import { AdFormData } from './adGenerator.js';
 import { provisionAdminClaims } from './adminClaimProvisioning.js';
+import { auditPaidSubscriptionProfiles } from './subscriptionDataAudit.js';
 
 dotenv.config();
 
@@ -250,6 +251,16 @@ if (isFirebaseAdminInitialized) {
     })
     .catch((error) => {
       console.error('[Admin Claim Provisioning] Failed to provision configured admin claims:', error);
+    });
+}
+
+if (isFirebaseAdminInitialized && process.env.SUBSCRIPTION_AUDIT_ON_BOOT === 'true') {
+  void auditPaidSubscriptionProfiles(adminDb)
+    .then((summary) => {
+      console.log(`[Subscription Data Audit] ${JSON.stringify(summary)}`);
+    })
+    .catch((error) => {
+      console.error('[Subscription Data Audit] Read-only audit failed:', error);
     });
 }
 
