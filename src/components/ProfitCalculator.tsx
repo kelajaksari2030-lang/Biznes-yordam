@@ -28,6 +28,7 @@ import { useAuth } from '../context/AuthContext';
 import { getUserCalculations, saveCalculation, deleteCalculation } from '../services/firestore';
 import { saveProduct } from '../services/inventoryService';
 import { ModuleHelpGuide, HelpGuideButton, HelpStep } from './ModuleHelpGuide';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
 
 interface PresetItem {
   title: string;
@@ -89,12 +90,7 @@ export const ProfitCalculator: React.FC = () => {
   });
 
   const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>(() => {
-    try {
-      const stored = localStorage.getItem('biznes_saved_calculations');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    return readScopedCache<SavedCalculation[]>('saved_calculations', user?.uid) || [];
   });
 
   const [calcName, setCalcName] = useState('');
@@ -210,12 +206,20 @@ export const ProfitCalculator: React.FC = () => {
 
   // Synchronize calculations from Firestore for authenticated user
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setSavedCalculations([]);
+      return;
+    }
+
+    const cached = readScopedCache<SavedCalculation[]>('saved_calculations', user.uid);
+    if (cached) {
+      setSavedCalculations(cached);
+    }
 
     let isMounted = true;
     getUserCalculations(user.uid)
       .then((docs) => {
-        if (isMounted && docs.length > 0) {
+        if (isMounted) {
           const mapped: SavedCalculation[] = docs.map((d) => {
             const reconstructedInputs: ProfitInputs = {
               purchaseCost: d.purchaseCost,
@@ -233,11 +237,7 @@ export const ProfitCalculator: React.FC = () => {
             };
           });
           setSavedCalculations(mapped);
-          try {
-            localStorage.setItem('biznes_saved_calculations', JSON.stringify(mapped));
-          } catch {
-            // ignore
-          }
+          writeScopedCache('saved_calculations', user.uid, mapped);
         }
       })
       .catch((err) => {
@@ -247,7 +247,7 @@ export const ProfitCalculator: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user?.uid]);
 
   // Compute results real-time
   const results = useMemo(() => {
@@ -292,13 +292,9 @@ export const ProfitCalculator: React.FC = () => {
         markupPercent: results.markupPercent,
         createdAt: new Date().toISOString(),
       });
+      writeScopedCache('saved_calculations', user.uid, updated);
     }
 
-    try {
-      localStorage.setItem('biznes_saved_calculations', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
     setCalcName('');
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
@@ -310,12 +306,7 @@ export const ProfitCalculator: React.FC = () => {
 
     if (user) {
       await deleteCalculation(user.uid, id);
-    }
-
-    try {
-      localStorage.setItem('biznes_saved_calculations', JSON.stringify(updated));
-    } catch {
-      // ignore
+      writeScopedCache('saved_calculations', user.uid, updated);
     }
   };
 

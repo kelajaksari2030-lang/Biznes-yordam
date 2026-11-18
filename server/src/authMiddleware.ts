@@ -79,17 +79,22 @@ export async function requireFirebaseAuth(
     }
 
 
-    return res.status(401).json({
+    const payload: Record<string, any> = {
       success: false,
       error: 'unauthenticated',
       message: userMessage,
       code: errCode,
-      debug: {
+    };
+
+    if (process.env.NODE_ENV !== 'production') {
+      payload.debug = {
         receivedAudience: receivedAud,
         expectedProjectId: PROJECT_ID,
         tokenExpiredAt: expTime,
-      },
-    });
+      };
+    }
+
+    return res.status(401).json(payload);
   }
 }
 

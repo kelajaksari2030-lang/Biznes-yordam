@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, CheckCircle2, Sparkles, Clock, Info } from 'lucide-react';
 import { PLANS } from '../config/plans';
 import { useAuth } from '../context/AuthContext';
-import { initiateClickPayment } from '../services/payment';
+import { initiateClickPayment, getBackendBaseUrl } from '../services/payment';
 
 interface PricingModalProps {
   isOpen: boolean;
@@ -13,20 +13,26 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
   const { currentPlan, user } = useAuth();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [errorPlan, setErrorPlan] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<{ plan: 'pro' | 'ultra' | 'auth'; message: string } | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!orderId) return;
+    if (!orderId || !isOpen) return;
+    let cancelled = false;
+    const baseUrl = getBackendBaseUrl();
+
     const interval = setInterval(async () => {
+      if (cancelled) return;
       try {
         const token = await user?.getIdToken();
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/payment/click/status/${orderId}`, {
+        if (!token) return;
+        const response = await fetch(`${baseUrl}/api/payment/click/status/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        if (!response.ok) return;
         const data = await response.json();
-        if (data.success) {
+        if (data.success && !cancelled) {
           if (data.status === 'paid') {
             setPaymentStatus('To\'lov muvaffaqiyatli amalga oshirildi!');
             setOrderId(null);
@@ -39,16 +45,19 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
         console.error('Polling error', err);
       }
     }, 3000);
-    return () => clearInterval(interval);
-  }, [orderId, user]);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [orderId, user, isOpen]);
 
   const handlePayment = async (plan: 'pro' | 'ultra') => {
     if (!user) {
-      setErrorPlan('To\'lov qilish uchun tizimga kirishingiz kerak.');
+      setErrorState({ plan: 'auth', message: 'To\'lov qilish uchun tizimga kirishingiz kerak.' });
       return;
     }
     setLoadingPlan(plan);
-    setErrorPlan(null);
+    setErrorState(null);
     try {
       const token = await user.getIdToken(true);
       const { paymentUrl, orderId } = await initiateClickPayment(plan, token, user);
@@ -56,7 +65,10 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
       setPaymentStatus('To\'lov tizimiga yo\'naltirilmoqda...');
       window.location.href = paymentUrl;
     } catch (err: any) {
-      setErrorPlan(err.message || 'To\'lovni boshlashda xatolik yuz berdi.');
+      setErrorState({
+        plan,
+        message: err?.message || 'To\'lovni boshlashda xatolik yuz berdi.',
+      });
       setLoadingPlan(null);
     }
   };
@@ -135,6 +147,12 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
             overscrollBehaviorY: 'contain',
           }}
         >
+          {errorState?.plan === 'auth' && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 font-medium">
+              {errorState.message}
+            </div>
+          )}
+
           {/* Notice on payments & authoritative security */}
           <div className="p-3.5 bg-[#F6F8F7] border border-[#D7F0E5] rounded-2xl text-xs text-[#173B35] flex items-start gap-2.5">
             <Info className="w-4 h-4 text-[#173B35] shrink-0 mt-0.5" />
@@ -245,11 +263,15 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                 <button
                   onClick={() => handlePayment('pro')}
                   disabled={loadingPlan === 'pro'}
-                  className="w-full py-3 px-4 bg-[#173B35] hover:bg-[#112521] text-white rounded-xl font-bold transition-all btn-tactile disabled:opacity-50 shadow-xs cursor-pointer"
+                  className="w-full py-3 px-4 min-h-[44px] bg-[#173B35] hover:bg-[#112521] text-white rounded-xl font-bold transition-all btn-tactile disabled:opacity-50 shadow-xs cursor-pointer"
                 >
                   {loadingPlan === 'pro' ? 'Kutilmoqda...' : 'Click orqali to\'lash'}
                 </button>
-                {errorPlan === 'pro' && <p className="text-xs text-red-600 mt-2 text-center">{errorPlan}</p>}
+                {errorState?.plan === 'pro' && (
+                  <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2 mt-2 text-center">
+                    {errorState.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -305,11 +327,15 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                 <button
                   onClick={() => handlePayment('ultra')}
                   disabled={loadingPlan === 'ultra'}
-                  className="w-full py-3 px-4 bg-[#F5B85C] hover:bg-[#E2A448] text-[#173B35] rounded-xl font-extrabold transition-all btn-tactile disabled:opacity-50 shadow-md cursor-pointer"
+                  className="w-full py-3 px-4 min-h-[44px] bg-[#F5B85C] hover:bg-[#E2A448] text-[#173B35] rounded-xl font-extrabold transition-all btn-tactile disabled:opacity-50 shadow-md cursor-pointer"
                 >
                   {loadingPlan === 'ultra' ? 'Kutilmoqda...' : 'Click orqali to\'lash'}
                 </button>
-                {errorPlan === 'ultra' && <p className="text-xs text-red-300 mt-2 text-center">{errorPlan}</p>}
+                {errorState?.plan === 'ultra' && (
+                  <p className="text-xs text-rose-200 bg-rose-950/60 border border-rose-400/30 rounded-lg p-2 mt-2 text-center">
+                    {errorState.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -28,6 +28,7 @@ import {
   validateCustomerInput,
 } from '../services/crmService';
 import { ModuleHelpGuide, HelpGuideButton, HelpStep } from './ModuleHelpGuide';
+import { writeScopedCache } from '../utils/userCache';
 
 export const CrmModule: React.FC = () => {
   const { user } = useAuth();
@@ -40,6 +41,8 @@ export const CrmModule: React.FC = () => {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [feedbackBanner, setFeedbackBanner] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -183,11 +186,7 @@ export const CrmModule: React.FC = () => {
       .then((data) => {
         if (isMounted) {
           setCustomers(data);
-          try {
-            localStorage.setItem('biznes_crm_cache', JSON.stringify(data));
-          } catch {
-            // ignore
-          }
+          writeScopedCache('crm', user.uid, data);
         }
       })
       .catch((err) => {
@@ -270,17 +269,18 @@ export const CrmModule: React.FC = () => {
     }
   };
 
-  // Delete handler
-  const handleDeleteCustomer = async (cust: Customer) => {
-    if (!user) return;
-    const confirmDelete = window.confirm(`"${cust.name}" mijozini o'chirishni tasdiqlaysizmi?`);
-    if (!confirmDelete) return;
+  // Delete handler via in-app modal
+  const confirmDeleteCustomer = async () => {
+    if (!user || !customerToDelete) return;
+    const cust = customerToDelete;
+    setCustomerToDelete(null);
 
     try {
       await deleteCustomer(user.uid, cust.id);
       setCustomers((prev) => prev.filter((c) => c.id !== cust.id));
-    } catch (err) {
-      alert("O'chirishda xatolik yuz berdi.");
+      setFeedbackBanner({ type: 'success', text: `"${cust.name}" mijozlar bazasidan o'chirildi.` });
+    } catch {
+      setFeedbackBanner({ type: 'error', text: "Mijozni o'chirishda xatolik yuz berdi." });
     }
   };
 
@@ -337,6 +337,25 @@ export const CrmModule: React.FC = () => {
           <span>Yangi mijoz qo'shish</span>
         </button>
       </div>
+
+      {feedbackBanner && (
+        <div
+          className={`p-3.5 rounded-xl border flex items-center justify-between text-xs font-medium ${
+            feedbackBanner.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          <span>{feedbackBanner.text}</span>
+          <button
+            type="button"
+            onClick={() => setFeedbackBanner(null)}
+            className="p-1 text-gray-500 hover:text-gray-800"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* 4 Metric Counter Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -567,10 +586,10 @@ export const CrmModule: React.FC = () => {
                   </div>
 
                   {/* Right: Quick Action Buttons */}
-                  <div className="flex items-center gap-2 self-start sm:self-center shrink-0 pt-2 sm:pt-0">
+                  <div className="flex flex-wrap items-center gap-2 self-start sm:self-center shrink-0 pt-2 sm:pt-0">
                     <a
                       href={`tel:${cust.phone}`}
-                      className="px-3 py-1.5 rounded-xl border border-[#E0ECE8] bg-[#F6F8F7] hover:bg-[#E0ECE8] text-[#112521] text-xs font-semibold flex items-center gap-1.5 transition-colors btn-tactile"
+                      className="px-3 py-2 min-h-[40px] rounded-xl border border-[#E0ECE8] bg-[#F6F8F7] hover:bg-[#E0ECE8] text-[#112521] text-xs font-semibold flex items-center gap-1.5 transition-colors btn-tactile"
                       title="Qo'ng'iroq"
                     >
                       <PhoneCall className="w-3.5 h-3.5 text-[#F5B85C]" />
@@ -582,7 +601,7 @@ export const CrmModule: React.FC = () => {
                         href={`https://t.me/${tgClean}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold flex items-center gap-1.5 transition-colors btn-tactile"
+                        className="px-3 py-2 min-h-[40px] rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold flex items-center gap-1.5 transition-colors btn-tactile"
                         title="Telegramda yozish"
                       >
                         <Send className="w-3.5 h-3.5" />
@@ -593,7 +612,7 @@ export const CrmModule: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleOpenEditModal(cust)}
-                      className="p-2 rounded-xl border border-[#E0ECE8] hover:bg-[#F6F8F7] text-[#173B35] transition-colors btn-tactile"
+                      className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl border border-[#E0ECE8] hover:bg-[#F6F8F7] text-[#173B35] transition-colors btn-tactile"
                       title="Tahrirlash"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -601,8 +620,8 @@ export const CrmModule: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => handleDeleteCustomer(cust)}
-                      className="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-colors btn-tactile"
+                      onClick={() => setCustomerToDelete(cust)}
+                      className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition-colors btn-tactile"
                       title="O'chirish"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -685,11 +704,12 @@ export const CrmModule: React.FC = () => {
                   Telefon raqami <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+998 90 123 45 67"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] focus:ring-1 focus:ring-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#E0ECE8] focus:border-[#112521] focus:ring-1 focus:ring-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                   required
                 />
               </div>
@@ -773,6 +793,53 @@ export const CrmModule: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Customer Confirmation Modal */}
+      {customerToDelete && (
+        <div
+          className="fixed inset-0 z-50 bg-[#251A14]/50 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setCustomerToDelete(null);
+          }}
+        >
+          <div className="bg-white rounded-2xl border border-[#E0ECE8] shadow-modal max-w-sm w-full p-5 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-[#112521]">Mijozni o'chirish</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-[#52796F] leading-relaxed">
+              <strong className="text-[#112521]">"{customerToDelete.name}"</strong> mijozini o'chirishni tasdiqlaysizmi?
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E0ECE8]">
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(null)}
+                className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-[#52796F] bg-[#F6F8F7] rounded-xl"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteCustomer}
+                className="px-4 py-2.5 min-h-[44px] text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl"
+              >
+                Ha, o'chirish
+              </button>
+            </div>
           </div>
         </div>
       )}

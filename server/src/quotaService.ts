@@ -4,9 +4,18 @@
  */
 
 import { adminDb } from './firebaseAdmin.js';
-import { AdFormData, generateAdText } from './adGenerator.js';
-import { isAdminUser } from './adminAuthorization.js';
-import { resolveActivePaidPlan } from './subscriptionAuthorization.js';
+import { AdFormData } from './adGenerator.js';
+import {
+  generateAdWithGemini,
+  GeminiCallOptions,
+} from './geminiService.js';
+
+export const ADMIN_EMAIL = 'kelajaksari2030@gmail.com';
+
+export function isAdminUser(email?: string | null): boolean {
+  if (!email || typeof email !== 'string') return false;
+  return email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
 
 export const TIMEZONE = 'Asia/Tashkent';
 
@@ -26,7 +35,7 @@ export class QuotaExceededError extends Error {
 
   constructor(currentCount: number, dailyLimit: number, plan: PlanType, date: string) {
     super(
-      `Bugun uchun belgilangan kunlik ${dailyLimit} ta reklama limiti to'ldi (${plan.toUpperCase()} tarifi). Yangi kvota ertaga Toshkent vaqti bilan 00:00 da yangilanadi.`
+      `Bugun uchun belgilangan kunlik ${dailyLimit} ta AI so'rov limiti to'ldi (${plan.toUpperCase()} tarifi). Yangi kvota ertaga Toshkent vaqti bilan 00:00 da yangilanadi.`
     );
     this.name = 'QuotaExceededError';
     this.currentCount = currentCount;
@@ -36,6 +45,9 @@ export class QuotaExceededError extends Error {
   }
 }
 
+/**
+ * Derives the calendar date in Asia/Tashkent (UTC+5) as YYYY-MM-DD.
+ */
 export function getTashkentDateKey(date: Date = new Date()): string {
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: TIMEZONE,
@@ -46,8 +58,7 @@ export function getTashkentDateKey(date: Date = new Date()): string {
   return formatter.format(date);
 }
 
-export interface QuotaGenerationResult {
-  adText: string;
+export interface QuotaInfo {
   adCount: number;
   dailyLimit: number;
   remaining: number;
@@ -55,70 +66,113 @@ export interface QuotaGenerationResult {
   date: string;
 }
 
-export async function enforceQuotaAndGenerateAd(
-  userId: string,
-  formData: AdFormData & { simulatedTier?: string },
-  hasAdminClaim = false
-): Promise<QuotaGenerationResult> {
-  const dateKey = getTashkentDateKey(new Date());
-  const userDocRef = adminDb.collection('users').doc(userId);
+export interface QuotaReservation extends QuotaInfo {
+  targetUsageDateKey: string;
+}
 
-  const quotaResult = await adminDb.runTransaction(async (transaction) => {
-    const userSnap = await transaction.get(userDocRef);
+export interface QuotaStoreTransaction {
+  getUserProfile(userId: string): Promise<{
+    email?: string;
+    currentPlan?: string;
+    subscriptionStatus?: string;
+  } | null>;
+  getUsage(userId: string, usageDateKey: string): Promise<{ adCount?: number } | null>;
+  setUsage(userId: string, usageDateKey: string, adCount: number, nowIso: string): Promise<void>;
+  updateUsage(userId: string, usageDateKey: string, adCount: number, nowIso: string): Promise<void>;
+}
+
+export interface QuotaStore {
+  runTransaction<T>(fn: (tx: QuotaStoreTransaction) => Promise<T>): Promise<T>;
+}
+
+export const firestoreQuotaStore: QuotaStore = {
+  async runTransaction<T>(fn: (tx: QuotaStoreTransaction) => Promise<T>): Promise<T> {
+    return adminDb.runTransaction(async (transaction) => {
+      const tx: QuotaStoreTransaction = {
+        async getUserProfile(userId: string) {
+          const userSnap = await transaction.get(adminDb.collection('users').doc(userId));
+          if (!userSnap.exists) return null;
+          return (userSnap.data() || null) as any;
+        },
+        async getUsage(userId: string, usageDateKey: string) {
+          const usageRef = adminDb.collection('users').doc(userId).collection('usage').doc(usageDateKey);
+          const usageSnap = await transaction.get(usageRef);
+          if (!usageSnap.exists) return null;
+          return (usageSnap.data() || null) as any;
+        },
+        async setUsage(userId: string, usageDateKey: string, adCount: number, nowIso: string) {
+          const usageRef = adminDb.collection('users').doc(userId).collection('usage').doc(usageDateKey);
+          transaction.set(usageRef, {
+            id: usageDateKey,
+            userId,
+            date: usageDateKey,
+            adCount,
+            lastGeneratedAt: nowIso,
+          });
+        },
+        async updateUsage(userId: string, usageDateKey: string, adCount: number, nowIso: string) {
+          const usageRef = adminDb.collection('users').doc(userId).collection('usage').doc(usageDateKey);
+          transaction.update(usageRef, {
+            adCount,
+            lastGeneratedAt: nowIso,
+          });
+        },
+      };
+      return fn(tx);
+    });
+  },
+};
+
+export async function reserveAiQuota(
+  userId: string,
+  simulatedTier?: string,
+  store: QuotaStore = firestoreQuotaStore,
+  now: Date = new Date()
+): Promise<QuotaReservation> {
+  const dateKey = getTashkentDateKey(now);
+
+  return store.runTransaction(async (tx) => {
+    const profile = await tx.getUserProfile(userId);
 
     let userPlan: PlanType = 'free';
     let limit: number = PLAN_DAILY_LIMITS.free;
     let targetUsageDateKey = dateKey;
 
-    if (userSnap.exists) {
-      const profile = userSnap.data();
-      const isAdminAccount = isAdminUser(userId, hasAdminClaim);
-      const requestedSimulatedTier = formData?.simulatedTier;
+    if (profile) {
+      const email = profile.email;
+      const plan = profile.currentPlan;
+      const isAdmin = isAdminUser(email);
 
-      if (isAdminAccount && ['free', 'pro', 'ultra'].includes(requestedSimulatedTier || '')) {
-        userPlan = requestedSimulatedTier as PlanType;
+      if (isAdmin && ['free', 'pro', 'ultra'].includes(simulatedTier || '')) {
+        userPlan = simulatedTier as PlanType;
         limit = PLAN_DAILY_LIMITS[userPlan];
-        targetUsageDateKey = `simulated_${requestedSimulatedTier}_${dateKey}`;
-      } else if (isAdminAccount) {
+        targetUsageDateKey = `simulated_${simulatedTier}_${dateKey}`;
+      } else if (isAdmin) {
         userPlan = 'ultra';
         limit = 999999;
-      } else {
-        const activePaidPlan = resolveActivePaidPlan(
-          profile?.currentPlan,
-          profile?.subscriptionStatus,
-          profile?.planExpiresAt
-        );
-        if (activePaidPlan) {
-          userPlan = activePaidPlan;
-          limit = PLAN_DAILY_LIMITS[userPlan];
-        }
+      } else if (
+        (plan === 'pro' || plan === 'ultra') &&
+        profile.subscriptionStatus !== 'expired'
+      ) {
+        userPlan = plan;
+        limit = PLAN_DAILY_LIMITS[userPlan];
       }
     }
 
-    const usageDocRef = userDocRef.collection('usage').doc(targetUsageDateKey);
-    const usageSnap = await transaction.get(usageDocRef);
-    const currentCount = usageSnap.exists ? usageSnap.data()?.adCount || 0 : 0;
+    const usageData = await tx.getUsage(userId, targetUsageDateKey);
+    const currentCount = usageData?.adCount || 0;
 
     if (currentCount >= limit) {
       throw new QuotaExceededError(currentCount, limit, userPlan, targetUsageDateKey);
     }
 
     const newCount = currentCount + 1;
-    const nowIso = new Date().toISOString();
+    const nowIso = now.toISOString();
 
-    if (usageSnap.exists) {
-      transaction.update(usageDocRef, {
-        adCount: newCount,
-        lastGeneratedAt: nowIso,
-      });
+    if (usageData) {
+      await tx.updateUsage(userId, targetUsageDateKey, newCount, nowIso);
     } else {
-      transaction.set(usageDocRef, {
-        id: targetUsageDateKey,
-        userId,
-        date: targetUsageDateKey,
-        adCount: newCount,
-        lastGeneratedAt: nowIso,
-      });
+      await tx.setUsage(userId, targetUsageDateKey, newCount, nowIso);
     }
 
     return {
@@ -127,9 +181,82 @@ export async function enforceQuotaAndGenerateAd(
       remaining: Math.max(0, limit - newCount),
       plan: userPlan,
       date: dateKey,
+      targetUsageDateKey,
     };
   });
+}
 
-  const adText = generateAdText(formData);
-  return { adText, ...quotaResult };
+export async function refundAiQuota(
+  userId: string,
+  targetUsageDateKey: string,
+  store: QuotaStore = firestoreQuotaStore
+): Promise<void> {
+  try {
+    await store.runTransaction(async (tx) => {
+      const usageData = await tx.getUsage(userId, targetUsageDateKey);
+      const currentCount = usageData?.adCount || 0;
+      if (!usageData || currentCount <= 0) return;
+
+      await tx.updateUsage(
+        userId,
+        targetUsageDateKey,
+        Math.max(0, currentCount - 1),
+        new Date().toISOString()
+      );
+    });
+  } catch (err) {
+    console.warn('Best-effort AI quota refund failed:', err);
+  }
+}
+
+export async function executeWithAiQuota<T>(
+  userId: string,
+  simulatedTier: string | undefined,
+  task: () => Promise<T>,
+  options?: { quotaStore?: QuotaStore; now?: Date }
+): Promise<{ result: T; quota: QuotaInfo }> {
+  const store = options?.quotaStore || firestoreQuotaStore;
+  const reservation = await reserveAiQuota(userId, simulatedTier, store, options?.now);
+
+  try {
+    const result = await task();
+    const { targetUsageDateKey: _omit, ...quota } = reservation;
+    return { result, quota };
+  } catch (err) {
+    await refundAiQuota(userId, reservation.targetUsageDateKey, store);
+    throw err;
+  }
+}
+
+export interface QuotaGenerationResult extends QuotaInfo {
+  adText: string;
+  headline?: string;
+  hashtags?: string[];
+}
+
+/**
+ * Executes authoritative atomic quota check and Gemini ad generation against Firestore.
+ */
+export async function enforceQuotaAndGenerateAd(
+  userId: string,
+  formData: AdFormData & { simulatedTier?: string },
+  options?: {
+    quotaStore?: QuotaStore;
+    geminiOptions?: GeminiCallOptions;
+    now?: Date;
+  }
+): Promise<QuotaGenerationResult> {
+  const { result, quota } = await executeWithAiQuota(
+    userId,
+    formData.simulatedTier,
+    () => generateAdWithGemini(formData, options?.geminiOptions),
+    { quotaStore: options?.quotaStore, now: options?.now }
+  );
+
+  return {
+    adText: result.adText,
+    headline: result.headline,
+    hashtags: result.hashtags,
+    ...quota,
+  };
 }

@@ -86,6 +86,21 @@ export const OrdersModule: React.FC = () => {
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [submittingOrder, setSubmittingOrder] = useState(false);
 
+  // In-app Confirm & Partial Payment Modals (replaces window.confirm/prompt/alert)
+  const [confirmModal, setConfirmModal] = useState<{
+    title: string;
+    message: string;
+    confirmLabel: string;
+    tone: 'danger' | 'warning';
+    onConfirm: () => Promise<void>;
+  } | null>(null);
+  const [partialPaymentModal, setPartialPaymentModal] = useState<{
+    order: Order;
+    amountInput: string;
+    saving: boolean;
+    error: string | null;
+  } | null>(null);
+
   // Help Guide state
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
@@ -407,30 +422,33 @@ export const OrdersModule: React.FC = () => {
   };
 
   // Cancel order action (Atomic transaction with stock restoration)
-  const handleCancelOrder = async (orderId: string) => {
+  const handleCancelOrder = (orderId: string) => {
     if (!user) return;
-    const confirmChoice = window.confirm(
-      "Buyurtmani bekor qilmoqchimisiz? Agar tovarlar ombordan yechilgan bo'lsa, ular qayta omborga qo'shiladi."
-    );
-    if (!confirmChoice) return;
-
-    setActionLoadingId(orderId);
-    setFeedbackMessage(null);
-    try {
-      await cancelOrder(user.uid, orderId);
-      setFeedbackMessage({
-        type: 'success',
-        text: "Buyurtma bekor qilindi. Agar tovarlar ombordan olingan bo'lsa, qoldiqlar qaytarildi.",
-      });
-      await loadData();
-    } catch (err: any) {
-      setFeedbackMessage({
-        type: 'error',
-        text: err.message || "Buyurtmani bekor qilishda xatolik yuz berdi",
-      });
-    } finally {
-      setActionLoadingId(null);
-    }
+    setConfirmModal({
+      title: "Buyurtmani bekor qilish",
+      message: "Buyurtmani bekor qilmoqchimisiz? Agar tovarlar ombordan yechilgan bo'lsa, ular qayta omborga qo'shiladi.",
+      confirmLabel: "Ha, bekor qilish",
+      tone: 'warning',
+      onConfirm: async () => {
+        setActionLoadingId(orderId);
+        setFeedbackMessage(null);
+        try {
+          await cancelOrder(user.uid, orderId);
+          setFeedbackMessage({
+            type: 'success',
+            text: "Buyurtma bekor qilindi. Agar tovarlar ombordan olingan bo'lsa, qoldiqlar qaytarildi.",
+          });
+          await loadData();
+        } catch (err: any) {
+          setFeedbackMessage({
+            type: 'error',
+            text: err.message || "Buyurtmani bekor qilishda xatolik yuz berdi",
+          });
+        } finally {
+          setActionLoadingId(null);
+        }
+      },
+    });
   };
 
   // Mark delivered
@@ -454,40 +472,49 @@ export const OrdersModule: React.FC = () => {
     }
   };
 
+  const applyPaymentStatusUpdate = async (
+    orderId: string,
+    newPaymentStatus: OrderPaymentStatus,
+    partialVal?: number
+  ) => {
+    if (!user) return;
+    await updateOrderPaymentStatus(user.uid, orderId, newPaymentStatus, partialVal);
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o.id === orderId) {
+          let pAmt = 0;
+          if (newPaymentStatus === 'paid') pAmt = o.totalAmount;
+          else if (newPaymentStatus === 'partially_paid') pAmt = partialVal ?? o.paidAmount ?? 0;
+          else pAmt = 0;
+          return { ...o, paymentStatus: newPaymentStatus, paidAmount: pAmt };
+        }
+        return o;
+      })
+    );
+    setFeedbackMessage({
+      type: 'success',
+      text: "To'lov holati va to'langan summa yangilandi!",
+    });
+  };
+
   // Payment status change
   const handlePaymentChange = async (orderId: string, newPaymentStatus: OrderPaymentStatus) => {
     if (!user) return;
-    let partialVal: number | undefined = undefined;
 
     if (newPaymentStatus === 'partially_paid') {
       const targetOrder = orders.find((o) => o.id === orderId);
-      const defaultVal = targetOrder?.paidAmount ? String(targetOrder.paidAmount) : '0';
-      const inputVal = window.prompt(
-        `Qisman to'langan summani kiriting (so'mda):\nJami buyurtma summasi: ${targetOrder?.totalAmount.toLocaleString()} so'm`,
-        defaultVal
-      );
-      if (inputVal === null) return; // Cancelled
-      partialVal = Math.max(0, parseInt(inputVal) || 0);
+      if (!targetOrder) return;
+      setPartialPaymentModal({
+        order: targetOrder,
+        amountInput: targetOrder.paidAmount ? String(targetOrder.paidAmount) : '',
+        saving: false,
+        error: null,
+      });
+      return;
     }
 
     try {
-      await updateOrderPaymentStatus(user.uid, orderId, newPaymentStatus, partialVal);
-      setOrders((prev) =>
-        prev.map((o) => {
-          if (o.id === orderId) {
-            let pAmt = 0;
-            if (newPaymentStatus === 'paid') pAmt = o.totalAmount;
-            else if (newPaymentStatus === 'partially_paid') pAmt = partialVal ?? o.paidAmount ?? 0;
-            else pAmt = 0;
-            return { ...o, paymentStatus: newPaymentStatus, paidAmount: pAmt };
-          }
-          return o;
-        })
-      );
-      setFeedbackMessage({
-        type: 'success',
-        text: "To'lov holati va to'langan summa yangilandi!",
-      });
+      await applyPaymentStatusUpdate(orderId, newPaymentStatus);
     } catch (err: any) {
       setFeedbackMessage({
         type: 'error',
@@ -496,32 +523,63 @@ export const OrdersModule: React.FC = () => {
     }
   };
 
-  // Delete order
-  const handleDeleteOrder = async (order: Order) => {
-    if (!user) return;
-    if (order.stockDeducted) {
-      alert("Bu buyurtma ombor qoldig'ini kamaytirgan. Avval uni 'Bekor qilish' tugmasi bilan bekor qiling, shunda tovarlar omborga qaytadi.");
+  const handleSavePartialPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!partialPaymentModal) return;
+    const rawNum = Number(partialPaymentModal.amountInput);
+    if (isNaN(rawNum) || rawNum < 0) {
+      setPartialPaymentModal((prev) =>
+        prev ? { ...prev, error: "To'langan summa 0 yoki undan katta son bo'lishi kerak" } : null
+      );
       return;
     }
-    const confirmed = window.confirm("Rostdan ham ushbu buyurtmani o'chirmoqchimisiz?");
-    if (!confirmed) return;
 
-    setActionLoadingId(order.id);
+    const clamped = Math.min(partialPaymentModal.order.totalAmount, Math.max(0, Math.round(rawNum)));
+    setPartialPaymentModal((prev) => (prev ? { ...prev, saving: true, error: null } : null));
     try {
-      await deleteOrder(user.uid, order.id, order.stockDeducted);
-      setOrders((prev) => prev.filter((o) => o.id !== order.id));
-      setFeedbackMessage({
-        type: 'success',
-        text: "Buyurtma muvaffaqiyatli o'chirildi",
-      });
+      await applyPaymentStatusUpdate(partialPaymentModal.order.id, 'partially_paid', clamped);
+      setPartialPaymentModal(null);
     } catch (err: any) {
+      setPartialPaymentModal((prev) =>
+        prev ? { ...prev, saving: false, error: err?.message || "To'lov holati o'zgarmadi" } : null
+      );
+    }
+  };
+
+  // Delete order
+  const handleDeleteOrder = (order: Order) => {
+    if (!user) return;
+    if (order.stockDeducted) {
       setFeedbackMessage({
         type: 'error',
-        text: err.message || "Buyurtmani o'chirishda xatolik",
+        text: "Bu buyurtma ombor qoldig'ini kamaytirgan. Avval uni 'Bekor qilish' tugmasi bilan bekor qiling, shunda tovarlar omborga qaytadi.",
       });
-    } finally {
-      setActionLoadingId(null);
+      return;
     }
+    setConfirmModal({
+      title: "Buyurtmani o'chirish",
+      message: `Rostdan ham "${order.customerName}" (${order.orderNumber || order.id}) buyurtmasini o'chirmoqchimisiz?`,
+      confirmLabel: "Ha, o'chirish",
+      tone: 'danger',
+      onConfirm: async () => {
+        setActionLoadingId(order.id);
+        try {
+          await deleteOrder(user.uid, order.id, order.stockDeducted);
+          setOrders((prev) => prev.filter((o) => o.id !== order.id));
+          setFeedbackMessage({
+            type: 'success',
+            text: "Buyurtma muvaffaqiyatli o'chirildi",
+          });
+        } catch (err: any) {
+          setFeedbackMessage({
+            type: 'error',
+            text: err.message || "Buyurtmani o'chirishda xatolik",
+          });
+        } finally {
+          setActionLoadingId(null);
+        }
+      },
+    });
   };
 
   const formatPrice = (val: number) => {
@@ -1094,6 +1152,7 @@ export const OrdersModule: React.FC = () => {
                             <span className="text-[11px] text-[#52796F]">Soni:</span>
                             <input
                               type="number"
+                              inputMode="decimal"
                               min="1"
                               value={item.quantity || ''}
                               onChange={(e) => {
@@ -1118,7 +1177,7 @@ export const OrdersModule: React.FC = () => {
                                   );
                                 }
                               }}
-                              className="w-16 px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-center font-bold"
+                              className="w-16 min-h-[38px] px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-center font-bold"
                             />
                             <span className="text-[10px] text-[#52796F]">{item.unit}</span>
                           </div>
@@ -1128,11 +1187,12 @@ export const OrdersModule: React.FC = () => {
                             <span className="text-[11px] text-[#52796F]">Narx:</span>
                             <input
                               type="number"
+                              inputMode="numeric"
                               min="0"
                               step="1000"
                               value={item.unitPrice}
                               onChange={(e) => handleUpdateItemPrice(idx, parseInt(e.target.value) || 0)}
-                              className="w-24 px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-right font-bold"
+                              className="w-24 min-h-[38px] px-2 py-1 bg-[#F6F8F7] border border-[#E0ECE8] rounded-lg text-right font-bold"
                             />
                           </div>
 
@@ -1284,6 +1344,177 @@ export const OrdersModule: React.FC = () => {
           });
         }}
       />
+
+      {/* In-App Partial Payment Modal */}
+      {partialPaymentModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !partialPaymentModal.saving) {
+              setPartialPaymentModal(null);
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl border border-[#E0ECE8] shadow-2xl max-w-md w-full overflow-hidden max-h-[90dvh] flex flex-col">
+            <div className="p-4 border-b border-[#E0ECE8] bg-[#F6F8F7] flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-[#112521]">Qisman to'lov summasi</h3>
+                <p className="text-[11px] text-[#52796F]">
+                  {partialPaymentModal.order.customerName} · Jami: {formatPrice(partialPaymentModal.order.totalAmount)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPartialPaymentModal(null)}
+                disabled={partialPaymentModal.saving}
+                className="p-2 text-gray-400 hover:text-gray-700 rounded-lg min-h-[40px] min-w-[40px] flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePartialPayment} className="p-4 sm:p-5 space-y-4 overflow-y-auto overscroll-contain">
+              {partialPaymentModal.error && (
+                <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800">
+                  {partialPaymentModal.error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-[#112521] mb-1.5">
+                  To'langan summa (so'm)
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  max={partialPaymentModal.order.totalAmount}
+                  value={partialPaymentModal.amountInput}
+                  onChange={(e) =>
+                    setPartialPaymentModal((prev) =>
+                      prev ? { ...prev, amountInput: e.target.value, error: null } : null
+                    )
+                  }
+                  placeholder="Masalan: 150000"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-sm font-bold font-mono text-[#112521]"
+                  autoFocus
+                />
+                <div className="grid grid-cols-4 gap-1.5 mt-2">
+                  {[0.25, 0.5, 0.75, 1].map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() =>
+                        setPartialPaymentModal((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                amountInput: String(Math.round(prev.order.totalAmount * pct)),
+                                error: null,
+                              }
+                            : null
+                        )
+                      }
+                      className="py-1.5 min-h-[36px] text-[11px] font-bold rounded-lg bg-[#F6F8F7] hover:bg-[#D7F0E5] text-[#173B35] border border-[#E0ECE8]"
+                    >
+                      {Math.round(pct * 100)}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 bg-[#F6F8F7] rounded-xl border border-[#E0ECE8] flex items-center justify-between text-xs">
+                <span className="text-[#52796F]">Qolgan nasiya qarzi:</span>
+                <span className="font-bold font-mono text-rose-700">
+                  {formatPrice(
+                    Math.max(
+                      0,
+                      partialPaymentModal.order.totalAmount - (Number(partialPaymentModal.amountInput) || 0)
+                    )
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E0ECE8]">
+                <button
+                  type="button"
+                  onClick={() => setPartialPaymentModal(null)}
+                  disabled={partialPaymentModal.saving}
+                  className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-[#52796F] bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={partialPaymentModal.saving}
+                  className="px-5 py-2.5 min-h-[44px] text-xs font-bold text-white bg-[#173B35] hover:bg-[#112521] rounded-xl disabled:opacity-50"
+                >
+                  {partialPaymentModal.saving ? 'Saqlanmoqda...' : 'Saqlash'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* In-App Confirmation Modal */}
+      {confirmModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setConfirmModal(null);
+          }}
+        >
+          <div className="bg-white rounded-2xl border border-[#E0ECE8] shadow-2xl max-w-md w-full p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    confirmModal.tone === 'danger'
+                      ? 'bg-rose-50 text-rose-700'
+                      : 'bg-amber-50 text-amber-700'
+                  }`}
+                >
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold text-[#112521]">{confirmModal.title}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-[#52796F] leading-relaxed">{confirmModal.message}</p>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E0ECE8]">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-[#52796F] bg-[#F6F8F7] rounded-xl border border-[#E0ECE8]"
+              >
+                Yopish
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const action = confirmModal.onConfirm;
+                  setConfirmModal(null);
+                  await action();
+                }}
+                className={`px-4 py-2.5 min-h-[44px] text-xs font-bold text-white rounded-xl ${
+                  confirmModal.tone === 'danger'
+                    ? 'bg-rose-600 hover:bg-rose-700'
+                    : 'bg-amber-600 hover:bg-amber-700'
+                }`}
+              >
+                {confirmModal.confirmLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Module Help Guide */}
       <ModuleHelpGuide

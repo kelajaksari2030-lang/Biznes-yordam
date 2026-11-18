@@ -230,6 +230,31 @@ export interface QuickVariables {
   phoneNumber: string;
 }
 
+export type CustomerReplyTone = 'friendly' | 'formal' | 'persuasive' | 'empathetic';
+
+export interface CustomerReplyAiInput {
+  customerMessage: string;
+  tone?: CustomerReplyTone;
+  shopName?: string;
+  productName?: string;
+  price?: string;
+  deliveryTime?: string;
+  cardNumber?: string;
+  discount?: string;
+  additionalContext?: string;
+}
+
+export interface CustomerReplySuggestion {
+  title: string;
+  category: 'product' | 'price' | 'delivery' | 'payment' | 'followup' | 'complaint';
+  replyText: string;
+  usageTip: string;
+}
+
+export interface CustomerRepliesAiResult {
+  replies: CustomerReplySuggestion[];
+}
+
 // Re-export unified business platform models
 export type {
   BusinessProfile,

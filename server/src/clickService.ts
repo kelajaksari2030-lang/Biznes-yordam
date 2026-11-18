@@ -182,6 +182,16 @@ export async function createOrder(
     throw new Error(`Noto'g'ri tarif tanlandi: ${plan}. Faqat 'pro' yoki 'ultra' mavjud.`);
   }
 
+  const serviceId = (process.env.CLICK_SERVICE_ID || '').trim();
+  const merchantId = (process.env.CLICK_MERCHANT_ID || '').trim();
+  const secretKey = (process.env.CLICK_SECRET_KEY || '').trim();
+
+  if (!serviceId || !merchantId || !secretKey) {
+    throw new Error(
+      "Click to'lov tizimi serverda hali sozlanmagan (CLICK_SERVICE_ID, CLICK_MERCHANT_ID, CLICK_SECRET_KEY talab etiladi)."
+    );
+  }
+
   const planConfig = PLAN_PRICES[plan];
   const orderId = `ord_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const nowIso = new Date().toISOString();

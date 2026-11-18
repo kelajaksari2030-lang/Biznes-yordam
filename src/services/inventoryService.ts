@@ -17,6 +17,13 @@ import {
 import { db, handleFirestoreError, OperationType, logFirestoreOp, sanitizeFirestorePayload } from './firebase';
 import { Product, ProductInput, ProductUnit, RecipeItem } from '../types/inventory';
 import { ParsedProductRow } from '../utils/csvProductParser';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
+
+export function parseMinStockAlert(value: unknown, fallback: number = 5): number {
+  if (value === undefined || value === null || value === '') return fallback;
+  const n = Number(value);
+  return Number.isNaN(n) || n < 0 ? fallback : n;
+}
 
 export interface InventoryStats {
   totalProducts: number;
@@ -246,7 +253,7 @@ export async function getProducts(userId: string): Promise<Product[]> {
     const q = query(colRef, orderBy('createdAt', 'desc'));
     const snap = await getDocs(q);
 
-    return snap.docs.map((d) => {
+    const products: Product[] = snap.docs.map((d) => {
       const data = d.data();
       return {
         id: d.id,
@@ -257,24 +264,20 @@ export async function getProducts(userId: string): Promise<Product[]> {
         sellingPrice: Number(data.sellingPrice) || 0,
         quantity: Number(data.quantity) || 0,
         unit: (data.unit as ProductUnit) || 'dona',
-        minStockAlert: Number(data.minStockAlert) || 5,
+        minStockAlert: parseMinStockAlert(data.minStockAlert, 5),
         category: data.category || '',
         recipe: Array.isArray(data.recipe) ? data.recipe : undefined,
         createdAt: data.createdAt || new Date().toISOString(),
         updatedAt: data.updatedAt || new Date().toISOString(),
       };
     });
+
+    writeScopedCache('inventory', userId, products);
+    return products;
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, collectionPath);
-    try {
-      const cached = localStorage.getItem('biznes_inventory_cache');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch {
-      // ignore
-    }
+    const cached = readScopedCache<Product[]>('inventory', userId);
+    if (Array.isArray(cached)) return cached;
     return [];
   }
 }
@@ -311,6 +314,8 @@ export async function saveProduct(
   const hasRecipe = Array.isArray(input.recipe) && input.recipe.length > 0;
   const recipeItems = hasRecipe ? input.recipe : [];
 
+  const parsedMinStock = parseMinStockAlert(input.minStockAlert, 5);
+
   const productRecord: Product = {
     id,
     userId,
@@ -320,7 +325,7 @@ export async function saveProduct(
     sellingPrice: Number(input.sellingPrice) || 0,
     quantity: Number(input.quantity) || 0,
     unit: input.unit || 'dona',
-    minStockAlert: Number(input.minStockAlert) || 5,
+    minStockAlert: parsedMinStock,
     category: (input.category || '').trim(),
     recipe: hasRecipe ? recipeItems : undefined,
     createdAt,
@@ -337,7 +342,7 @@ export async function saveProduct(
     sellingPrice: Number(input.sellingPrice) || 0,
     quantity: Number(input.quantity) || 0,
     unit: input.unit || 'dona',
-    minStockAlert: Number(input.minStockAlert) || 5,
+    minStockAlert: parsedMinStock,
     category: (input.category || '').trim(),
     recipe: recipeItems,
     createdAt,

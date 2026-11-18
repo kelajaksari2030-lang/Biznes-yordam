@@ -68,6 +68,7 @@ export const FinanceModule: React.FC = () => {
   const [formDescription, setFormDescription] = useState('');
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [submittingForm, setSubmittingForm] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<FinancialTransaction | null>(null);
 
   // Fetch initial data
   const loadData = async () => {
@@ -328,13 +329,11 @@ export const FinanceModule: React.FC = () => {
     }
   };
 
-  // Delete expense handler
-  const handleDeleteExpense = async (tx: FinancialTransaction) => {
-    if (!user) return;
-    const confirmChoice = window.confirm(
-      `Ushbu xarajatni ("${tx.amount.toLocaleString()} so'm", ${tx.date}) o'chirmoqchimisiz?`
-    );
-    if (!confirmChoice) return;
+  // Delete expense handler (confirmed via in-app modal)
+  const confirmDeleteExpense = async () => {
+    if (!user || !expenseToDelete) return;
+    const tx = expenseToDelete;
+    setExpenseToDelete(null);
 
     setActionLoadingId(tx.id);
     try {
@@ -682,69 +681,125 @@ export const FinanceModule: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="bg-[#F6F8F7] text-[#55756E] font-bold border-b border-[#E0ECE8]">
-                  <th className="p-3 rounded-l-xl">Sana</th>
-                  <th className="p-3">Kategoriya</th>
-                  <th className="p-3">Izoh</th>
-                  <th className="p-3 text-right">Summa</th>
-                  <th className="p-3 text-right rounded-r-xl">Amallar</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E0ECE8]">
-                {filteredTransactions.map((tx) => {
-                  const catLabel =
-                    EXPENSE_CATEGORIES.find((c) => c.id === tx.category)?.label || tx.category;
-                  const isProcessing = actionLoadingId === tx.id;
+          <>
+            {/* Mobile Cards View */}
+            <div className="md:hidden space-y-2.5">
+              {filteredTransactions.map((tx) => {
+                const catLabel =
+                  EXPENSE_CATEGORIES.find((c) => c.id === tx.category)?.label || tx.category;
+                const isProcessing = actionLoadingId === tx.id;
 
-                  return (
-                    <tr key={tx.id} className="hover:bg-[#F6F8F7]/70 transition-colors">
-                      <td className="p-3 font-semibold text-[#112521] shrink-0 font-mono">
-                        {tx.date}
-                      </td>
-                      <td className="p-3">
-                        <span className="inline-block px-2.5 py-1 rounded-lg bg-[#D7F0E5]/60 text-[#173B35] border border-[#B5E2D1] text-[11px] font-semibold">
+                return (
+                  <div
+                    key={tx.id}
+                    className="p-3.5 rounded-2xl bg-[#F6F8F7] border border-[#E0ECE8] space-y-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <span className="inline-block px-2 py-0.5 rounded-lg bg-[#D7F0E5]/70 text-[#173B35] border border-[#B5E2D1] text-[11px] font-semibold">
                           {catLabel}
                         </span>
-                      </td>
-                      <td className="p-3 text-[#2C4C45] max-w-xs truncate">
-                        {tx.description || '—'}
-                      </td>
-                      <td className="p-3 text-right font-extrabold text-rose-700 font-mono">
+                        <div className="text-[11px] text-[#55756E] font-mono">{tx.date}</div>
+                      </div>
+                      <div className="text-right font-extrabold text-rose-700 font-mono text-sm shrink-0">
                         -{formatMoney(tx.amount)}
-                      </td>
-                      <td className="p-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleOpenEditModal(tx)}
-                            disabled={isProcessing}
-                            title="Tahrirlash"
-                            className="p-1.5 text-gray-500 hover:text-[#173B35] hover:bg-[#D7F0E5]/30 rounded-lg transition-colors cursor-pointer"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteExpense(tx)}
-                            disabled={isProcessing}
-                            title="O'chirish"
-                            className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                          >
-                            {isProcessing ? (
-                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+
+                    {tx.description && (
+                      <p className="text-xs text-[#2C4C45] break-words">{tx.description}</p>
+                    )}
+
+                    <div className="flex items-center justify-end gap-2 pt-1.5 border-t border-[#E0ECE8]/80">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditModal(tx)}
+                        disabled={isProcessing}
+                        className="px-3 py-2 min-h-[40px] rounded-xl bg-white border border-[#E0ECE8] text-xs font-semibold text-[#173B35] flex items-center gap-1.5"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        <span>Tahrirlash</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setExpenseToDelete(tx)}
+                        disabled={isProcessing}
+                        className="px-3 py-2 min-h-[40px] rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700 flex items-center gap-1.5"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>O'chirish</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-[#F6F8F7] text-[#55756E] font-bold border-b border-[#E0ECE8]">
+                    <th className="p-3 rounded-l-xl">Sana</th>
+                    <th className="p-3">Kategoriya</th>
+                    <th className="p-3">Izoh</th>
+                    <th className="p-3 text-right">Summa</th>
+                    <th className="p-3 text-right rounded-r-xl">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E0ECE8]">
+                  {filteredTransactions.map((tx) => {
+                    const catLabel =
+                      EXPENSE_CATEGORIES.find((c) => c.id === tx.category)?.label || tx.category;
+                    const isProcessing = actionLoadingId === tx.id;
+
+                    return (
+                      <tr key={tx.id} className="hover:bg-[#F6F8F7]/70 transition-colors">
+                        <td className="p-3 font-semibold text-[#112521] shrink-0 font-mono">
+                          {tx.date}
+                        </td>
+                        <td className="p-3">
+                          <span className="inline-block px-2.5 py-1 rounded-lg bg-[#D7F0E5]/60 text-[#173B35] border border-[#B5E2D1] text-[11px] font-semibold">
+                            {catLabel}
+                          </span>
+                        </td>
+                        <td className="p-3 text-[#2C4C45] max-w-xs truncate">
+                          {tx.description || '—'}
+                        </td>
+                        <td className="p-3 text-right font-extrabold text-rose-700 font-mono">
+                          -{formatMoney(tx.amount)}
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleOpenEditModal(tx)}
+                              disabled={isProcessing}
+                              title="Tahrirlash"
+                              className="p-1.5 text-gray-500 hover:text-[#173B35] hover:bg-[#D7F0E5]/30 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setExpenseToDelete(tx)}
+                              disabled={isProcessing}
+                              title="O'chirish"
+                              className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            >
+                              {isProcessing ? (
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
@@ -813,13 +868,14 @@ export const FinanceModule: React.FC = () => {
                 </label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   min="1"
                   step="any"
                   required
                   placeholder="Masalan: 1200000"
                   value={formAmount}
                   onChange={(e) => setFormAmount(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-[#E0ECE8] rounded-xl text-xs font-bold text-[#112521] focus:outline-none focus:border-[#173B35] font-mono"
+                  className="w-full px-3 py-2.5 min-h-[44px] bg-white border border-[#E0ECE8] rounded-xl text-xs font-bold text-[#112521] focus:outline-none focus:border-[#173B35] font-mono"
                 />
               </div>
 
@@ -870,6 +926,52 @@ export const FinanceModule: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Expense Confirmation Modal */}
+      {expenseToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setExpenseToDelete(null);
+          }}
+        >
+          <div className="bg-white rounded-2xl border border-[#E0ECE8] shadow-modal w-full max-w-sm p-5 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-[#112521]">Xarajatni o'chirish</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setExpenseToDelete(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-[#55756E] leading-relaxed">
+              Ushbu xarajatni (<strong className="text-[#112521] font-mono">{formatMoney(expenseToDelete.amount)}</strong>, {expenseToDelete.date}) o'chirmoqchimisiz?
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E0ECE8]">
+              <button
+                type="button"
+                onClick={() => setExpenseToDelete(null)}
+                className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-[#2C4C45] bg-[#F6F8F7] rounded-xl"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteExpense}
+                className="px-4 py-2.5 min-h-[44px] text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl"
+              >
+                Ha, o'chirish
+              </button>
+            </div>
           </div>
         </div>
       )}

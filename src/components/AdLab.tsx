@@ -18,10 +18,16 @@ import {
   Video,
   Globe,
   Sliders,
-  DollarSign
+  DollarSign,
+  X,
+  AlertCircle,
+  Database,
+  LogIn
 } from 'lucide-react';
 import { AdLabInput, AdLabResult, AdLabPlatform, AdLabObjective, AdLabStrategy } from '../types';
-import { runAdLabExperiment } from '../services/adLabService';
+import { runAdLabExperiment, requestAdLabFromBackend } from '../services/adLabService';
+import { useAuth } from '../context/AuthContext';
+import { readScopedCache, writeScopedCache, removeScopedCache } from '../utils/userCache';
 
 const PRESET_EXPERIMENTS: { label: string; data: AdLabInput }[] = [
   {
@@ -71,6 +77,7 @@ const PRESET_EXPERIMENTS: { label: string; data: AdLabInput }[] = [
 ];
 
 export const AdLab: React.FC = () => {
+  const { user, currentPlan, dailyUsage, updateDailyUsageCount, signInWithGoogle, isAdmin, simulatedTier } = useAuth();
   const [formData, setFormData] = useState<AdLabInput>({
     productOrService: "Erkaklar klassik suv o'tkazmaydigan po'lat soati",
     targetAudience: "22-45 yoshli erkaklar, tadbirkorlar va talabalar",
@@ -81,55 +88,114 @@ export const AdLab: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [canUseFallback, setCanUseFallback] = useState(false);
+  const [resultSource, setResultSource] = useState<'gemini' | 'local_fallback' | null>(null);
+  const [resultModel, setResultModel] = useState<string | null>(null);
   const [result, setResult] = useState<AdLabResult | null>(null);
   const [copiedStrategyId, setCopiedStrategyId] = useState<string | null>(null);
   const [copiedFullReport, setCopiedFullReport] = useState(false);
   const [activeStrategyTab, setActiveStrategyTab] = useState<number>(0);
   const [savedHistory, setSavedHistory] = useState<AdLabResult[]>([]);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
-  // Load saved tests from localStorage
+  // Load saved tests from scoped cache on user change
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('biznes_saved_ad_lab_tests');
-      if (stored) {
-        setSavedHistory(JSON.parse(stored));
-      }
-    } catch {
-      // Ignore
+    if (!user?.uid) {
+      setSavedHistory([]);
+      return;
     }
-  }, []);
+    const stored = readScopedCache<AdLabResult[]>('saved_ad_lab_tests', user.uid);
+    setSavedHistory(stored || []);
+  }, [user?.uid]);
 
   const handleApplyPreset = (preset: AdLabInput) => {
     setFormData(preset);
   };
 
-  const handleRunExperiment = () => {
-    if (!formData.productOrService.trim()) return;
+  const adCount = dailyUsage?.adCount || 0;
+  const isLimitReached = adCount >= currentPlan.dailyAdLimit;
+
+  const persistExperimentResult = (res: AdLabResult) => {
+    setResult(res);
+    setActiveStrategyTab(0);
+    const updated = [res, ...savedHistory.slice(0, 9)];
+    setSavedHistory(updated);
+    if (user?.uid) {
+      writeScopedCache('saved_ad_lab_tests', user.uid, updated);
+    }
+    setTimeout(() => {
+      const el = document.getElementById('ad-lab-results');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleRunExperiment = async () => {
+    if (!formData.productOrService.trim() || !formData.targetAudience.trim()) return;
+
+    if (!user) {
+      setAiError("Gemini AI strategiyalarini yaratish uchun Google orqali tizimga kiring.");
+      setCanUseFallback(true);
+      return;
+    }
+
+    if (isLimitReached) {
+      setAiError(
+        `Bugun uchun belgilangan kunlik ${currentPlan.dailyAdLimit} ta AI so'rov limiti to'ldi (${currentPlan.name}). Yangi kvota ertaga Toshkent vaqti bilan 00:00 da yangilanadi.`
+      );
+      setCanUseFallback(false);
+      return;
+    }
 
     setLoading(true);
-    // Smooth transition simulation for AI hypothesis generation
-    setTimeout(() => {
-      const res = runAdLabExperiment(formData);
-      setResult(res);
-      setLoading(false);
+    setAiError(null);
+    setStatusMessage(null);
+    setCanUseFallback(false);
 
-      // Save to localStorage
-      try {
-        const updated = [res, ...savedHistory.slice(0, 9)];
-        setSavedHistory(updated);
-        localStorage.setItem('biznes_saved_ad_lab_tests', JSON.stringify(updated));
-      } catch {
-        // Ignore
+    try {
+      const payload = {
+        ...formData,
+        simulatedTier: isAdmin && simulatedTier !== 'admin' ? simulatedTier : undefined,
+      };
+      const response = await requestAdLabFromBackend(payload, (msg) => setStatusMessage(msg));
+
+      if (response.error) {
+        setAiError(response.error.message);
+        setCanUseFallback(
+          [
+            'gemini_not_configured',
+            'service_unavailable',
+            'gemini_timeout',
+            'gemini_upstream_error',
+            'gemini_invalid_response',
+          ].includes(response.error.code)
+        );
+      } else if (response.data?.data) {
+        setResultSource('gemini');
+        setResultModel(response.data.model || null);
+        updateDailyUsageCount(response.data.adCount);
+        persistExperimentResult(response.data.data);
       }
+    } catch (err: any) {
+      setAiError(err?.message || "Server bilan bog'lanishda xatolik yuz berdi.");
+      setCanUseFallback(true);
+    } finally {
+      setLoading(false);
+      setStatusMessage(null);
+    }
+  };
 
-      // Scroll smoothly to results
-      setTimeout(() => {
-        const el = document.getElementById('ad-lab-results');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }, 450);
+  const handleRunFallbackExperiment = () => {
+    if (!formData.productOrService.trim() || !formData.targetAudience.trim()) return;
+    const res = runAdLabExperiment(formData);
+    setResultSource('local_fallback');
+    setResultModel(null);
+    setAiError(null);
+    setCanUseFallback(false);
+    persistExperimentResult(res);
   };
 
   const handleCopyStrategy = (strategy: AdLabStrategy) => {
@@ -208,6 +274,12 @@ export const AdLab: React.FC = () => {
           </div>
 
           <div className="flex md:flex-col items-center sm:items-end justify-between gap-2 shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-[#E0ECE8]">
+            <div className="inline-flex items-center gap-2 bg-[#F6F8F7] border border-[#E0ECE8] px-3 py-1 rounded-xl text-xs text-[#52796F]">
+              <Database className="w-3.5 h-3.5 text-[#F5B85C]" />
+              <span>
+                Kunlik AI sarf: <strong className="text-[#112521] font-mono">{adCount} / {currentPlan.dailyAdLimit}</strong>
+              </span>
+            </div>
             <div className="text-left md:text-right">
               <span className="text-xs text-[#52796F] block">Saqlangan sinovlar:</span>
               <span className="text-base font-bold text-[#112521]">
@@ -216,12 +288,8 @@ export const AdLab: React.FC = () => {
             </div>
             {savedHistory.length > 0 && (
               <button
-                onClick={() => {
-                  if (confirm("Haqiqatan ham saqlangan barcha laboratoriya sinovlarini tozalamoqchimisiz?")) {
-                    setSavedHistory([]);
-                    localStorage.removeItem('biznes_saved_ad_lab_tests');
-                  }
-                }}
+                type="button"
+                onClick={() => setIsClearConfirmOpen(true)}
                 className="text-[11px] text-[#A64B3D] hover:underline"
               >
                 Tarixni tozalash
@@ -375,11 +443,49 @@ export const AdLab: React.FC = () => {
           </div>
         </div>
 
+        {/* AI Status & Error Alert */}
+        {statusMessage && (
+          <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-center gap-2">
+            <RotateCcw className="w-3.5 h-3.5 animate-spin text-[#F5B85C] shrink-0" />
+            <span>{statusMessage}</span>
+          </div>
+        )}
+
+        {aiError && (
+          <div className="p-3.5 bg-[#FDF4F4] border border-rose-200 rounded-xl text-xs text-[#9E2A2B] space-y-2.5">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-[#9E2A2B] shrink-0 mt-0.5" />
+              <span className="leading-relaxed"><strong>Xatolik:</strong> {aiError}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {!user && (
+                <button
+                  type="button"
+                  onClick={signInWithGoogle}
+                  className="px-3 py-1.5 rounded-lg bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] font-semibold text-xs inline-flex items-center gap-1.5 btn-tactile"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Google orqali kirish</span>
+                </button>
+              )}
+              {canUseFallback && (
+                <button
+                  type="button"
+                  onClick={handleRunFallbackExperiment}
+                  className="px-3 py-1.5 rounded-lg bg-white hover:bg-[#F6F8F7] text-[#112521] border border-[#E0ECE8] font-semibold text-xs btn-tactile"
+                >
+                  Mahalliy qoida asosida sinash (AI siz / Offline rejim)
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Generate / Run Button */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#52796F] flex items-center gap-1.5">
             <Info className="w-4 h-4 text-[#F5B85C] shrink-0" />
-            <span>3 xil yondashuvdagi gipotezalar va taqqoslash jadvali yaratiladi.</span>
+            <span>Gemini AI yordamida 3 xil strategiya va taqqoslash jadvali yaratiladi.</span>
           </p>
 
           <button
@@ -390,7 +496,7 @@ export const AdLab: React.FC = () => {
             {loading ? (
               <>
                 <RotateCcw className="w-4 h-4 animate-spin text-[#112521]" />
-                <span>Strategiyalar tahlil qilinmoqda...</span>
+                <span>Gemini AI tahlil qilmoqda...</span>
               </>
             ) : (
               <>
@@ -405,16 +511,33 @@ export const AdLab: React.FC = () => {
       {/* Results Section */}
       {result && (
         <div id="ad-lab-results" className="space-y-8 animate-fadeIn">
+          {resultSource === 'local_fallback' && (
+            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="leading-relaxed">
+                <strong>Offline rejim:</strong> Ushbu strategiyalar Gemini AI orqali emas, mahalliy marketing qoidalari asosida shakllantirildi (kunlik AI kvotasi sarflanmadi).
+              </p>
+            </div>
+          )}
+
           {/* Top Summary & Recommended Starting Variant */}
           <div 
             className="scroll-reveal bg-[#112521] text-[#F8F4ED] rounded-3xl p-6 sm:p-8 shadow-card border border-[#5E4235] space-y-4"
             style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#173B35] border border-[#6B5041] text-[#F5B85C] text-xs font-semibold">
-                <Target className="w-3.5 h-3.5" />
-                <span>Tavsiya etilgan boshlang'ich gipoteza</span>
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#173B35] border border-[#6B5041] text-[#F5B85C] text-xs font-semibold">
+                  <Target className="w-3.5 h-3.5" />
+                  <span>Tavsiya etilgan boshlang'ich gipoteza</span>
+                </span>
+                {resultSource === 'gemini' && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F5B85C]/20 border border-[#F5B85C]/40 text-[#F5B85C] text-[11px] font-semibold">
+                    <Sparkles className="w-3 h-3" />
+                    <span>Gemini AI {resultModel ? `(${resultModel})` : ''}</span>
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyFullReport}
@@ -668,6 +791,53 @@ export const AdLab: React.FC = () => {
               >
                 <span>Yangi test yaratish</span>
                 <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Clear History Confirmation Modal */}
+      {isClearConfirmOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-[#251A14]/50 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsClearConfirmOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-modal border border-[#E0ECE8] space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#112521]">Tarixni tozalash</h3>
+              <button
+                type="button"
+                onClick={() => setIsClearConfirmOpen(false)}
+                className="p-1.5 rounded-lg text-[#52796F] hover:text-[#112521]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs sm:text-sm text-[#52796F] leading-relaxed">
+              Haqiqatan ham saqlangan barcha laboratoriya sinovlarini tozalamoqchimisiz?
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsClearConfirmOpen(false)}
+                className="min-h-[44px] px-4 py-2 text-xs font-medium text-[#52796F] border border-[#E0ECE8] hover:bg-[#F6F8F7] rounded-xl transition-colors"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSavedHistory([]);
+                  if (user?.uid) {
+                    removeScopedCache('saved_ad_lab_tests', user.uid);
+                  }
+                  setIsClearConfirmOpen(false);
+                }}
+                className="min-h-[44px] px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors"
+              >
+                Tozalash
               </button>
             </div>
           </div>

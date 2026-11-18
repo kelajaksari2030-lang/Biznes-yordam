@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { User, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider, isConfigured, checkFirebaseStatus, FirebaseConfigStatus } from '../services/firebase';
 import { syncUserProfile, getTodayAdUsage } from '../services/firestore';
 import { PLANS, PlanEntitlements, ADMIN_PLAN, isAdminUser, SimulatedTier } from '../config/plans';
 import { UserProfile, DailyUsageDoc } from '../types/firestore';
+import { clearAllUserBusinessCaches, clearLegacyUnscopedCaches } from '../utils/userCache';
 
 interface AuthContextType {
   user: User | null;
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [dailyUsage, setDailyUsage] = useState<DailyUsageDoc | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const lastUidRef = useRef<string | null>(null);
 
   const [simulatedTier, setSimulatedTierState] = useState<SimulatedTier>(() => {
     try {
@@ -94,6 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user, loadUserData]);
 
   useEffect(() => {
+    clearLegacyUnscopedCaches();
+
     if (!isConfigured || !auth) {
       setLoading(false);
       return;
@@ -102,6 +106,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(
       auth,
       async (currentUser) => {
+        const nextUid = currentUser?.uid || null;
+        if (lastUidRef.current && lastUidRef.current !== nextUid) {
+          clearAllUserBusinessCaches();
+        }
+        lastUidRef.current = nextUid;
+
         setUser(currentUser);
         if (currentUser) {
           await loadUserData(currentUser);
@@ -163,6 +173,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOutUser = async () => {
+    clearAllUserBusinessCaches();
+    lastUidRef.current = null;
+
     if (!auth) {
       setUser(null);
       setUserProfile(null);

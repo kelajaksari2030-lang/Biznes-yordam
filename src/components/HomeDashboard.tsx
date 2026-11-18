@@ -31,14 +31,16 @@ import {
   Clock,
 } from 'lucide-react';
 import { ToolType, TodayNavigatorPlan } from '../types';
-import { Order, OrderStatus, OrderPaymentStatus } from '../types/business';
+import { Order, OrderStatus, OrderPaymentStatus, FinancialTransaction } from '../types/business';
 import { Product } from '../types/inventory';
 import { Customer } from '../types/crm';
 import { useAuth } from '../context/AuthContext';
 import { getOrders, calculateOrderStats, OrderStats } from '../services/orderService';
-import { getProducts, isLowStock } from '../services/inventoryService';
+import { getProducts, isLowStock, isOutOfStock } from '../services/inventoryService';
 import { getCustomers } from '../services/crmService';
+import { getTransactions } from '../services/financeService';
 import { getBusinessProfile } from '../services/businessService';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
 
 interface HomeDashboardProps {
   setActiveTab: (tab: ToolType) => void;
@@ -47,118 +49,81 @@ interface HomeDashboardProps {
 
 export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOpenPricing }) => {
   const { user, currentPlan } = useAuth();
+  const uid = user?.uid;
 
-  // Local storage cache readers for immediate zero-flash initial state
-  const [orders, setOrders] = useState<Order[]>(() => {
-    try {
-      const data = localStorage.getItem('biznes_orders_cache');
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const data = localStorage.getItem('biznes_inventory_cache');
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    try {
-      const data = localStorage.getItem('biznes_crm_cache');
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  // Scoped local storage cache readers for immediate zero-flash initial state
+  const [orders, setOrders] = useState<Order[]>(() => readScopedCache<Order[]>('orders', uid) || []);
+  const [products, setProducts] = useState<Product[]>(() => readScopedCache<Product[]>('inventory', uid) || []);
+  const [customers, setCustomers] = useState<Customer[]>(() => readScopedCache<Customer[]>('crm', uid) || []);
+  const [transactions, setTransactions] = useState<FinancialTransaction[]>(() => readScopedCache<FinancialTransaction[]>('finance', uid) || []);
   const [companyName, setCompanyName] = useState<string>(() => {
-    try {
-      const profile = localStorage.getItem('biznes_business_profile');
-      if (profile) {
-        const parsed = JSON.parse(profile);
-        return parsed.companyName || '';
-      }
-    } catch {
-      // ignore
-    }
-    return '';
+    const profile = readScopedCache<{ companyName?: string }>('business_profile', uid);
+    return profile?.companyName || '';
   });
-
-  const [todayPlan, setTodayPlan] = useState<TodayNavigatorPlan | null>(() => {
-    try {
-      const data = localStorage.getItem('biznes_today_navigator_plan');
-      return data ? JSON.parse(data) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [todayPlan, setTodayPlan] = useState<TodayNavigatorPlan | null>(() =>
+    readScopedCache<TodayNavigatorPlan>('today_navigator_plan', uid)
+  );
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
+
+  // Sync initial cache when authenticated user switches
+  useEffect(() => {
+    setOrders(readScopedCache<Order[]>('orders', uid) || []);
+    setProducts(readScopedCache<Product[]>('inventory', uid) || []);
+    setCustomers(readScopedCache<Customer[]>('crm', uid) || []);
+    setTransactions(readScopedCache<FinancialTransaction[]>('finance', uid) || []);
+    const profile = readScopedCache<{ companyName?: string }>('business_profile', uid);
+    setCompanyName(profile?.companyName || '');
+    setTodayPlan(readScopedCache<TodayNavigatorPlan>('today_navigator_plan', uid));
+  }, [uid]);
 
   // Load live data from Firestore
   const loadDashboardData = useCallback(async () => {
-    if (!user?.uid) return;
+    if (!uid) return;
     setLoading(true);
     try {
-      const [fetchedOrders, fetchedProducts, fetchedCustomers, fetchedProfile] = await Promise.all([
-        getOrders(user.uid).catch(() => []),
-        getProducts(user.uid).catch(() => []),
-        getCustomers(user.uid).catch(() => []),
-        getBusinessProfile(user.uid).catch(() => null),
+      const [fetchedOrders, fetchedProducts, fetchedCustomers, fetchedTransactions, fetchedProfile] = await Promise.all([
+        getOrders(uid).catch(() => []),
+        getProducts(uid).catch(() => []),
+        getCustomers(uid).catch(() => []),
+        getTransactions(uid).catch(() => []),
+        getBusinessProfile(uid).catch(() => null),
       ]);
 
       if (Array.isArray(fetchedOrders)) {
         setOrders(fetchedOrders);
-        try {
-          localStorage.setItem('biznes_orders_cache', JSON.stringify(fetchedOrders));
-        } catch {
-          // ignore
-        }
+        writeScopedCache('orders', uid, fetchedOrders);
       }
 
       if (Array.isArray(fetchedProducts)) {
         setProducts(fetchedProducts);
-        try {
-          localStorage.setItem('biznes_inventory_cache', JSON.stringify(fetchedProducts));
-        } catch {
-          // ignore
-        }
+        writeScopedCache('inventory', uid, fetchedProducts);
       }
 
       if (Array.isArray(fetchedCustomers)) {
         setCustomers(fetchedCustomers);
-        try {
-          localStorage.setItem('biznes_crm_cache', JSON.stringify(fetchedCustomers));
-        } catch {
-          // ignore
-        }
+        writeScopedCache('crm', uid, fetchedCustomers);
+      }
+
+      if (Array.isArray(fetchedTransactions)) {
+        setTransactions(fetchedTransactions);
+        writeScopedCache('finance', uid, fetchedTransactions);
       }
 
       if (fetchedProfile?.companyName) {
         setCompanyName(fetchedProfile.companyName);
+        writeScopedCache('business_profile', uid, fetchedProfile);
+      } else {
+        setCompanyName('');
       }
 
-      // Refresh today navigator plan
-      try {
-        const planData = localStorage.getItem('biznes_today_navigator_plan');
-        setTodayPlan(planData ? JSON.parse(planData) : null);
-      } catch {
-        // ignore
-      }
-
-      setLastRefreshedAt(new Date());
+      setTodayPlan(readScopedCache<TodayNavigatorPlan>('today_navigator_plan', uid));
     } catch {
       // Keep existing cached state
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [uid]);
 
   useEffect(() => {
     loadDashboardData();
@@ -166,10 +131,40 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOp
 
   // Derived metrics from real data
   const orderStats: OrderStats = calculateOrderStats(orders);
+  const outOfStockProducts = products.filter(isOutOfStock);
   const lowStockProducts = products.filter(isLowStock);
+  const alertStockProducts = [...outOfStockProducts, ...lowStockProducts];
   const recentOrders = [...orders]
     .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
     .slice(0, 5);
+
+  // Build real chronological daily series from non-cancelled orders & expenses (max last 7 active days)
+  const chartSeries = React.useMemo(() => {
+    const byDate = new Map<string, { date: string; revenue: number; profit: number; expense: number }>();
+
+    orders.forEach((o) => {
+      if (o.status === 'cancelled') return;
+      const dateKey = (o.createdAt || '').slice(0, 10);
+      if (!dateKey) return;
+      const entry = byDate.get(dateKey) || { date: dateKey, revenue: 0, profit: 0, expense: 0 };
+      entry.revenue += Number(o.totalAmount) || 0;
+      entry.profit += Number(o.totalProfit) || 0;
+      byDate.set(dateKey, entry);
+    });
+
+    transactions.forEach((t) => {
+      if (t.type !== 'expense') return;
+      const dateKey = (t.date || t.createdAt || '').slice(0, 10);
+      if (!dateKey) return;
+      const entry = byDate.get(dateKey) || { date: dateKey, revenue: 0, profit: 0, expense: 0 };
+      entry.expense += Number(t.amount) || 0;
+      byDate.set(dateKey, entry);
+    });
+
+    return Array.from(byDate.values())
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-7);
+  }, [orders, transactions]);
 
   const formatCurrency = (amount: number) => {
     return Math.round(amount || 0).toLocaleString('uz-UZ').replace(/,/g, ' ');
@@ -186,11 +181,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOp
       actionSteps: updatedSteps,
     };
     setTodayPlan(updatedPlan);
-    try {
-      localStorage.setItem('biznes_today_navigator_plan', JSON.stringify(updatedPlan));
-    } catch {
-      // ignore
-    }
+    writeScopedCache('today_navigator_plan', uid, updatedPlan);
   };
 
   const completedStepsCount = todayPlan?.actionSteps?.filter((s) => s.completed).length || 0;
@@ -302,7 +293,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOp
             </div>
           </div>
           <div className="mt-1.5 sm:mt-2 text-[10px] sm:text-xs flex items-center justify-between gap-1 min-w-0">
-            {lowStockProducts.length > 0 ? (
+            {outOfStockProducts.length > 0 ? (
+              <span className="inline-flex items-center gap-1 text-rose-700 font-bold bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200 truncate">
+                <AlertTriangle className="w-3 h-3 shrink-0" />
+                <span className="truncate">{outOfStockProducts.length} tugagan</span>
+              </span>
+            ) : lowStockProducts.length > 0 ? (
               <span className="inline-flex items-center gap-1 text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200 truncate">
                 <AlertTriangle className="w-3 h-3 shrink-0" />
                 <span className="truncate">{lowStockProducts.length} tugamoqda</span>
@@ -501,70 +497,93 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOp
               </div>
             </div>
 
-            {/* Trajectory SVG Graph */}
-            <div className="h-36 sm:h-44 w-full pt-1">
-              <svg viewBox="0 0 600 150" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="chartRevGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10B981" stopOpacity="0.20" />
-                    <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
-                  </linearGradient>
-                  <linearGradient id="chartProfitGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F5B85C" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#F5B85C" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
+            {/* Real Data-Driven Trajectory SVG Graph */}
+            {chartSeries.length === 0 ? (
+              <div className="h-36 sm:h-44 w-full rounded-xl bg-[#F6F8F7] border border-dashed border-[#E0ECE8] flex flex-col items-center justify-center text-center px-4">
+                <BarChart3 className="w-6 h-6 text-[#52796F] mb-1.5 opacity-70" />
+                <p className="text-xs font-bold text-[#112521]">Dinamika grafigi uchun ma'lumotlar yo'q</p>
+                <p className="text-[11px] text-[#52796F] mt-0.5 max-w-md">
+                  Savdo buyurtmalari yoki xarajatlar kiritilgandan so'ng haqiqiy kunlik ko'rsatkichlar grafigi avtomatik chiziladi.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <div className="h-36 sm:h-44 w-full pt-1">
+                  {(() => {
+                    const maxVal = Math.max(
+                      1,
+                      ...chartSeries.flatMap((d) => [d.revenue, Math.max(0, d.profit), d.expense])
+                    );
+                    const minVal = Math.min(0, ...chartSeries.map((d) => d.profit));
+                    const span = Math.max(1, maxVal - minVal);
+                    const mapY = (v: number) => 130 - ((v - minVal) / span) * 112;
+                    const n = chartSeries.length;
+                    const pointsFor = (getter: (d: (typeof chartSeries)[number]) => number) =>
+                      n === 1
+                        ? [
+                            { x: 40, y: mapY(getter(chartSeries[0])) },
+                            { x: 560, y: mapY(getter(chartSeries[0])) },
+                          ]
+                        : chartSeries.map((d, i) => ({
+                            x: 24 + (i / (n - 1)) * 552,
+                            y: mapY(getter(d)),
+                          }));
 
-                {/* Gridlines */}
-                <line x1="0" y1="25" x2="600" y2="25" stroke="#E0ECE8" strokeDasharray="3 3" />
-                <line x1="0" y1="70" x2="600" y2="70" stroke="#E0ECE8" strokeDasharray="3 3" />
-                <line x1="0" y1="115" x2="600" y2="115" stroke="#E0ECE8" strokeDasharray="3 3" />
+                    const revPts = pointsFor((d) => d.revenue);
+                    const profPts = pointsFor((d) => d.profit);
+                    const expPts = pointsFor((d) => d.expense);
+                    const toPath = (pts: { x: number; y: number }[]) =>
+                      pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+                    const baselineY = mapY(0);
 
-                {/* Revenue Curve */}
-                <path
-                  d="M 0,110 Q 120,95 240,75 T 440,40 T 600,20 L 600,150 L 0,150 Z"
-                  fill="url(#chartRevGrad)"
-                />
-                <path
-                  d="M 0,110 Q 120,95 240,75 T 440,40 T 600,20"
-                  fill="none"
-                  stroke="#10B981"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
+                    return (
+                      <svg viewBox="0 0 600 145" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="chartRevGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10B981" stopOpacity="0.20" />
+                            <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
+                          </linearGradient>
+                          <linearGradient id="chartProfitGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#F5B85C" stopOpacity="0.22" />
+                            <stop offset="100%" stopColor="#F5B85C" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
 
-                {/* Profit Curve */}
-                <path
-                  d="M 0,130 Q 120,115 240,95 T 440,65 T 600,45 L 600,150 L 0,150 Z"
-                  fill="url(#chartProfitGrad)"
-                />
-                <path
-                  d="M 0,130 Q 120,115 240,95 T 440,65 T 600,45"
-                  fill="none"
-                  stroke="#F5B85C"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
+                        <line x1="0" y1="25" x2="600" y2="25" stroke="#E0ECE8" strokeDasharray="3 3" />
+                        <line x1="0" y1="75" x2="600" y2="75" stroke="#E0ECE8" strokeDasharray="3 3" />
+                        <line x1="0" y1={baselineY} x2="600" y2={baselineY} stroke="#CBD5E1" strokeDasharray="3 3" />
 
-                {/* Expense Line */}
-                <path
-                  d="M 0,135 Q 160,130 320,122 T 600,110"
-                  fill="none"
-                  stroke="#94A3B8"
-                  strokeWidth="1.5"
-                  strokeDasharray="4 4"
-                />
+                        <path
+                          d={`${toPath(revPts)} L ${revPts[revPts.length - 1].x.toFixed(1)},${baselineY.toFixed(1)} L ${revPts[0].x.toFixed(1)},${baselineY.toFixed(1)} Z`}
+                          fill="url(#chartRevGrad)"
+                        />
+                        <path d={toPath(revPts)} fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
-                {/* Points */}
-                <circle cx="240" cy="75" r="3.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="1.5" />
-                <circle cx="440" cy="40" r="3.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="1.5" />
-                <circle cx="600" cy="20" r="4.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" />
+                        <path
+                          d={`${toPath(profPts)} L ${profPts[profPts.length - 1].x.toFixed(1)},${baselineY.toFixed(1)} L ${profPts[0].x.toFixed(1)},${baselineY.toFixed(1)} Z`}
+                          fill="url(#chartProfitGrad)"
+                        />
+                        <path d={toPath(profPts)} fill="none" stroke="#F5B85C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-                <circle cx="240" cy="95" r="3" fill="#F5B85C" stroke="#FFFFFF" strokeWidth="1.5" />
-                <circle cx="440" cy="65" r="3" fill="#F5B85C" stroke="#FFFFFF" strokeWidth="1.5" />
-                <circle cx="600" cy="45" r="4" fill="#F5B85C" stroke="#FFFFFF" strokeWidth="1.5" />
-              </svg>
-            </div>
+                        <path d={toPath(expPts)} fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeDasharray="4 4" />
+
+                        {revPts.map((pt, i) => (
+                          <circle key={`r-${i}`} cx={pt.x} cy={pt.y} r="3.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="1.5" />
+                        ))}
+                        {profPts.map((pt, i) => (
+                          <circle key={`p-${i}`} cx={pt.x} cy={pt.y} r="3" fill="#F5B85C" stroke="#FFFFFF" strokeWidth="1.5" />
+                        ))}
+                      </svg>
+                    );
+                  })()}
+                </div>
+                <div className="flex items-center justify-between text-[10px] font-mono text-[#52796F] px-1">
+                  {chartSeries.map((pt) => (
+                    <span key={pt.date}>{pt.date.slice(5)}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Metrics Breakdown Bar */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 border-t border-[#E0ECE8] text-[10px] sm:text-xs">
@@ -821,15 +840,31 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOp
               </button>
             </div>
 
-            {lowStockProducts.length > 0 ? (
+            {alertStockProducts.length > 0 ? (
               <div className="space-y-2.5">
-                <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center gap-2 text-xs font-bold text-amber-900">
-                  <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
-                  <span>{lowStockProducts.length} ta tovar tugash arafasida</span>
+                <div
+                  className={`p-2.5 rounded-xl border flex items-center gap-2 text-xs font-bold ${
+                    outOfStockProducts.length > 0
+                      ? 'bg-rose-50 border-rose-200 text-rose-900'
+                      : 'bg-amber-50 border-amber-200 text-amber-900'
+                  }`}
+                >
+                  <AlertTriangle
+                    className={`w-4 h-4 shrink-0 ${
+                      outOfStockProducts.length > 0 ? 'text-rose-700' : 'text-amber-700'
+                    }`}
+                  />
+                  <span>
+                    {outOfStockProducts.length > 0 && lowStockProducts.length > 0
+                      ? `${outOfStockProducts.length} ta tugagan, ${lowStockProducts.length} ta kam qolgan`
+                      : outOfStockProducts.length > 0
+                      ? `${outOfStockProducts.length} ta tovar omborda tugagan`
+                      : `${lowStockProducts.length} ta tovar tugash arafasida`}
+                  </span>
                 </div>
 
                 <div className="divide-y divide-[#E0ECE8]">
-                  {lowStockProducts.slice(0, 4).map((p) => (
+                  {alertStockProducts.slice(0, 4).map((p) => (
                     <div key={p.id} className="py-2 flex items-center justify-between text-xs">
                       <div className="min-w-0 pr-2">
                         <div className="font-bold text-[#112521] truncate max-w-[140px] sm:max-w-[160px]">
@@ -841,7 +876,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ setActiveTab, onOp
                       </div>
                       <div className="text-right shrink-0">
                         <div className="font-mono font-bold text-rose-700">
-                          {p.quantity} {p.unit}
+                          {p.quantity <= 0 ? `Tugagan (${p.quantity})` : `${p.quantity} ${p.unit}`}
                         </div>
                         <div className="text-[10px] text-[#52796F]">
                           Min: {p.minStockAlert}

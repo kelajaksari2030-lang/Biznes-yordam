@@ -19,6 +19,7 @@ export function BarcodePrinterModule() {
   const [validationResult, setValidationResult] = useState<{ isValid: boolean; reason?: string } | null>(null);
   const [printerConfig, setPrinterConfig] = useState<PrinterConfig>(DEFAULT_PRINTER_CONFIG);
   const [loading, setLoading] = useState(true);
+  const [printFeedback, setPrintFeedback] = useState<{ type: 'error' | 'info'; text: string } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -72,10 +73,20 @@ export function BarcodePrinterModule() {
           </div>
 
           <div className="space-y-4">
+            {!loading && products.length === 0 && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                <span>
+                  Omborda mahsulotlar mavjud emas. Avval Ombor bo'limidan tovar qo'shing yoki quyida namunaviy shtrix-kod yarating.
+                </span>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Mahsulotni Tanlang</label>
               <select
                 value={selectedProductId}
+                disabled={products.length === 0}
                 onChange={(e) => {
                   setSelectedProductId(e.target.value);
                   const p = products.find((pr) => pr.id === e.target.value);
@@ -83,13 +94,17 @@ export function BarcodePrinterModule() {
                   setGeneratedBarcode(code);
                   setValidationResult(validateEan13Barcode(code));
                 }}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3 py-2.5 min-h-[44px] border rounded-xl bg-white disabled:bg-gray-50 disabled:text-gray-500"
               >
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.sellingPrice.toLocaleString()} UZS)
-                  </option>
-                ))}
+                {products.length === 0 ? (
+                  <option value="">Omborda mahsulot yo'q</option>
+                ) : (
+                  products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.sellingPrice.toLocaleString()} UZS)
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 
@@ -107,10 +122,11 @@ export function BarcodePrinterModule() {
               </div>
               <input
                 type="text"
+                inputMode="numeric"
                 maxLength={13}
                 value={generatedBarcode}
                 onChange={(e) => handleBarcodeChange(e.target.value)}
-                className="w-full px-3 py-2 border rounded-xl font-mono text-lg font-bold text-center tracking-widest text-[#173B35]"
+                className="w-full px-3 py-2.5 min-h-[44px] border rounded-xl font-mono text-lg font-bold text-center tracking-widest text-[#173B35]"
               />
             </div>
 
@@ -208,31 +224,45 @@ export function BarcodePrinterModule() {
               />
             </div>
 
+            {printFeedback && (
+              <div
+                className={`p-3 rounded-xl text-xs flex items-start gap-2 ${
+                  printFeedback.type === 'error'
+                    ? 'bg-rose-50 border border-rose-200 text-rose-800'
+                    : 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                }`}
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{printFeedback.text}</span>
+              </div>
+            )}
+
             <div className="pt-2">
               <button
                 type="button"
-                onClick={() =>
-                  printReceipt(
+                onClick={() => {
+                  setPrintFeedback(null);
+                  const res = printReceipt(
                     {
                       id: 'test_ord_1',
                       userId: user?.uid || '',
                       orderNumber: 'ORD-8888',
                       customerId: 'test',
-                      customerName: 'Sinaq Mijoz',
+                      customerName: 'Sinov Mijoz',
                       items: [
                         {
-                          productId: '1',
-                          productName: selectedProduct?.name || 'Shtrix-kodli Tovar',
+                          productId: selectedProduct?.id || '1',
+                          productName: selectedProduct?.name || 'Namuna Tovar',
                           quantity: 2,
                           unitPrice: selectedProduct?.sellingPrice || 50000,
-                          unitCost: 30000,
+                          unitCost: selectedProduct?.purchasePrice || 30000,
                           totalPrice: (selectedProduct?.sellingPrice || 50000) * 2,
-                          totalCost: 60000,
+                          totalCost: (selectedProduct?.purchasePrice || 30000) * 2,
                         },
                       ],
                       totalAmount: (selectedProduct?.sellingPrice || 50000) * 2,
-                      totalCost: 60000,
-                      totalProfit: (selectedProduct?.sellingPrice || 50000) * 2 - 60000,
+                      totalCost: (selectedProduct?.purchasePrice || 30000) * 2,
+                      totalProfit: ((selectedProduct?.sellingPrice || 50000) - (selectedProduct?.purchasePrice || 30000)) * 2,
                       status: 'delivered',
                       paymentStatus: 'paid',
                       paidAmount: (selectedProduct?.sellingPrice || 50000) * 2,
@@ -242,9 +272,12 @@ export function BarcodePrinterModule() {
                     },
                     'BESTO Market',
                     printerConfig
-                  )
-                }
-                className="w-full py-3 bg-[#173B35] text-white font-bold rounded-xl shadow-sm hover:bg-[#112521] transition flex items-center justify-center space-x-2"
+                  );
+                  if (!res.success && res.error) {
+                    setPrintFeedback({ type: 'error', text: res.error });
+                  }
+                }}
+                className="w-full py-3 min-h-[44px] bg-[#173B35] text-white font-bold rounded-xl shadow-sm hover:bg-[#112521] transition flex items-center justify-center space-x-2"
               >
                 <Printer className="w-5 h-5" />
                 <span>Namuna Chekni Chop Etish (Test Print)</span>

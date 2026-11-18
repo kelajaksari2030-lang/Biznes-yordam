@@ -64,8 +64,11 @@ export function BestoTelegramBotCard() {
         setConnectedChat(chat);
         setCheckingChat(false);
         if (chat) {
-          // If chat is linked, reset any pending linking code UI
+          // If chat is linked, show linked confirmation
           setIsLinkedSuccess(true);
+        } else {
+          // If user unlinked in bot (/unlink), cleanly reset linked state
+          setIsLinkedSuccess(false);
         }
       },
       (err) => {
@@ -290,7 +293,7 @@ export function BestoTelegramBotCard() {
               Quyidagi kodni nusxalang va botga yuboring yoki to'g'ridan-to'g'ri Telegramda oching:
             </p>
             <div className="py-2">
-              <div className="inline-block tracking-[0.25em] font-mono text-3xl sm:text-4xl font-black text-[#173B35] bg-white border-2 border-[#173B35] px-6 py-2.5 rounded-2xl shadow-sm select-all">
+              <div className="inline-block max-w-full tracking-[0.14em] sm:tracking-[0.25em] font-mono text-2xl sm:text-4xl font-black text-[#173B35] bg-white border-2 border-[#173B35] px-4 sm:px-6 py-2.5 rounded-2xl shadow-sm select-all">
                 {linkCode}
               </div>
             </div>

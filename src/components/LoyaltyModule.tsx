@@ -121,10 +121,11 @@ export function LoyaltyModule() {
       )}
 
       {/* Tabs */}
-      <div className="flex space-x-2 border-b border-[#E0ECE8]">
+      <div className="flex space-x-2 border-b border-[#E0ECE8] overflow-x-auto scrollbar-none">
         <button
+          type="button"
           onClick={() => setActiveTab('tiers')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'tiers'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -133,8 +134,9 @@ export function LoyaltyModule() {
           Darajalar va Keshbek
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('customers')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'customers'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -143,8 +145,9 @@ export function LoyaltyModule() {
           Mijozlar Balansi ({customers.length})
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('ledger')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'ledger'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -153,8 +156,9 @@ export function LoyaltyModule() {
           Keshbek Tarixi ({ledgerItems.length})
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('settings')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'settings'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -223,35 +227,66 @@ export function LoyaltyModule() {
           {customers.length === 0 ? (
             <div className="p-12 text-center text-gray-500">Mijozlar topilmadi</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
-                  <tr>
-                    <th className="p-4">Mijoz</th>
-                    <th className="p-4">Telefon</th>
-                    <th className="p-4">Daraja (Tier)</th>
-                    <th className="p-4">Jami Xaridlari</th>
-                    <th className="p-4">Mavjud Keshbek Balansi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E0ECE8]">
-                  {customers.map((c) => {
-                    const totalSpentVal = (c as any).totalSpent || 0;
-                    const tier = calculateCustomerTier(totalSpentVal, config || undefined);
-                    const bal = (c as any).loyaltyBalanceUZS || 0;
-                    return (
-                      <tr key={c.id} className="hover:bg-[#F6F8F7]/50">
-                        <td className="p-4 font-semibold text-[#112521]">{c.name}</td>
-                        <td className="p-4 text-gray-600">{c.phone}</td>
-                        <td className="p-4">{getTierBadge(tier)}</td>
-                        <td className="p-4 text-gray-700">{(c as any).totalSpent ? (c as any).totalSpent.toLocaleString() : 0} UZS</td>
-                        <td className="p-4 font-bold text-emerald-700">{bal.toLocaleString()} UZS</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <>
+              {/* Mobile Customer Cards */}
+              <div className="md:hidden divide-y divide-[#E0ECE8]">
+                {customers.map((c) => {
+                  const totalSpentVal = (c as any).totalSpent || 0;
+                  const tier = calculateCustomerTier(totalSpentVal, config || undefined);
+                  const bal = (c as any).loyaltyBalanceUZS || 0;
+                  return (
+                    <div key={c.id} className="p-4 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <span className="font-bold text-sm text-[#112521]">{c.name}</span>
+                          <p className="text-xs text-gray-600">{c.phone}</p>
+                        </div>
+                        {getTierBadge(tier)}
+                      </div>
+                      <div className="flex items-center justify-between text-xs pt-1">
+                        <span className="text-gray-600">
+                          Jami xarid: <strong>{totalSpentVal.toLocaleString()} UZS</strong>
+                        </span>
+                        <span className="font-bold text-emerald-700">
+                          Balans: {bal.toLocaleString()} UZS
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Customers Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
+                    <tr>
+                      <th className="p-4">Mijoz</th>
+                      <th className="p-4">Telefon</th>
+                      <th className="p-4">Daraja (Tier)</th>
+                      <th className="p-4">Jami Xaridlari</th>
+                      <th className="p-4">Mavjud Keshbek Balansi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E0ECE8]">
+                    {customers.map((c) => {
+                      const totalSpentVal = (c as any).totalSpent || 0;
+                      const tier = calculateCustomerTier(totalSpentVal, config || undefined);
+                      const bal = (c as any).loyaltyBalanceUZS || 0;
+                      return (
+                        <tr key={c.id} className="hover:bg-[#F6F8F7]/50">
+                          <td className="p-4 font-semibold text-[#112521]">{c.name}</td>
+                          <td className="p-4 text-gray-600">{c.phone}</td>
+                          <td className="p-4">{getTierBadge(tier)}</td>
+                          <td className="p-4 text-gray-700">{(c as any).totalSpent ? (c as any).totalSpent.toLocaleString() : 0} UZS</td>
+                          <td className="p-4 font-bold text-emerald-700">{bal.toLocaleString()} UZS</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -262,40 +297,68 @@ export function LoyaltyModule() {
           {ledgerItems.length === 0 ? (
             <div className="p-12 text-center text-gray-500">Hali keshbek tarixi mavjud emas</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
-                  <tr>
-                    <th className="p-4">Mijoz</th>
-                    <th className="p-4">Amal</th>
-                    <th className="p-4">Summa</th>
-                    <th className="p-4">Tafsilot</th>
-                    <th className="p-4">Sana</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E0ECE8]">
-                  {ledgerItems.map((lg) => (
-                    <tr key={lg.id} className="hover:bg-[#F6F8F7]/50">
-                      <td className="p-4 font-semibold">{lg.customerName}</td>
-                      <td className="p-4">
-                        {lg.type === 'earned' ? (
-                          <span className="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
-                            <ArrowUpRight className="w-3.5 h-3.5 mr-1" /> Berildi
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full">
-                            <ArrowDownRight className="w-3.5 h-3.5 mr-1" /> Sarflandi
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-4 font-bold">{lg.amount.toLocaleString()} UZS</td>
-                      <td className="p-4 text-xs text-gray-600">{lg.description}</td>
-                      <td className="p-4 text-xs text-gray-400">{new Date(lg.createdAt).toLocaleString()}</td>
+            <>
+              {/* Mobile Ledger Cards */}
+              <div className="md:hidden divide-y divide-[#E0ECE8]">
+                {ledgerItems.map((lg) => (
+                  <div key={lg.id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-sm text-[#112521]">{lg.customerName}</span>
+                      {lg.type === 'earned' ? (
+                        <span className="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+                          <ArrowUpRight className="w-3.5 h-3.5 mr-1" /> Berildi
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full">
+                          <ArrowDownRight className="w-3.5 h-3.5 mr-1" /> Sarflandi
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">{lg.description}</p>
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <span className="font-bold text-[#112521]">{lg.amount.toLocaleString()} UZS</span>
+                      <span className="text-gray-400">{new Date(lg.createdAt).toLocaleString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Ledger Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
+                    <tr>
+                      <th className="p-4">Mijoz</th>
+                      <th className="p-4">Amal</th>
+                      <th className="p-4">Summa</th>
+                      <th className="p-4">Tafsilot</th>
+                      <th className="p-4">Sana</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#E0ECE8]">
+                    {ledgerItems.map((lg) => (
+                      <tr key={lg.id} className="hover:bg-[#F6F8F7]/50">
+                        <td className="p-4 font-semibold">{lg.customerName}</td>
+                        <td className="p-4">
+                          {lg.type === 'earned' ? (
+                            <span className="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+                              <ArrowUpRight className="w-3.5 h-3.5 mr-1" /> Berildi
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full">
+                              <ArrowDownRight className="w-3.5 h-3.5 mr-1" /> Sarflandi
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 font-bold">{lg.amount.toLocaleString()} UZS</td>
+                        <td className="p-4 text-xs text-gray-600">{lg.description}</td>
+                        <td className="p-4 text-xs text-gray-400">{new Date(lg.createdAt).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -309,45 +372,49 @@ export function LoyaltyModule() {
               <label className="block text-xs font-semibold text-gray-600 mb-1">Asosiy Keshbek Foizi (%)</label>
               <input
                 type="number"
+                inputMode="decimal"
                 min="0"
                 max="20"
                 value={cashbackPercent}
                 onChange={(e) => setCashbackPercent(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3 py-2.5 border rounded-xl"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Silver Darajasi Chegarasi (UZS)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={silverThreshold}
                 onChange={(e) => setSilverThreshold(parseInt(e.target.value, 10) || 0)}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3 py-2.5 border rounded-xl"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Gold Darajasi Chegarasi (UZS)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={goldThreshold}
                 onChange={(e) => setGoldThreshold(parseInt(e.target.value, 10) || 0)}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3 py-2.5 border rounded-xl"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Platinum Darajasi Chegarasi (UZS)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={platinumThreshold}
                 onChange={(e) => setPlatinumThreshold(parseInt(e.target.value, 10) || 0)}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3 py-2.5 border rounded-xl"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-2.5 bg-[#173B35] text-white font-semibold rounded-xl"
+              className="w-full min-h-[44px] py-2.5 bg-[#173B35] text-white font-semibold rounded-xl"
             >
               Sozlamalarni Saqlash
             </button>

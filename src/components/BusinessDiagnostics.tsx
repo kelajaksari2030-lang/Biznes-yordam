@@ -15,11 +15,18 @@ import {
   HelpCircle,
   Building2,
   Loader2,
+  AlertCircle,
+  Database,
+  LogIn,
 } from 'lucide-react';
 import { BusinessDiagnosticsInput, BusinessDiagnosticsResult } from '../types';
-import { runBusinessDiagnostics } from '../services/businessDiagnosticsService';
+import {
+  runBusinessDiagnostics,
+  requestBusinessDiagnosticsFromBackend,
+} from '../services/businessDiagnosticsService';
 import { useAuth } from '../context/AuthContext';
 import { getBusinessProfile } from '../services/businessService';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
 
 const POPULAR_BUSINESS_TYPES = [
   "Kiyim va poyabzal do'koni",
@@ -52,7 +59,7 @@ export interface BusinessDiagnosticsProps {
 }
 
 export const BusinessDiagnostics: React.FC<BusinessDiagnosticsProps> = ({ onOpenBusinessProfile }) => {
-  const { user } = useAuth();
+  const { user, currentPlan, dailyUsage, updateDailyUsageCount, signInWithGoogle, isAdmin, simulatedTier } = useAuth();
   const [formData, setFormData] = useState<BusinessDiagnosticsInput>({
     businessType: "Kiyim va poyabzal do'koni",
     productOrService: '',
@@ -63,6 +70,11 @@ export const BusinessDiagnostics: React.FC<BusinessDiagnosticsProps> = ({ onOpen
   });
 
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [canUseFallback, setCanUseFallback] = useState(false);
+  const [resultSource, setResultSource] = useState<'gemini' | 'local_fallback' | null>(null);
+  const [resultModel, setResultModel] = useState<string | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileNotice, setProfileNotice] = useState<string | null>(null);
   const [result, setResult] = useState<BusinessDiagnosticsResult | null>(null);
@@ -96,42 +108,99 @@ export const BusinessDiagnostics: React.FC<BusinessDiagnosticsProps> = ({ onOpen
     }
   };
 
-  // Load saved diagnostics from localStorage
+  // Load saved diagnostics from scoped cache
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('biznes_saved_diagnostics');
-      if (stored) {
-        setSavedHistory(JSON.parse(stored));
-      }
-    } catch {
-      // Ignore storage errors
+    if (!user?.uid) {
+      setSavedHistory([]);
+      return;
     }
-  }, []);
+    const stored = readScopedCache<BusinessDiagnosticsResult[]>('saved_diagnostics', user.uid);
+    setSavedHistory(stored || []);
+  }, [user?.uid]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const adCount = dailyUsage?.adCount || 0;
+  const isLimitReached = adCount >= currentPlan.dailyAdLimit;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.productOrService.trim() || !formData.mainProblem.trim()) {
+    if (!formData.productOrService.trim() || !formData.mainProblem.trim() || !formData.currentGoal.trim()) {
+      return;
+    }
+
+    if (!user) {
+      setAiError("Gemini AI diagnostikasini boshlash uchun Google orqali tizimga kiring.");
+      setCanUseFallback(true);
+      return;
+    }
+
+    if (isLimitReached) {
+      setAiError(
+        `Bugun uchun belgilangan kunlik ${currentPlan.dailyAdLimit} ta AI so'rov limiti to'ldi (${currentPlan.name}). Yangi kvota ertaga Toshkent vaqti bilan 00:00 da yangilanadi.`
+      );
+      setCanUseFallback(false);
       return;
     }
 
     setLoading(true);
-    // Simulate brief AI synthesis feel
-    setTimeout(() => {
-      const diagResult = runBusinessDiagnostics(formData);
-      setResult(diagResult);
+    setAiError(null);
+    setStatusMessage(null);
+    setCanUseFallback(false);
+
+    try {
+      const response = await requestBusinessDiagnosticsFromBackend(
+        {
+          ...formData,
+          simulatedTier: isAdmin && simulatedTier !== 'admin' ? simulatedTier : undefined,
+        },
+        (msg) => setStatusMessage(msg)
+      );
+
+      if (response.error) {
+        setAiError(response.error.message);
+        setCanUseFallback(
+          [
+            'gemini_not_configured',
+            'service_unavailable',
+            'gemini_timeout',
+            'gemini_upstream_error',
+            'gemini_invalid_response',
+          ].includes(response.error.code)
+        );
+      } else if (response.data?.data) {
+        setResult(response.data.data);
+        setResultSource('gemini');
+        setResultModel(response.data.model || null);
+        updateDailyUsageCount(response.data.adCount);
+        window.scrollTo({ top: 380, behavior: 'smooth' });
+      }
+    } catch (err: any) {
+      setAiError(err?.message || "Server bilan bog'lanishda xatolik yuz berdi.");
+      setCanUseFallback(true);
+    } finally {
       setLoading(false);
-      window.scrollTo({ top: 380, behavior: 'smooth' });
-    }, 450);
+      setStatusMessage(null);
+    }
+  };
+
+  const handleRunFallbackDiagnostics = () => {
+    if (!formData.productOrService.trim() || !formData.mainProblem.trim() || !formData.currentGoal.trim()) {
+      return;
+    }
+    const diagResult = runBusinessDiagnostics(formData);
+    setResult(diagResult);
+    setResultSource('local_fallback');
+    setResultModel(null);
+    setAiError(null);
+    setCanUseFallback(false);
+    window.scrollTo({ top: 380, behavior: 'smooth' });
   };
 
   const handleSaveResult = () => {
     if (!result) return;
-    try {
-      const updated = [result, ...savedHistory.filter((item) => item.id !== result.id)].slice(0, 10);
-      setSavedHistory(updated);
-      localStorage.setItem('biznes_saved_diagnostics', JSON.stringify(updated));
-    } catch {
-      // Ignore storage errors
+    const updated = [result, ...savedHistory.filter((item) => item.id !== result.id)].slice(0, 10);
+    setSavedHistory(updated);
+    if (user?.uid) {
+      writeScopedCache('saved_diagnostics', user.uid, updated);
     }
   };
 
@@ -193,6 +262,12 @@ Tahlilchi: BESTO AI Diagnostika`;
         </div>
 
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-[#E0ECE8] pt-4 sm:pt-0 sm:pl-6 text-xs text-[#52796F] shrink-0 gap-2">
+          <div className="inline-flex items-center gap-1.5 bg-[#F6F8F7] border border-[#E0ECE8] px-3 py-1 rounded-xl text-xs text-[#52796F]">
+            <Database className="w-3.5 h-3.5 text-[#F5B85C]" />
+            <span>
+              Kunlik AI: <strong className="text-[#112521] font-mono">{adCount} / {currentPlan.dailyAdLimit}</strong>
+            </span>
+          </div>
           <div className="flex items-center gap-1.5 text-[#173B35] font-semibold">
             <CheckCircle2 className="w-4 h-4 text-[#F5B85C]" />
             <span>Xavfsiz va maxfiy</span>
@@ -373,14 +448,51 @@ Tahlilchi: BESTO AI Diagnostika`;
               </div>
             </div>
 
+            {statusMessage && (
+              <div className="p-2.5 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#F5B85C] shrink-0" />
+                <span>{statusMessage}</span>
+              </div>
+            )}
+
+            {aiError && (
+              <div className="p-3 bg-[#FDF4F4] border border-rose-200 rounded-xl text-xs text-[#9E2A2B] space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-[#9E2A2B] shrink-0 mt-0.5" />
+                  <span className="leading-relaxed"><strong>Xatolik:</strong> {aiError}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {!user && (
+                    <button
+                      type="button"
+                      onClick={signInWithGoogle}
+                      className="px-3 py-1.5 rounded-lg bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] font-semibold text-xs inline-flex items-center gap-1.5 btn-tactile"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Google orqali kirish</span>
+                    </button>
+                  )}
+                  {canUseFallback && (
+                    <button
+                      type="button"
+                      onClick={handleRunFallbackDiagnostics}
+                      className="px-3 py-1.5 rounded-lg bg-white hover:bg-[#F6F8F7] text-[#112521] border border-[#E0ECE8] font-semibold text-xs btn-tactile"
+                    >
+                      Mahalliy qoida asosida tahlil (AI siz)
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 px-4 py-3 bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 btn-tactile focus:outline-none focus:ring-2 focus:ring-[#F5B85C]"
+              className="w-full mt-4 px-4 py-3 bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-2 btn-tactile focus:outline-none focus:ring-2 focus:ring-[#F5B85C] disabled:opacity-50"
             >
-              <Sparkles className="w-4 h-4 text-[#112521]" />
-              <span>{loading ? "Tahlil qilinmoqda..." : "Diagnostikani boshlash"}</span>
+              {loading ? <Loader2 className="w-4 h-4 animate-spin text-[#112521]" /> : <Sparkles className="w-4 h-4 text-[#112521]" />}
+              <span>{loading ? "Gemini AI tahlil qilmoqda..." : "Diagnostikani boshlash"}</span>
             </button>
           </form>
 
@@ -447,18 +559,32 @@ Tahlilchi: BESTO AI Diagnostika`;
 
           {result && !loading && (
             <div className="space-y-6">
+              {resultSource === 'local_fallback' && (
+                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    <strong>Offline rejim:</strong> Ushbu hisobot Gemini AI orqali emas, mahalliy diagnostika qoidalari asosida shakllantirildi (kunlik AI kvotasi sarflanmadi).
+                  </p>
+                </div>
+              )}
+
               {/* Top Controls Toolbar */}
               <div 
                 className="scroll-reveal flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E0ECE8]"
                 style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold text-[#112521]">
                     Diagnostika hisoboti
                   </span>
                   <span className="text-[10px] text-[#173B35] bg-[#D7F0E5] px-2 py-0.5 rounded-full font-medium">
                     {new Date(result.createdAt).toLocaleDateString('uz-UZ')}
                   </span>
+                  {resultSource === 'gemini' && (
+                    <span className="text-[10px] font-semibold text-[#112521] bg-[#F5B85C]/25 px-2 py-0.5 rounded-full border border-[#F5B85C]/50">
+                      Gemini AI {resultModel ? `(${resultModel})` : ''}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">

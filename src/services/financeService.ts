@@ -24,6 +24,7 @@ import {
   ExpenseTransactionInput,
   Order,
 } from '../types/business';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
 
 export interface FinanceSummaryMetrics {
   paidRevenue: number;         // Real qabul qilingan to'lovlar yig'indisi
@@ -98,21 +99,13 @@ export async function getTransactions(userId: string): Promise<FinancialTransact
       } as FinancialTransaction);
     });
 
-    try {
-      localStorage.setItem('biznes_finance_cache', JSON.stringify(list));
-    } catch {
-      // Storage quota resilience
-    }
+    writeScopedCache('finance', userId, list);
 
     return list;
   } catch (err: unknown) {
     handleFirestoreError(err, OperationType.LIST, collectionPath);
-    try {
-      const cached = localStorage.getItem('biznes_finance_cache');
-      if (cached) return JSON.parse(cached);
-    } catch {
-      // Ignore cache error
-    }
+    const cached = readScopedCache<FinancialTransaction[]>('finance', userId);
+    if (Array.isArray(cached)) return cached;
     return [];
   }
 }

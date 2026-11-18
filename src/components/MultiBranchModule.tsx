@@ -9,7 +9,7 @@ import { Branch, Warehouse, StockTransfer, StockTransferItem } from '../types/mo
 import { Product } from '../types/inventory';
 import { getBranches, createBranch, getWarehouses, createWarehouse, getStockTransfers, createStockTransfer, confirmStockTransfer } from '../services/multiBranchService';
 import { getProducts } from '../services/inventoryService';
-import { GitFork, Warehouse as WarehouseIcon, Building, ArrowRightLeft, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { GitFork, Warehouse as WarehouseIcon, Building, ArrowRightLeft, Plus, CheckCircle2, AlertCircle, X } from 'lucide-react';
 
 export function MultiBranchModule() {
   const { user } = useAuth();
@@ -192,13 +192,14 @@ export function MultiBranchModule() {
 
         <div className="flex items-center space-x-3">
           <button
+            type="button"
             onClick={() => {
               setIsTransferModalOpen(true);
               if (products.length > 0) {
                 setTransferItems([{ productId: products[0].id, quantity: 5 }]);
               }
             }}
-            className="px-4 py-2.5 rounded-xl bg-[#173B35] text-white hover:bg-[#112521] font-semibold text-sm flex items-center space-x-2 transition shadow-sm"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-[#173B35] text-white hover:bg-[#112521] font-semibold text-sm flex items-center space-x-2 transition shadow-sm"
           >
             <ArrowRightLeft className="w-4 h-4" />
             <span>Yangi Transfer Yaratish</span>
@@ -214,10 +215,11 @@ export function MultiBranchModule() {
       )}
 
       {/* Tabs */}
-      <div className="flex space-x-2 border-b border-[#E0ECE8]">
+      <div className="flex space-x-2 border-b border-[#E0ECE8] overflow-x-auto scrollbar-none">
         <button
+          type="button"
           onClick={() => setActiveTab('transfers')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'transfers'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -226,8 +228,9 @@ export function MultiBranchModule() {
           Omborlararo Transferlar ({transfers.length})
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('branches')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'branches'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -236,8 +239,9 @@ export function MultiBranchModule() {
           Filiallar ({branches.length})
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('warehouses')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'warehouses'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -253,54 +257,94 @@ export function MultiBranchModule() {
           {transfers.length === 0 ? (
             <div className="p-12 text-center text-gray-500">Hali tovar transferlari bajarilmagan</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
-                  <tr>
-                    <th className="p-4">Transfer kodi</th>
-                    <th className="p-4">Manba Ombor</th>
-                    <th className="p-4">Mo'ljal Ombor</th>
-                    <th className="p-4">Tovarlar</th>
-                    <th className="p-4">Holat</th>
-                    <th className="p-4 text-right">Amal</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E0ECE8]">
-                  {transfers.map((tr) => (
-                    <tr key={tr.id} className="hover:bg-[#F6F8F7]/50">
-                      <td className="p-4 font-bold text-[#173B35]">{tr.transferNumber}</td>
-                      <td className="p-4 text-gray-700">{tr.sourceWarehouseName}</td>
-                      <td className="p-4 text-gray-700">{tr.destWarehouseName}</td>
-                      <td className="p-4 text-xs text-gray-600">
-                        {tr.items.map((i) => `${i.productName} (${i.quantity} ${i.unit || 'dona'})`).join(', ')}
-                      </td>
-                      <td className="p-4">
-                        {tr.status === 'completed' ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                            Bajarildi
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                            Kutilmoqda
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-4 text-right">
-                        {tr.status !== 'completed' && (
-                          <button
-                            onClick={() => handleConfirmTransfer(tr.id)}
-                            disabled={submitting}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition"
-                          >
-                            Tasdiqlash & O'tkazish
-                          </button>
-                        )}
-                      </td>
+            <>
+              {/* Mobile Transfer Cards */}
+              <div className="md:hidden divide-y divide-[#E0ECE8]">
+                {transfers.map((tr) => (
+                  <div key={tr.id} className="p-4 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-sm text-[#173B35]">{tr.transferNumber}</span>
+                      {tr.status === 'completed' ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                          Bajarildi
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                          Kutilmoqda
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-700 font-medium">
+                      {tr.sourceWarehouseName} → {tr.destWarehouseName}
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      {tr.items.map((i) => `${i.productName} (${i.quantity} ${i.unit || 'dona'})`).join(', ')}
+                    </p>
+                    {tr.status !== 'completed' && (
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmTransfer(tr.id)}
+                        disabled={submitting}
+                        className="w-full min-h-[44px] px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition"
+                      >
+                        Tasdiqlash & O'tkazish
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Transfers Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
+                    <tr>
+                      <th className="p-4">Transfer kodi</th>
+                      <th className="p-4">Manba Ombor</th>
+                      <th className="p-4">Mo'ljal Ombor</th>
+                      <th className="p-4">Tovarlar</th>
+                      <th className="p-4">Holat</th>
+                      <th className="p-4 text-right">Amal</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#E0ECE8]">
+                    {transfers.map((tr) => (
+                      <tr key={tr.id} className="hover:bg-[#F6F8F7]/50">
+                        <td className="p-4 font-bold text-[#173B35]">{tr.transferNumber}</td>
+                        <td className="p-4 text-gray-700">{tr.sourceWarehouseName}</td>
+                        <td className="p-4 text-gray-700">{tr.destWarehouseName}</td>
+                        <td className="p-4 text-xs text-gray-600">
+                          {tr.items.map((i) => `${i.productName} (${i.quantity} ${i.unit || 'dona'})`).join(', ')}
+                        </td>
+                        <td className="p-4">
+                          {tr.status === 'completed' ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                              Bajarildi
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                              Kutilmoqda
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 text-right">
+                          {tr.status !== 'completed' && (
+                            <button
+                              type="button"
+                              onClick={() => handleConfirmTransfer(tr.id)}
+                              disabled={submitting}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition"
+                            >
+                              Tasdiqlash & O'tkazish
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -357,9 +401,23 @@ export function MultiBranchModule() {
 
       {/* Branch Modal */}
       {isBranchModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-[#112521]">Yangi Filial Qo'shish</h3>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsBranchModalOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90dvh] overflow-y-auto overscroll-contain">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-[#112521]">Yangi Filial Qo'shish</h3>
+              <button
+                type="button"
+                onClick={() => setIsBranchModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreateBranch} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Filial Nomi</label>
@@ -368,7 +426,7 @@ export function MultiBranchModule() {
                   required
                   value={branchName}
                   onChange={(e) => setBranchName(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                   placeholder="Chilonzor filiali"
                 />
               </div>
@@ -378,7 +436,7 @@ export function MultiBranchModule() {
                   type="text"
                   value={branchCode}
                   onChange={(e) => setBranchCode(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                   placeholder="BR-CHIL"
                 />
               </div>
@@ -386,14 +444,14 @@ export function MultiBranchModule() {
                 <button
                   type="button"
                   onClick={() => setIsBranchModalOpen(false)}
-                  className="px-4 py-2 border rounded-xl text-gray-600 text-sm"
+                  className="min-h-[44px] px-4 py-2 border rounded-xl text-gray-600 text-sm"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
+                  className="min-h-[44px] px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
                 >
                   Saqlash
                 </button>
@@ -405,9 +463,23 @@ export function MultiBranchModule() {
 
       {/* Warehouse Modal */}
       {isWhModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-[#112521]">Yangi Ombor Qo'shish</h3>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsWhModalOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90dvh] overflow-y-auto overscroll-contain">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-[#112521]">Yangi Ombor Qo'shish</h3>
+              <button
+                type="button"
+                onClick={() => setIsWhModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreateWarehouse} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Ombor Nomi</label>
@@ -416,7 +488,7 @@ export function MultiBranchModule() {
                   required
                   value={whName}
                   onChange={(e) => setWhName(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                   placeholder="Zaxira Ombori №2"
                 />
               </div>
@@ -426,7 +498,7 @@ export function MultiBranchModule() {
                   type="text"
                   value={whCode}
                   onChange={(e) => setWhCode(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                   placeholder="WH-02"
                 />
               </div>
@@ -434,14 +506,14 @@ export function MultiBranchModule() {
                 <button
                   type="button"
                   onClick={() => setIsWhModalOpen(false)}
-                  className="px-4 py-2 border rounded-xl text-gray-600 text-sm"
+                  className="min-h-[44px] px-4 py-2 border rounded-xl text-gray-600 text-sm"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
+                  className="min-h-[44px] px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
                 >
                   Saqlash
                 </button>
@@ -453,16 +525,30 @@ export function MultiBranchModule() {
 
       {/* Stock Transfer Modal */}
       {isTransferModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-[#112521]">Omborlararo Transfer Yaratish</h3>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsTransferModalOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90dvh] overflow-y-auto overscroll-contain">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-[#112521]">Omborlararo Transfer Yaratish</h3>
+              <button
+                type="button"
+                onClick={() => setIsTransferModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreateTransfer} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Manba Ombor (Qayerdan)</label>
                 <select
                   value={sourceWhId}
                   onChange={(e) => setSourceWhId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                 >
                   <option value="">-- Tanlang --</option>
                   {warehouses.map((w) => (
@@ -478,7 +564,7 @@ export function MultiBranchModule() {
                 <select
                   value={destWhId}
                   onChange={(e) => setDestWhId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                 >
                   <option value="">-- Tanlang --</option>
                   {warehouses.map((w) => (
@@ -501,7 +587,7 @@ export function MultiBranchModule() {
                           prev.map((item, i) => (i === idx ? { ...item, productId: val } : item))
                         );
                       }}
-                      className="flex-1 text-xs border p-2 rounded-xl"
+                      className="flex-1 text-xs border p-2.5 rounded-xl"
                     >
                       {products.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -511,6 +597,7 @@ export function MultiBranchModule() {
                     </select>
                     <input
                       type="number"
+                      inputMode="numeric"
                       min="1"
                       value={it.quantity}
                       onChange={(e) => {
@@ -519,7 +606,7 @@ export function MultiBranchModule() {
                           prev.map((item, i) => (i === idx ? { ...item, quantity: val } : item))
                         );
                       }}
-                      className="w-20 text-xs border p-2 rounded-xl text-center"
+                      className="w-20 text-xs border p-2.5 rounded-xl text-center"
                     />
                   </div>
                 ))}
@@ -529,14 +616,14 @@ export function MultiBranchModule() {
                 <button
                   type="button"
                   onClick={() => setIsTransferModalOpen(false)}
-                  className="px-4 py-2 border rounded-xl text-gray-600 text-sm"
+                  className="min-h-[44px] px-4 py-2 border rounded-xl text-gray-600 text-sm"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
+                  className="min-h-[44px] px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
                 >
                   Transferni Yaratish
                 </button>

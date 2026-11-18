@@ -23,6 +23,7 @@ import { db, handleFirestoreError, OperationType, logFirestoreOp, sanitizeFirest
 import { Order, OrderItem, OrderStatus, OrderPaymentStatus, DeductedStockItem } from '../types/business';
 import { Product } from '../types/inventory';
 import { Customer } from '../types/crm';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
 
 export interface CreateOrderInput {
   customerId: string;
@@ -236,23 +237,15 @@ export async function getOrders(userId: string): Promise<Order[]> {
       } as Order);
     });
 
-    try {
-      localStorage.setItem('biznes_orders_cache', JSON.stringify(orders));
-    } catch {
-      // Storage quota safety
-    }
+    writeScopedCache('orders', userId, orders);
 
     return orders;
   } catch (err: unknown) {
     handleFirestoreError(err, OperationType.LIST, collectionPath);
 
-    try {
-      const cached = localStorage.getItem('biznes_orders_cache');
-      if (cached) {
-        return JSON.parse(cached);
-      }
-    } catch {
-      // Ignore cache failure
+    const cached = readScopedCache<Order[]>('orders', userId);
+    if (Array.isArray(cached)) {
+      return cached;
     }
     return [];
   }

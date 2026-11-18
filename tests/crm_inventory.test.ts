@@ -23,8 +23,16 @@ import {
   isLowStock,
   isOutOfStock,
   calculateInventoryStats,
-  filterProducts
+  filterProducts,
+  parseMinStockAlert
 } from '../src/services/inventoryService';
+import {
+  getScopedCacheKey,
+  readScopedCache,
+  writeScopedCache,
+  removeScopedCache,
+  clearAllUserBusinessCaches
+} from '../src/utils/userCache';
 import { Customer, CustomerInput } from '../src/types/crm';
 import { Product, ProductInput } from '../src/types/inventory';
 
@@ -360,6 +368,94 @@ assert(generatedProduct.purchasePrice === 150000, 'Purchase price accurately tra
 assert(generatedProduct.sellingPrice === 240000, 'Selling price accurately transferred from calculation');
 assert(generatedProduct.quantity === 30, 'Quantity accurately transferred from calculation');
 assert(generatedProduct.minStockAlert === 5, 'Min stock alert is appropriately clamped (5)');
+
+// ----------------------------------------------------
+// 8. minStockAlert === 0 Preservation Tests
+// ----------------------------------------------------
+console.log('\n--- 8. minStockAlert === 0 Preservation ---');
+
+assert(parseMinStockAlert(0, 5) === 0, 'parseMinStockAlert(0, 5) preserves 0 instead of falling back to 5');
+assert(parseMinStockAlert('0', 5) === 0, 'parseMinStockAlert("0", 5) preserves 0');
+assert(parseMinStockAlert(undefined, 5) === 5, 'parseMinStockAlert(undefined, 5) uses default 5');
+assert(parseMinStockAlert(-2, 5) === 5, 'parseMinStockAlert(-2, 5) rejects negative and uses default 5');
+assert(
+  isLowStock({ quantity: 1, minStockAlert: 0 }) === false,
+  'Product with qty = 1 and minStockAlert = 0 is NOT flagged as low stock'
+);
+assert(
+  isLowStock({ quantity: 0, minStockAlert: 0 }) === false &&
+  isOutOfStock({ quantity: 0 }) === true,
+  'Product with qty = 0 and minStockAlert = 0 is flagged out-of-stock, not low-stock'
+);
+
+// ----------------------------------------------------
+// 9. Per-User Cache Scoping & Isolation Tests
+// ----------------------------------------------------
+console.log('\n--- 9. Per-User Cache Scoping & Isolation ---');
+
+const originalWindowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+const memStore = new Map<string, string>();
+const mockLocalStorage = {
+  get length() {
+    return memStore.size;
+  },
+  key(index: number) {
+    return Array.from(memStore.keys())[index] ?? null;
+  },
+  getItem(key: string) {
+    return memStore.has(key) ? memStore.get(key)! : null;
+  },
+  setItem(key: string, value: string) {
+    memStore.set(key, String(value));
+  },
+  removeItem(key: string) {
+    memStore.delete(key);
+  },
+  clear() {
+    memStore.clear();
+  },
+};
+
+try {
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    writable: true,
+    value: { localStorage: mockLocalStorage },
+  });
+
+  assert(getScopedCacheKey('inventory', 'uid_A') === 'besto_cache_uid_A_inventory', 'Scoped cache key includes userId');
+  assert(getScopedCacheKey('inventory', '') === '', 'Empty userId produces empty cache key');
+
+  writeScopedCache('inventory', 'uid_A', [{ id: 'a1', name: 'A mahsulot' }]);
+  writeScopedCache('inventory', 'uid_B', [{ id: 'b1', name: 'B mahsulot' }]);
+
+  const cacheA = readScopedCache<Array<{ id: string }>>('inventory', 'uid_A');
+  const cacheB = readScopedCache<Array<{ id: string }>>('inventory', 'uid_B');
+  const cacheMissing = readScopedCache<Array<{ id: string }>>('inventory', 'uid_C');
+
+  assert(cacheA !== null && cacheA.length === 1 && cacheA[0].id === 'a1', 'User A reads only User A inventory cache');
+  assert(cacheB !== null && cacheB.length === 1 && cacheB[0].id === 'b1', 'User B reads only User B inventory cache');
+  assert(cacheMissing === null, 'User C without cache receives null');
+
+  removeScopedCache('inventory', 'uid_A');
+  assert(readScopedCache('inventory', 'uid_A') === null, 'removeScopedCache clears only User A key');
+  assert(readScopedCache('inventory', 'uid_B') !== null, 'User B cache remains intact when User A key is removed');
+
+  // Seed legacy unscoped key and unrelated non-BESTO key
+  mockLocalStorage.setItem('biznes_orders_cache', '[{"id":"legacy"}]');
+  mockLocalStorage.setItem('unrelated_theme_pref', 'light');
+  clearAllUserBusinessCaches();
+
+  assert(readScopedCache('inventory', 'uid_B') === null, 'clearAllUserBusinessCaches removes scoped BESTO caches');
+  assert(mockLocalStorage.getItem('biznes_orders_cache') === null, 'clearAllUserBusinessCaches removes legacy unscoped keys');
+  assert(mockLocalStorage.getItem('unrelated_theme_pref') === 'light', 'clearAllUserBusinessCaches preserves unrelated keys');
+} finally {
+  if (originalWindowDescriptor) {
+    Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
+  } else {
+    delete (globalThis as any).window;
+  }
+}
 
 console.log('====================================================');
 console.log('🏁 ALL CRM & INVENTORY TESTS PASSED SUCCESSFULLY');

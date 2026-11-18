@@ -1,23 +1,21 @@
 /**
- * BiznesYordam - Client Service for Backend-Enforced Ad Generation
- * 
+ * BiznesYordam (BESTO) - Client Service for Backend-Enforced Gemini AI Generation
+ *
  * Securely communicates with:
- * 1. Free Render Node.js Backend Web Service (via VITE_BACKEND_API_URL)
- * 2. Or Firebase Cloud Functions callable (generateAd)
- * 
+ * 1. Express Backend Web Service (VITE_BACKEND_API_URL or local http://localhost:10000)
+ * 2. Or Firebase Cloud Functions callable (generateAd fallback)
+ *
  * Strict Enforcement:
  * - Always sends Firebase Authentication ID token
- * - Never computes or generates ad text directly in the browser
- * - Displays clear status for Render cold-starts (free tier sleep)
+ * - Never holds or accesses Gemini API keys or SDKs in frontend
+ * - Surfaces honest unconfigured/upstream/timeout errors so UI can offer explicit offline fallback
  */
 
 import { httpsCallable } from 'firebase/functions';
 import { functions, auth } from './firebase';
 import { AdFormData } from '../types';
 
-export interface BackendAdResponse {
-  success: boolean;
-  adText: string;
+export interface BackendQuotaMeta {
   adCount: number;
   dailyLimit: number;
   remaining: number;
@@ -25,13 +23,35 @@ export interface BackendAdResponse {
   date: string;
 }
 
+export interface BackendAdResponse extends BackendQuotaMeta {
+  success: boolean;
+  source?: 'gemini' | 'functions';
+  model?: string;
+  adText: string;
+  headline?: string;
+  hashtags?: string[];
+}
+
+export interface BackendAiEnvelope<T> extends BackendQuotaMeta {
+  success: boolean;
+  source: 'gemini';
+  model: string;
+  data: T;
+}
+
+export type BackendErrorCode =
+  | 'unauthenticated'
+  | 'quota_exceeded'
+  | 'invalid_argument'
+  | 'gemini_not_configured'
+  | 'gemini_timeout'
+  | 'gemini_upstream_error'
+  | 'gemini_invalid_response'
+  | 'service_unavailable'
+  | 'unknown';
+
 export interface BackendAdError {
-  code:
-    | 'unauthenticated'
-    | 'quota_exceeded'
-    | 'invalid_argument'
-    | 'service_unavailable'
-    | 'unknown';
+  code: BackendErrorCode;
   message: string;
   details?: {
     currentCount?: number;
@@ -43,32 +63,136 @@ export interface BackendAdError {
 }
 
 // Render backend URL (e.g., https://biznesyordam-backend.onrender.com)
-export const RENDER_BACKEND_URL: string = (
-  import.meta.env.VITE_BACKEND_API_URL || ''
-).replace(/\/+$/, '');
+export const RENDER_BACKEND_URL: string = (() => {
+  const raw = (import.meta.env?.VITE_BACKEND_API_URL || '').trim().replace(/\/+$/, '');
+  if (raw === 'undefined' || raw === 'null') return '';
+  return raw;
+})();
 
-/**
- * Checks whether a separate Render backend service URL is configured
- */
-export function isRenderBackendConfigured(): boolean {
-  return !!RENDER_BACKEND_URL;
+export function resolveBackendBaseUrl(): string {
+  if (RENDER_BACKEND_URL) {
+    return RENDER_BACKEND_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location?.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:10000';
+    }
+  }
+  return '';
 }
 
 /**
- * Requests ad generation from the authoritative backend.
- * Uses Render web service if configured, or Firebase Cloud Functions callable.
+ * Checks whether an Express backend base URL is configured/resolvable
  */
-export async function requestAdGenerationFromBackend(
-  formData: AdFormData & { simulatedTier?: string },
+export function isRenderBackendConfigured(): boolean {
+  return !!resolveBackendBaseUrl();
+}
+
+function mapHttpErrorJson(status: number, json: any): BackendAdError {
+  if (status === 429 || json?.error === 'quota_exceeded') {
+    return {
+      code: 'quota_exceeded',
+      message:
+        json?.message ||
+        "Bugun uchun belgilangan kunlik AI limiti to'ldi. Yangi kvota ertaga beriladi.",
+      details: json?.details,
+    };
+  }
+
+  if (status === 400 || json?.error === 'invalid_argument') {
+    return {
+      code: 'invalid_argument',
+      message: json?.message || "Kiritilgan ma'lumotlarda xatolik bor.",
+    };
+  }
+
+  if (status === 503 && json?.error === 'gemini_not_configured') {
+    return {
+      code: 'gemini_not_configured',
+      message:
+        json?.message ||
+        "Serverda Gemini AI kaliti sozlanmagan. Haqiqiy AI javoblari uchun backend muhitida API kalitini kiriting.",
+    };
+  }
+
+  if (status === 504 || json?.error === 'gemini_timeout') {
+    return {
+      code: 'gemini_timeout',
+      message:
+        json?.message ||
+        "Gemini AI javob berish vaqti tugadi. Iltimos, birozdan so'ng qayta urinib ko'ring.",
+    };
+  }
+
+  if (json?.error === 'gemini_invalid_response') {
+    return {
+      code: 'gemini_invalid_response',
+      message:
+        json?.message || "Gemini AI javobi kutilgan formatda kelmadi. Qayta urinib ko'ring.",
+    };
+  }
+
+  if (status === 502 || json?.error === 'gemini_upstream_error') {
+    return {
+      code: 'gemini_upstream_error',
+      message:
+        json?.message || "Gemini AI xizmatiga ulanishda xatolik yuz berdi.",
+    };
+  }
+
+  if (
+    json?.error === 'credentials_missing' ||
+    (typeof json?.message === 'string' && json.message.includes('Could not load the default credentials'))
+  ) {
+    return {
+      code: 'service_unavailable',
+      message:
+        "Backend serverida Firebase Service Account kaliti kiritilmagan. Iltimos, FIREBASE_SERVICE_ACCOUNT_KEY ni sozlang.",
+    };
+  }
+
+  if (json?.error === 'permission_denied') {
+    return {
+      code: 'service_unavailable',
+      message:
+        json?.message ||
+        "Firebase Firestore ruxsat xatosi (PERMISSION_DENIED). Administratorga murojaat qiling.",
+    };
+  }
+
+  return {
+    code: 'unknown',
+    message: json?.message || `Server xatosi (${status})`,
+  };
+}
+
+/**
+ * Generic helper to call any Express AI endpoint with Firebase Auth ID token,
+ * cold-start retry, and 401 token refresh.
+ */
+export async function requestAiFromBackend<TPayload extends Record<string, any>, TResponse>(
+  path: string,
+  payload: TPayload,
   onStatusMessage?: (status: string) => void
-): Promise<{ data?: BackendAdResponse; error?: BackendAdError }> {
-  // 1. Check current Firebase Authentication
+): Promise<{ data?: TResponse; error?: BackendAdError }> {
   const currentUser = auth?.currentUser;
   if (!currentUser) {
     return {
       error: {
         code: 'unauthenticated',
-        message: "Tizimga kirmagansiz. Reklama matnini yaratish uchun Google orqali kiring.",
+        message: "Tizimga kirmagansiz. AI funksiyalaridan foydalanish uchun Google orqali kiring.",
+      },
+    };
+  }
+
+  const baseUrl = resolveBackendBaseUrl();
+  if (!baseUrl) {
+    return {
+      error: {
+        code: 'service_unavailable',
+        message:
+          "AI backend server manzili sozlanmagan (VITE_BACKEND_API_URL). Mahalliy rejimda yoki server ulangandan keyin foydalaning.",
       },
     };
   }
@@ -86,48 +210,19 @@ export async function requestAdGenerationFromBackend(
     };
   }
 
-  // 2. PATH A: Call Free Render Node.js Backend Web Service if configured
-  if (RENDER_BACKEND_URL) {
-    return callRenderBackend(RENDER_BACKEND_URL, idToken, formData, onStatusMessage);
-  }
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const endpoint = `${baseUrl}${normalizedPath}`;
 
-  // 3. PATH B: Call Firebase Cloud Functions callable if functions is initialized
-  if (functions) {
-    return callFirebaseCallable(formData);
-  }
-
-  // 4. PATH C: Neither service is configured
-  return {
-    error: {
-      code: 'service_unavailable',
-      message:
-        "Backend web xizmati topilmadi. Render bepul hosting URL manzilini VITE_BACKEND_API_URL orqali sozlang (batafsil ko'rsatmalar server/README.md faylida).",
-    },
-  };
-}
-
-/**
- * Calls Render Express backend at POST /api/generate-ad
- */
-async function callRenderBackend(
-  baseUrl: string,
-  idToken: string,
-  formData: AdFormData,
-  onStatusMessage?: (status: string) => void
-): Promise<{ data?: BackendAdResponse; error?: BackendAdError }> {
-  const endpoint = `${baseUrl}/api/generate-ad`;
-
-  // Start sleep warning timer for Render free tier (wakes up in ~30s after sleep)
   const sleepTimer = setTimeout(() => {
     if (onStatusMessage) {
       onStatusMessage(
-        "Render bepul serveri uyqudan uyg'onmoqda (~30-40 soniya)... Iltimos, kuting."
+        "Server javobi kutilmoqda (bepul server uyqudan uyg'onayotgan bo'lishi mumkin)..."
       );
     }
   }, 3500);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 70000); // 70s timeout for cold start
+  const timeoutId = setTimeout(() => controller.abort(), 70000);
 
   let response: Response;
   try {
@@ -138,24 +233,22 @@ async function callRenderBackend(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
     } catch (firstFetchErr: any) {
-      // If network fetch failed (e.g. Render free tier cold start waking up), wait 5s and retry once
       if (firstFetchErr.name !== 'AbortError') {
-        console.warn('First fetch to Render backend failed (cold start?). Retrying in 5 seconds...', firstFetchErr);
         if (onStatusMessage) {
-          onStatusMessage("Render bepul serveri uyg'onmoqda (~15-20s)... Qayta bog'lanilmoqda.");
+          onStatusMessage("Backend serveri bilan qayta bog'lanilmoqda...");
         }
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 2500));
         response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${idToken}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
           signal: controller.signal,
         });
       } else {
@@ -163,138 +256,73 @@ async function callRenderBackend(
       }
     }
 
-
     clearTimeout(sleepTimer);
     clearTimeout(timeoutId);
 
-    const json = await response.json();
+    let json: any = {};
+    try {
+      json = await response.json();
+    } catch {
+      json = {};
+    }
 
-    if (response.ok && json.success) {
-      return {
-        data: {
-          success: true,
-          adText: json.adText,
-          adCount: json.adCount,
-          dailyLimit: json.dailyLimit,
-          remaining: json.remaining,
-          plan: json.plan,
-          date: json.date,
-        },
-      };
+    if (response.ok && json?.success) {
+      return { data: json as TResponse };
     }
 
     if (response.status === 401) {
-      const currentUser = auth?.currentUser;
-      if (currentUser) {
+      try {
+        const freshToken = await currentUser.getIdToken(true);
+        const retryResponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${freshToken}`,
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+        let retryJson: any = {};
         try {
-          console.warn('Backend returned 401. Force refreshing ID token and retrying...');
-          const freshToken = await currentUser.getIdToken(true);
-          const retryResponse = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${freshToken}`,
-            },
-            body: JSON.stringify(formData),
-            signal: controller.signal,
-          });
-          const retryJson = await retryResponse.json();
-
-          if (retryResponse.ok && retryJson.success) {
-            return {
-              data: {
-                success: true,
-                adText: retryJson.adText,
-                adCount: retryJson.adCount,
-                dailyLimit: retryJson.dailyLimit,
-                remaining: retryJson.remaining,
-                plan: retryJson.plan,
-                date: retryJson.date,
-              },
-            };
-          }
-          if (retryJson.message) {
-            json.message = retryJson.message;
-          }
-        } catch (refreshErr) {
-          console.error('Failed to retry with fresh token:', refreshErr);
+          retryJson = await retryResponse.json();
+        } catch {
+          retryJson = {};
         }
+
+        if (retryResponse.ok && retryJson?.success) {
+          return { data: retryJson as TResponse };
+        }
+        if (retryResponse.status !== 401) {
+          return { error: mapHttpErrorJson(retryResponse.status, retryJson) };
+        }
+        if (retryJson?.message) {
+          json.message = retryJson.message;
+        }
+      } catch (refreshErr) {
+        console.error('Failed to retry with fresh token:', refreshErr);
       }
 
       return {
         error: {
           code: 'unauthenticated',
-          message: json.message || "Tizimga kirish muddati tugagan. Qaytadan kiring.",
+          message: json?.message || "Tizimga kirish muddati tugagan. Qaytadan kiring.",
         },
       };
     }
 
-
-    if (response.status === 429) {
-      return {
-        error: {
-          code: 'quota_exceeded',
-          message:
-            json.message ||
-            "Bugun uchun belgilangan reklama limiti to'ldi. Yangi kvota ertaga beriladi.",
-          details: json.details,
-        },
-      };
-    }
-
-    if (response.status === 400) {
-      return {
-        error: {
-          code: 'invalid_argument',
-          message: json.message || "Kiritilgan ma'lumotlarda xatolik bor.",
-        },
-      };
-    }
-
-    if (
-      json.error === 'credentials_missing' ||
-      (json.message && json.message.includes('Could not load the default credentials'))
-    ) {
-      return {
-        error: {
-          code: 'service_unavailable',
-          message:
-            "Render backend serverida Firebase Service Account kaliti kiritilmagan. Iltimos, Render Dashboard ➔ Environment bo'limiga FIREBASE_SERVICE_ACCOUNT_KEY ni qo'shing.",
-        },
-      };
-    }
-
-    if (json.error === 'permission_denied') {
-      return {
-        error: {
-          code: 'service_unavailable',
-          message:
-            json.message ||
-            "Firebase Firestore ruxsat xatosi (PERMISSION_DENIED). Xizmat hisobingizga Google Cloud Console -> IAM bo'limida 'Cloud Datastore User' rolini berish talab etiladi.",
-        },
-      };
-    }
-
-    return {
-      error: {
-        code: 'unknown',
-        message: json.message || `Server xatosi (${response.status})`,
-      },
-    };
-
-
+    return { error: mapHttpErrorJson(response.status, json) };
   } catch (err: any) {
     clearTimeout(sleepTimer);
     clearTimeout(timeoutId);
 
-    console.error('Fetch to Render backend failed:', err);
+    console.error(`Fetch to AI endpoint ${endpoint} failed:`, err);
 
     if (err.name === 'AbortError') {
       return {
         error: {
-          code: 'service_unavailable',
+          code: 'gemini_timeout',
           message:
-            "Serverdan javob kutish vaqti tugadi (Timeout). Render bepul serveri hali ishga tushayotgan bo'lishi mumkin. Bir ozdan so'ng qayta urinib ko'ring.",
+            "Serverdan javob kutish vaqti tugadi. Birozdan so'ng qayta urinib ko'ring.",
         },
       };
     }
@@ -303,7 +331,7 @@ async function callRenderBackend(
       error: {
         code: 'service_unavailable',
         message:
-          "Render backend serveri bilan bog'lanib bo'lmadi. Server URL manzili to'g'riligini va ishlayotganini tekshiring: " +
+          "AI backend serveri bilan bog'lanib bo'lmadi. Server ishlayotganini va manzil to'g'riligini tekshiring: " +
           baseUrl,
       },
     };
@@ -311,8 +339,63 @@ async function callRenderBackend(
 }
 
 /**
- * Calls Firebase Cloud Functions callable generateAd
+ * Requests ad generation from the authoritative backend.
+ * Uses Express backend (Render / localhost) if available, or Firebase Cloud Functions callable.
  */
+export async function requestAdGenerationFromBackend(
+  formData: AdFormData & { simulatedTier?: string },
+  onStatusMessage?: (status: string) => void
+): Promise<{ data?: BackendAdResponse; error?: BackendAdError }> {
+  const currentUser = auth?.currentUser;
+  if (!currentUser) {
+    return {
+      error: {
+        code: 'unauthenticated',
+        message: "Tizimga kirmagansiz. Reklama matnini yaratish uchun Google orqali kiring.",
+      },
+    };
+  }
+
+  const baseUrl = resolveBackendBaseUrl();
+  if (baseUrl) {
+    const res = await requestAiFromBackend<typeof formData, BackendAdResponse>(
+      '/api/generate-ad',
+      formData,
+      onStatusMessage
+    );
+    if (res.data) {
+      return {
+        data: {
+          success: true,
+          source: res.data.source || 'gemini',
+          model: res.data.model,
+          adText: res.data.adText,
+          headline: res.data.headline,
+          hashtags: res.data.hashtags,
+          adCount: res.data.adCount,
+          dailyLimit: res.data.dailyLimit,
+          remaining: res.data.remaining,
+          plan: res.data.plan,
+          date: res.data.date,
+        },
+      };
+    }
+    return { error: res.error };
+  }
+
+  if (functions) {
+    return callFirebaseCallable(formData);
+  }
+
+  return {
+    error: {
+      code: 'service_unavailable',
+      message:
+        "Backend web xizmati topilmadi. VITE_BACKEND_API_URL orqali backend URL manzilini sozlang.",
+    },
+  };
+}
+
 async function callFirebaseCallable(
   formData: AdFormData
 ): Promise<{ data?: BackendAdResponse; error?: BackendAdError }> {
@@ -323,7 +406,7 @@ async function callFirebaseCallable(
     );
 
     const result = await generateAdCallable(formData);
-    return { data: result.data };
+    return { data: { ...result.data, source: 'functions' } };
   } catch (err: any) {
     console.error('Firebase callable ad generation failed:', err);
 
@@ -370,7 +453,7 @@ async function callFirebaseCallable(
         error: {
           code: 'service_unavailable',
           message:
-            "Backend xizmati topilmadi. Bepul Render web xizmatini oching va VITE_BACKEND_API_URL manzilini ko'rsating (server/README.md).",
+            "Backend xizmati topilmadi. VITE_BACKEND_API_URL manzilini ko'rsating (server/README.md).",
         },
       };
     }

@@ -5,6 +5,18 @@
  */
 
 import { BusinessDiagnosticsInput, BusinessDiagnosticsResult } from '../types';
+import { BackendAdError, BackendAiEnvelope, requestAiFromBackend } from './adBackendService';
+
+export async function requestBusinessDiagnosticsFromBackend(
+  input: BusinessDiagnosticsInput & { simulatedTier?: string },
+  onStatusMessage?: (status: string) => void
+): Promise<{ data?: BackendAiEnvelope<BusinessDiagnosticsResult>; error?: BackendAdError }> {
+  return requestAiFromBackend<typeof input, BackendAiEnvelope<BusinessDiagnosticsResult>>(
+    '/api/ai/business-diagnostics',
+    input,
+    onStatusMessage
+  );
+}
 
 export function runBusinessDiagnostics(input: BusinessDiagnosticsInput): BusinessDiagnosticsResult {
   const {

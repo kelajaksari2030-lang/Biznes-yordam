@@ -19,8 +19,10 @@ import { AdFormData, AdDraft, PlatformType, ToneType, AdStyleVariant } from '../
 import { useAuth } from '../context/AuthContext';
 import { getUserAdDrafts, saveAdDraft, deleteAdDraft } from '../services/firestore';
 import { requestAdGenerationFromBackend } from '../services/adBackendService';
+import { generateAdText } from '../data/adTemplates';
 import { emitError } from '../utils/errorBus';
 import { OperationType } from '../services/firebase';
+import { readScopedCache, writeScopedCache } from '../utils/userCache';
 
 const AUDIENCE_SUGGESTIONS = [
   'Barcha qiziquvchilar',
@@ -60,17 +62,15 @@ export const AdGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [canUseLocalFallback, setCanUseLocalFallback] = useState(false);
+  const [generationSource, setGenerationSource] = useState<'gemini' | 'functions' | 'local_fallback' | null>(null);
+  const [generationModel, setGenerationModel] = useState<string | null>(null);
   const [generationSuccess, setGenerationSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [savedDrafts, setSavedDrafts] = useState<AdDraft[]>(() => {
-    try {
-      const stored = localStorage.getItem('biznes_saved_drafts');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    return readScopedCache<AdDraft[]>('saved_drafts', user?.uid) || [];
   });
 
   // Check for presets (e.g. from Mahsulot tavsifi or Ijtimoiy tarmoq postlari cards)
@@ -106,12 +106,20 @@ export const AdGenerator: React.FC = () => {
 
   // Synchronize drafts from Firestore on login
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setSavedDrafts([]);
+      return;
+    }
+
+    const cached = readScopedCache<AdDraft[]>('saved_drafts', user.uid);
+    if (cached) {
+      setSavedDrafts(cached);
+    }
 
     let isMounted = true;
     getUserAdDrafts(user.uid)
       .then((docs) => {
-        if (isMounted && docs.length > 0) {
+        if (isMounted) {
           const mapped: AdDraft[] = docs.map((d) => ({
             id: d.id,
             title: d.title,
@@ -121,11 +129,7 @@ export const AdGenerator: React.FC = () => {
             createdAt: d.createdAt,
           }));
           setSavedDrafts(mapped);
-          try {
-            localStorage.setItem('biznes_saved_drafts', JSON.stringify(mapped));
-          } catch {
-            // ignore
-          }
+          writeScopedCache('saved_drafts', user.uid, mapped);
         }
       })
       .catch((err) => {
@@ -135,7 +139,7 @@ export const AdGenerator: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user?.uid]);
 
   const handleInputChange = (field: keyof AdFormData, value: any) => {
     setFormData((prev) => ({
@@ -174,6 +178,7 @@ export const AdGenerator: React.FC = () => {
 
     setStatusMessage(null);
     setGenerationError(null);
+    setCanUseLocalFallback(false);
     setIsGenerating(true);
 
     try {
@@ -187,6 +192,14 @@ export const AdGenerator: React.FC = () => {
 
       if (result.error) {
         setGenerationError(result.error.message);
+        const fallbackEligible = [
+          'gemini_not_configured',
+          'service_unavailable',
+          'gemini_timeout',
+          'gemini_upstream_error',
+          'gemini_invalid_response',
+        ].includes(result.error.code);
+        setCanUseLocalFallback(fallbackEligible);
         emitError({
           error: `Backend Error (${result.error.code}): ${result.error.message}`,
           operationType: OperationType.WRITE,
@@ -195,16 +208,34 @@ export const AdGenerator: React.FC = () => {
         });
       } else if (result.data) {
         setGeneratedDraft(result.data.adText);
+        setHasGenerated(true);
+        setGenerationSource(result.data.source || 'gemini');
+        setGenerationModel(result.data.model || null);
         updateDailyUsageCount(result.data.adCount);
         setGenerationSuccess(true);
         setTimeout(() => setGenerationSuccess(false), 3000);
       }
     } catch (err: any) {
       setGenerationError(err?.message || "Server bilan bog'lanishda xatolik yuz berdi.");
+      setCanUseLocalFallback(true);
     } finally {
       setIsGenerating(false);
       setStatusMessage(null);
     }
+  };
+
+  const handleUseLocalFallback = () => {
+    if (!formData.productName.trim()) {
+      setGenerationError("Mahsulot yoki xizmat nomi ko'rsatilishi shart.");
+      return;
+    }
+    const fallbackText = generateAdText(formData);
+    setGeneratedDraft(fallbackText);
+    setHasGenerated(true);
+    setGenerationSource('local_fallback');
+    setGenerationModel(null);
+    setGenerationError(null);
+    setCanUseLocalFallback(false);
   };
 
   const handleCopyText = async () => {
@@ -233,13 +264,9 @@ export const AdGenerator: React.FC = () => {
     // Save to Firestore under user UID (does not consume generation quota)
     if (user) {
       await saveAdDraft(user.uid, newDraft);
+      writeScopedCache('saved_drafts', user.uid, updated);
     }
 
-    try {
-      localStorage.setItem('biznes_saved_drafts', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
   };
@@ -250,12 +277,7 @@ export const AdGenerator: React.FC = () => {
 
     if (user) {
       await deleteAdDraft(user.uid, id);
-    }
-
-    try {
-      localStorage.setItem('biznes_saved_drafts', JSON.stringify(updated));
-    } catch {
-      // ignore
+      writeScopedCache('saved_drafts', user.uid, updated);
     }
   };
 
@@ -502,11 +524,22 @@ export const AdGenerator: React.FC = () => {
 
           {/* Generation Error Alert */}
           {generationError && (
-            <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#9E2A2B] flex items-start gap-2.5 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-[#9E2A2B] shrink-0 mt-0.5" />
-              <div className="leading-relaxed">
-                <strong>Xatolik:</strong> {generationError}
+            <div className="p-3.5 bg-[#FDF4F4] border border-rose-200 rounded-xl text-xs text-[#9E2A2B] space-y-2.5 animate-in fade-in">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-[#9E2A2B] shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>Xatolik:</strong> {generationError}
+                </div>
               </div>
+              {canUseLocalFallback && (
+                <button
+                  type="button"
+                  onClick={handleUseLocalFallback}
+                  className="w-full py-2 px-3 rounded-lg bg-white hover:bg-[#F6F8F7] text-[#112521] border border-[#E0ECE8] text-xs font-semibold transition-all btn-tactile"
+                >
+                  Mahalliy andoza asosida yaratish (AI siz / Offline rejim)
+                </button>
+              )}
             </div>
           )}
 
@@ -566,11 +599,21 @@ export const AdGenerator: React.FC = () => {
           >
             <div className="flex items-center justify-between gap-2 border-b border-[#E0ECE8] pb-3">
               <div>
-                <h3 className="text-base font-semibold text-[#112521] flex items-center gap-2">
+                <h3 className="text-base font-semibold text-[#112521] flex flex-wrap items-center gap-2">
                   <span>Tayyor reklama qoralamasi</span>
                   <span className="text-[11px] font-medium text-[#173B35] bg-[#D7F0E5] px-2 py-0.5 rounded-lg border border-[#E0ECE8]">
                     {formData.platform === 'telegram' ? 'Telegram format' : 'Instagram format'}
                   </span>
+                  {generationSource === 'gemini' && (
+                    <span className="text-[11px] font-semibold text-[#112521] bg-[#F5B85C]/25 px-2 py-0.5 rounded-lg border border-[#F5B85C]/50">
+                      Gemini AI {generationModel ? `(${generationModel})` : ''}
+                    </span>
+                  )}
+                  {generationSource === 'local_fallback' && (
+                    <span className="text-[11px] font-semibold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-lg border border-amber-200">
+                      Mahalliy andoza (AI siz)
+                    </span>
+                  )}
                 </h3>
                 <p className="text-xs text-[#52796F] mt-0.5">
                   Matnni to'g'ridan-to'g'ri shu yerda tahrirlashingiz mumkin
@@ -625,12 +668,21 @@ export const AdGenerator: React.FC = () => {
             )}
 
             {/* Draft Warning Banner */}
-            <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-start gap-2.5">
-              <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
-              <div className="leading-relaxed">
-                <strong>Eslatma:</strong> Bu tayyor marketing andozasi asosidagi qoralama. Chop etishdan oldin telefon raqamingiz, buyurtma shartlari va aniq narxlarni ko'rib chiqing.
+            {generationSource === 'local_fallback' ? (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>Offline rejim:</strong> Bu matn Gemini AI orqali emas, mahalliy marketing andozasi asosida yaratildi (kunlik AI kvotasi sarflanmadi).
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-[#F5B85C] shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>Eslatma:</strong> {hasGenerated && generationSource === 'gemini' ? 'Matn Gemini AI yordamida yaratildi.' : 'Reklama qoralamasi.'} Chop etishdan oldin telefon raqamingiz, buyurtma shartlari va aniq narxlarni ko'rib chiqing.
+                </div>
+              </div>
+            )}
 
             {/* Editable Output Box */}
             <div className="relative">

@@ -9,7 +9,7 @@ import { Supplier, PurchaseOrder, PurchaseOrderItem } from '../types/modules';
 import { Product } from '../types/inventory';
 import { getSuppliers, createSupplier, getPurchaseOrders, createPurchaseOrder, receivePurchaseOrder } from '../services/supplierService';
 import { getProducts } from '../services/inventoryService';
-import { Building2 as BuildingIcon, Plus as PlusIcon, CheckCircle2 as CheckIcon, Clock as ClockIcon, AlertCircle as AlertIcon, Truck as TruckIcon } from 'lucide-react';
+import { Building2 as BuildingIcon, Plus as PlusIcon, CheckCircle2 as CheckIcon, Clock as ClockIcon, AlertCircle as AlertIcon, Truck as TruckIcon, X } from 'lucide-react';
 
 export function SuppliersModule() {
   const { user } = useAuth();
@@ -169,20 +169,22 @@ export function SuppliersModule() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
+            type="button"
             onClick={() => setIsSupplierModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-white border border-[#173B35] text-[#173B35] hover:bg-[#D7F0E5]/50 font-semibold text-sm flex items-center space-x-2 transition"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-white border border-[#173B35] text-[#173B35] hover:bg-[#D7F0E5]/50 font-semibold text-sm flex items-center space-x-2 transition"
           >
             <BuildingIcon className="w-4 h-4" />
             <span>Yangi Ta'minotchi</span>
           </button>
           <button
+            type="button"
             onClick={() => {
               setIsPoModalOpen(true);
               if (poItems.length === 0) handleAddPoItem();
             }}
-            className="px-4 py-2.5 rounded-xl bg-[#173B35] text-white hover:bg-[#112521] font-semibold text-sm flex items-center space-x-2 transition shadow-sm"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-[#173B35] text-white hover:bg-[#112521] font-semibold text-sm flex items-center space-x-2 transition shadow-sm"
           >
             <PlusIcon className="w-4 h-4" />
             <span>Yangi Xarid Buyurtmasi</span>
@@ -198,10 +200,11 @@ export function SuppliersModule() {
       )}
 
       {/* Tabs */}
-      <div className="flex space-x-2 border-b border-[#E0ECE8]">
+      <div className="flex space-x-2 border-b border-[#E0ECE8] overflow-x-auto scrollbar-none">
         <button
+          type="button"
           onClick={() => setActiveTab('suppliers')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'suppliers'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -210,8 +213,9 @@ export function SuppliersModule() {
           Ta'minotchilar Bazasi ({suppliers.length})
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('orders')}
-          className={`pb-3 px-4 font-semibold text-sm transition border-b-2 ${
+          className={`min-h-[44px] pb-3 px-4 font-semibold text-sm transition border-b-2 whitespace-nowrap ${
             activeTab === 'orders'
               ? 'border-[#173B35] text-[#173B35]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -231,37 +235,62 @@ export function SuppliersModule() {
               <p className="text-xs text-gray-400 mt-1">"Yangi Ta'minotchi" tugmasi orqali qo'shing</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
-                  <tr>
-                    <th className="p-4">Nomi / Kompaniya</th>
-                    <th className="p-4">Telefon</th>
-                    <th className="p-4">Mas'ul Shaxs</th>
-                    <th className="p-4">Qarzdorlik Balansi</th>
-                    <th className="p-4">Sana</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E0ECE8]">
-                  {suppliers.map((s) => (
-                    <tr key={s.id} className="hover:bg-[#F6F8F7]/50">
-                      <td className="p-4 font-semibold text-[#112521]">
-                        {s.name}
-                        {s.companyName && <span className="block text-xs text-gray-500">{s.companyName}</span>}
-                      </td>
-                      <td className="p-4 text-gray-700">{s.phone}</td>
-                      <td className="p-4 text-gray-600">{s.contactPerson || '-'}</td>
-                      <td className="p-4">
-                        <span className={`font-semibold ${s.balancePayable > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                          {s.balancePayable.toLocaleString()} UZS
-                        </span>
-                      </td>
-                      <td className="p-4 text-xs text-gray-400">{new Date(s.createdAt).toLocaleDateString()}</td>
+            <>
+              {/* Mobile Cards */}
+              <div className="md:hidden divide-y divide-[#E0ECE8]">
+                {suppliers.map((s) => (
+                  <div key={s.id} className="p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-bold text-sm text-[#112521]">{s.name}</p>
+                        {s.companyName && <p className="text-xs text-gray-500">{s.companyName}</p>}
+                      </div>
+                      <span className={`text-xs font-bold shrink-0 ${s.balancePayable > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                        {s.balancePayable.toLocaleString()} UZS
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600">
+                      <span>{s.phone}</span>
+                      <span>{s.contactPerson || '-'}</span>
+                      <span className="text-gray-400">{new Date(s.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
+                    <tr>
+                      <th className="p-4">Nomi / Kompaniya</th>
+                      <th className="p-4">Telefon</th>
+                      <th className="p-4">Mas'ul Shaxs</th>
+                      <th className="p-4">Qarzdorlik Balansi</th>
+                      <th className="p-4">Sana</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#E0ECE8]">
+                    {suppliers.map((s) => (
+                      <tr key={s.id} className="hover:bg-[#F6F8F7]/50">
+                        <td className="p-4 font-semibold text-[#112521]">
+                          {s.name}
+                          {s.companyName && <span className="block text-xs text-gray-500">{s.companyName}</span>}
+                        </td>
+                        <td className="p-4 text-gray-700">{s.phone}</td>
+                        <td className="p-4 text-gray-600">{s.contactPerson || '-'}</td>
+                        <td className="p-4">
+                          <span className={`font-semibold ${s.balancePayable > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                            {s.balancePayable.toLocaleString()} UZS
+                          </span>
+                        </td>
+                        <td className="p-4 text-xs text-gray-400">{new Date(s.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -275,63 +304,120 @@ export function SuppliersModule() {
               <p className="font-semibold">Xarid buyurtmalari mavjud emas</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
-                  <tr>
-                    <th className="p-4">PO kodi</th>
-                    <th className="p-4">Ta'minotchi</th>
-                    <th className="p-4">Tovarlar</th>
-                    <th className="p-4">Jami Summa</th>
-                    <th className="p-4">Holat</th>
-                    <th className="p-4 text-right">Amal</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E0ECE8]">
-                  {purchaseOrders.map((po) => (
-                    <tr key={po.id} className="hover:bg-[#F6F8F7]/50">
-                      <td className="p-4 font-bold text-[#173B35]">{po.poNumber}</td>
-                      <td className="p-4 font-medium">{po.supplierName}</td>
-                      <td className="p-4 text-xs text-gray-600">
-                        {po.items.map((i) => `${i.productName} (${i.quantity} ${i.unit || 'dona'})`).join(', ')}
-                      </td>
-                      <td className="p-4 font-semibold">{po.totalAmount.toLocaleString()} UZS</td>
-                      <td className="p-4">
-                        {po.status === 'received' ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                            <CheckIcon className="w-3.5 h-3.5 mr-1" /> Qabul qilingan
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                            <ClockIcon className="w-3.5 h-3.5 mr-1" /> Kutilmoqda
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-4 text-right">
-                        {po.status !== 'received' && (
-                          <button
-                            onClick={() => handleReceivePo(po.id)}
-                            disabled={submitting}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition"
-                          >
-                            Omborga qabul qilish
-                          </button>
-                        )}
-                      </td>
+            <>
+              {/* Mobile Cards */}
+              <div className="md:hidden divide-y divide-[#E0ECE8]">
+                {purchaseOrders.map((po) => (
+                  <div key={po.id} className="p-4 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <span className="font-bold text-sm text-[#173B35]">{po.poNumber}</span>
+                        <p className="text-xs font-medium text-[#112521]">{po.supplierName}</p>
+                      </div>
+                      {po.status === 'received' ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 shrink-0">
+                          <CheckIcon className="w-3.5 h-3.5 mr-1" /> Qabul qilingan
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 shrink-0">
+                          <ClockIcon className="w-3.5 h-3.5 mr-1" /> Kutilmoqda
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      {po.items.map((i) => `${i.productName} (${i.quantity} ${i.unit || 'dona'})`).join(', ')}
+                    </p>
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <span className="font-bold text-sm text-[#112521]">{po.totalAmount.toLocaleString()} UZS</span>
+                      {po.status !== 'received' && (
+                        <button
+                          type="button"
+                          onClick={() => handleReceivePo(po.id)}
+                          disabled={submitting}
+                          className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition"
+                        >
+                          Omborga qabul qilish
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#F6F8F7] text-gray-600 font-semibold border-b border-[#E0ECE8]">
+                    <tr>
+                      <th className="p-4">PO kodi</th>
+                      <th className="p-4">Ta'minotchi</th>
+                      <th className="p-4">Tovarlar</th>
+                      <th className="p-4">Jami Summa</th>
+                      <th className="p-4">Holat</th>
+                      <th className="p-4 text-right">Amal</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#E0ECE8]">
+                    {purchaseOrders.map((po) => (
+                      <tr key={po.id} className="hover:bg-[#F6F8F7]/50">
+                        <td className="p-4 font-bold text-[#173B35]">{po.poNumber}</td>
+                        <td className="p-4 font-medium">{po.supplierName}</td>
+                        <td className="p-4 text-xs text-gray-600">
+                          {po.items.map((i) => `${i.productName} (${i.quantity} ${i.unit || 'dona'})`).join(', ')}
+                        </td>
+                        <td className="p-4 font-semibold">{po.totalAmount.toLocaleString()} UZS</td>
+                        <td className="p-4">
+                          {po.status === 'received' ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                              <CheckIcon className="w-3.5 h-3.5 mr-1" /> Qabul qilingan
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                              <ClockIcon className="w-3.5 h-3.5 mr-1" /> Kutilmoqda
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 text-right">
+                          {po.status !== 'received' && (
+                            <button
+                              type="button"
+                              onClick={() => handleReceivePo(po.id)}
+                              disabled={submitting}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition"
+                            >
+                              Omborga qabul qilish
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
 
       {/* Supplier Modal */}
       {isSupplierModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-[#112521]">Yangi Ta'minotchi Qo'shish</h3>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsSupplierModalOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90dvh] overflow-y-auto overscroll-contain">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-[#112521]">Yangi Ta'minotchi Qo'shish</h3>
+              <button
+                type="button"
+                onClick={() => setIsSupplierModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreateSupplier} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Nomi / Ismi *</label>
@@ -340,18 +426,19 @@ export function SuppliersModule() {
                   required
                   value={supName}
                   onChange={(e) => setSupName(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-[#173B35]"
+                  className="w-full px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#173B35]"
                   placeholder="Masalan: Grand Agro MChJ"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Telefon *</label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="tel"
                   required
                   value={supPhone}
                   onChange={(e) => setSupPhone(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-[#173B35]"
+                  className="w-full px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#173B35]"
                   placeholder="+998 90 123 45 67"
                 />
               </div>
@@ -361,7 +448,7 @@ export function SuppliersModule() {
                   type="text"
                   value={supContact}
                   onChange={(e) => setSupContact(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                   placeholder="Jasur aka"
                 />
               </div>
@@ -369,14 +456,14 @@ export function SuppliersModule() {
                 <button
                   type="button"
                   onClick={() => setIsSupplierModalOpen(false)}
-                  className="px-4 py-2 border rounded-xl text-gray-600 text-sm"
+                  className="min-h-[44px] px-4 py-2 border rounded-xl text-gray-600 text-sm"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
+                  className="min-h-[44px] px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
                 >
                   Saqlash
                 </button>
@@ -388,9 +475,23 @@ export function SuppliersModule() {
 
       {/* PO Modal */}
       {isPoModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-[#112521]">Yangi Xarid Buyurtmasi</h3>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsPoModalOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 max-h-[90dvh] overflow-y-auto overscroll-contain">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-[#112521]">Yangi Xarid Buyurtmasi</h3>
+              <button
+                type="button"
+                onClick={() => setIsPoModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreatePo} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Ta'minotchini Tanlang *</label>
@@ -398,7 +499,7 @@ export function SuppliersModule() {
                   required
                   value={selectedSupplierId}
                   onChange={(e) => setSelectedSupplierId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                 >
                   <option value="">-- Tanlang --</option>
                   {suppliers.map((s) => (
@@ -423,7 +524,7 @@ export function SuppliersModule() {
 
                 <div className="space-y-2">
                   {poItems.map((item, idx) => (
-                    <div key={idx} className="flex items-center space-x-2 bg-[#F6F8F7] p-2 rounded-xl">
+                    <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-[#F6F8F7] p-2.5 rounded-xl">
                       <select
                         value={item.productId}
                         onChange={(e) => {
@@ -432,7 +533,7 @@ export function SuppliersModule() {
                             prev.map((it, i) => (i === idx ? { ...it, productId: val } : it))
                           );
                         }}
-                        className="flex-1 text-xs border p-1.5 rounded-lg bg-white"
+                        className="flex-1 text-xs border p-2 rounded-lg bg-white"
                       >
                         {products.map((p) => (
                           <option key={p.id} value={p.id}>
@@ -440,45 +541,50 @@ export function SuppliersModule() {
                           </option>
                         ))}
                       </select>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => {
-                          const val = Math.max(1, parseInt(e.target.value, 10) || 1);
-                          setPoItems((prev) =>
-                            prev.map((it, i) => (i === idx ? { ...it, quantity: val } : it))
-                          );
-                        }}
-                        className="w-20 text-xs border p-1.5 rounded-lg text-center bg-white"
-                        placeholder="Miqdor"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        value={item.unitCost}
-                        onChange={(e) => {
-                          const val = Math.max(0, parseInt(e.target.value, 10) || 0);
-                          setPoItems((prev) =>
-                            prev.map((it, i) => (i === idx ? { ...it, unitCost: val } : it))
-                          );
-                        }}
-                        className="w-28 text-xs border p-1.5 rounded-lg text-right bg-white"
-                        placeholder="Tannarx (UZS)"
-                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+                            setPoItems((prev) =>
+                              prev.map((it, i) => (i === idx ? { ...it, quantity: val } : it))
+                            );
+                          }}
+                          className="w-20 text-xs border p-2 rounded-lg text-center bg-white"
+                          placeholder="Miqdor"
+                        />
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min="0"
+                          value={item.unitCost}
+                          onChange={(e) => {
+                            const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setPoItems((prev) =>
+                              prev.map((it, i) => (i === idx ? { ...it, unitCost: val } : it))
+                            );
+                          }}
+                          className="flex-1 sm:w-28 text-xs border p-2 rounded-lg text-right bg-white"
+                          placeholder="Tannarx (UZS)"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-[#173B35] mb-1">Dastlabki to'langan summa (UZS)</label>
+                <label className="block text-xs font-semibold text-[#173B35] mb-1">Dastlabki to'langan summa (UZS)</label>
                 <input
                   type="number"
+                  inputMode="numeric"
                   min="0"
                   value={poPaidAmount}
                   onChange={(e) => setPoPaidAmount(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2.5 border rounded-xl"
                   placeholder="0 UZS"
                 />
               </div>
@@ -487,14 +593,14 @@ export function SuppliersModule() {
                 <button
                   type="button"
                   onClick={() => setIsPoModalOpen(false)}
-                  className="px-4 py-2 border rounded-xl text-gray-600 text-sm"
+                  className="min-h-[44px] px-4 py-2 border rounded-xl text-gray-600 text-sm"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
+                  className="min-h-[44px] px-4 py-2 bg-[#173B35] text-white rounded-xl text-sm font-semibold"
                 >
                   Buyurtmani Saqlash
                 </button>

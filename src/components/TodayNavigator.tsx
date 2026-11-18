@@ -17,10 +17,16 @@ import {
   Check,
   Zap,
   Target,
-  Gift
+  Gift,
+  X,
+  AlertCircle,
+  Database,
+  LogIn
 } from 'lucide-react';
 import { TodayNavigatorInput, TodayNavigatorPlan, TodayTaskStep, AvailableTimeOption } from '../types';
-import { generateTodayPlan } from '../services/todayNavigatorService';
+import { generateTodayPlan, requestTodayPlanFromBackend } from '../services/todayNavigatorService';
+import { useAuth } from '../context/AuthContext';
+import { readScopedCache, writeScopedCache, removeScopedCache } from '../utils/userCache';
 
 const PRESETS = [
   {
@@ -69,6 +75,7 @@ const TIME_OPTIONS: { id: AvailableTimeOption; label: string; desc: string }[] =
 ];
 
 export const TodayNavigator: React.FC = () => {
+  const { user, currentPlan, dailyUsage, updateDailyUsageCount, signInWithGoogle, isAdmin, simulatedTier } = useAuth();
   const [formData, setFormData] = useState<TodayNavigatorInput>({
     businessType: "Kiyim va poyabzal do'koni",
     mainProblem: "Bugun savdo sust, mijozlar deyarli yo'q",
@@ -79,30 +86,31 @@ export const TodayNavigator: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [canUseFallback, setCanUseFallback] = useState(false);
+  const [planSource, setPlanSource] = useState<'gemini' | 'local_fallback' | null>(null);
+  const [planModel, setPlanModel] = useState<string | null>(null);
   const [activePlan, setActivePlan] = useState<TodayNavigatorPlan | null>(null);
   const [copied, setCopied] = useState(false);
   const [copiedStepId, setCopiedStepId] = useState<string | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
-  // Load existing plan from localStorage on mount
+  // Load existing scoped plan when user changes
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('biznes_today_navigator_plan');
-      if (stored) {
-        const parsed = JSON.parse(stored) as TodayNavigatorPlan;
-        setActivePlan(parsed);
-      }
-    } catch {
-      // Ignore parse errors
+    if (!user?.uid) {
+      setActivePlan(null);
+      return;
     }
-  }, []);
+    const stored = readScopedCache<TodayNavigatorPlan>('today_navigator_plan', user.uid);
+    setActivePlan(stored || null);
+  }, [user?.uid]);
 
   // Save changes to active plan (e.g. checkbox state)
   const updatePlanInStorage = (updatedPlan: TodayNavigatorPlan) => {
     setActivePlan(updatedPlan);
-    try {
-      localStorage.setItem('biznes_today_navigator_plan', JSON.stringify(updatedPlan));
-    } catch {
-      // Ignore storage errors
+    if (user?.uid) {
+      writeScopedCache('today_navigator_plan', user.uid, updatedPlan);
     }
   };
 
@@ -117,19 +125,81 @@ export const TodayNavigator: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const adCount = dailyUsage?.adCount || 0;
+  const isLimitReached = adCount >= currentPlan.dailyAdLimit;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.businessType.trim() || !formData.mainProblem.trim() || !formData.todayGoal.trim()) {
       return;
     }
 
+    if (!user) {
+      setAiError("Gemini AI yordamida bugungi rejani tuzish uchun Google orqali tizimga kiring.");
+      setCanUseFallback(true);
+      return;
+    }
+
+    if (isLimitReached) {
+      setAiError(
+        `Bugun uchun belgilangan kunlik ${currentPlan.dailyAdLimit} ta AI so'rov limiti to'ldi (${currentPlan.name}). Yangi kvota ertaga Toshkent vaqti bilan 00:00 da yangilanadi.`
+      );
+      setCanUseFallback(false);
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      const plan = generateTodayPlan(formData);
-      updatePlanInStorage(plan);
+    setAiError(null);
+    setStatusMessage(null);
+    setCanUseFallback(false);
+
+    try {
+      const response = await requestTodayPlanFromBackend(
+        {
+          ...formData,
+          simulatedTier: isAdmin && simulatedTier !== 'admin' ? simulatedTier : undefined,
+        },
+        (msg) => setStatusMessage(msg)
+      );
+
+      if (response.error) {
+        setAiError(response.error.message);
+        setCanUseFallback(
+          [
+            'gemini_not_configured',
+            'service_unavailable',
+            'gemini_timeout',
+            'gemini_upstream_error',
+            'gemini_invalid_response',
+          ].includes(response.error.code)
+        );
+      } else if (response.data?.data) {
+        setPlanSource('gemini');
+        setPlanModel(response.data.model || null);
+        updateDailyUsageCount(response.data.adCount);
+        updatePlanInStorage(response.data.data);
+        window.scrollTo({ top: 380, behavior: 'smooth' });
+      }
+    } catch (err: any) {
+      setAiError(err?.message || "Server bilan bog'lanishda xatolik yuz berdi.");
+      setCanUseFallback(true);
+    } finally {
       setLoading(false);
-      window.scrollTo({ top: 380, behavior: 'smooth' });
-    }, 400);
+      setStatusMessage(null);
+    }
+  };
+
+  const handleRunFallbackPlan = () => {
+    if (!formData.businessType.trim() || !formData.mainProblem.trim() || !formData.todayGoal.trim()) {
+      return;
+    }
+    const plan = generateTodayPlan(formData);
+    setPlanSource('local_fallback');
+    setPlanModel(null);
+    setAiError(null);
+    setCanUseFallback(false);
+    updatePlanInStorage(plan);
+    window.scrollTo({ top: 380, behavior: 'smooth' });
   };
 
   // Toggle step completion status
@@ -151,15 +221,16 @@ export const TodayNavigator: React.FC = () => {
 
   // Reset plan for a new day
   const handleResetForNewDay = () => {
-    if (window.confirm("Yangi kun uchun rejalashtirishni xohlaysizmi? Oldingi reja yangilanadi.")) {
-      try {
-        localStorage.removeItem('biznes_today_navigator_plan');
-      } catch {
-        // Ignore
-      }
-      setActivePlan(null);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsResetConfirmOpen(true);
+  };
+
+  const executeResetForNewDay = () => {
+    if (user?.uid) {
+      removeScopedCache('today_navigator_plan', user.uid);
     }
+    setActivePlan(null);
+    setIsResetConfirmOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Copy full plan to clipboard for Telegram/Notes
@@ -251,15 +322,24 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
             </div>
           </div>
 
-          {activePlan && (
-            <button
-              onClick={handleResetForNewDay}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#173B35] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-xl transition-all btn-tactile shrink-0"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#F5B85C]" />
-              <span>Yangi kun uchun rejalashtirish</span>
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="inline-flex items-center gap-1.5 bg-[#F6F8F7] border border-[#E0ECE8] px-3 py-1.5 rounded-xl text-xs text-[#52796F]">
+              <Database className="w-3.5 h-3.5 text-[#F5B85C]" />
+              <span>
+                Kunlik AI: <strong className="text-[#112521] font-mono">{adCount} / {currentPlan.dailyAdLimit}</strong>
+              </span>
+            </div>
+
+            {activePlan && (
+              <button
+                onClick={handleResetForNewDay}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#173B35] bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] rounded-xl transition-all btn-tactile shrink-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#F5B85C]" />
+                <span>Yangi kun uchun rejalashtirish</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Quick Presets */}
@@ -402,6 +482,43 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
           </div>
         </div>
 
+        {statusMessage && (
+          <div className="p-3 bg-[#F6F8F7] border border-[#E0ECE8] rounded-xl text-xs text-[#173B35] flex items-center gap-2">
+            <div className="w-3.5 h-3.5 border-2 border-[#F5B85C] border-t-transparent rounded-full animate-spin shrink-0" />
+            <span>{statusMessage}</span>
+          </div>
+        )}
+
+        {aiError && (
+          <div className="p-3.5 bg-[#FDF4F4] border border-rose-200 rounded-xl text-xs text-[#9E2A2B] space-y-2.5">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-[#9E2A2B] shrink-0 mt-0.5" />
+              <span className="leading-relaxed"><strong>Xatolik:</strong> {aiError}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {!user && (
+                <button
+                  type="button"
+                  onClick={signInWithGoogle}
+                  className="px-3 py-1.5 rounded-lg bg-[#F5B85C] hover:bg-[#E5A749] text-[#112521] font-semibold text-xs inline-flex items-center gap-1.5 btn-tactile"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Google orqali kirish</span>
+                </button>
+              )}
+              {canUseFallback && (
+                <button
+                  type="button"
+                  onClick={handleRunFallbackPlan}
+                  className="px-3 py-1.5 rounded-lg bg-white hover:bg-[#F6F8F7] text-[#112521] border border-[#E0ECE8] font-semibold text-xs btn-tactile"
+                >
+                  Mahalliy reja tuzish (AI siz / Offline rejim)
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className="pt-2">
           <button
@@ -412,7 +529,7 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
             {loading ? (
               <>
                 <div className="w-4 h-4 border-2 border-[#112521] border-t-transparent rounded-full animate-spin" />
-                <span>Bugungi harakatlar rejasi hisoblanmoqda...</span>
+                <span>Gemini AI rejani hisoblamoqda...</span>
               </>
             ) : (
               <>
@@ -428,17 +545,31 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
       {/* PLAN OUTPUT DISPLAY */}
       {activePlan && (
         <div className="space-y-6 animate-fadeIn">
+          {planSource === 'local_fallback' && (
+            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="leading-relaxed">
+                <strong>Offline rejim:</strong> Ushbu kunlik reja Gemini AI orqali emas, mahalliy qoidalar asosida tuzildi (kunlik AI kvotasi sarflanmadi).
+              </p>
+            </div>
+          )}
+
           {/* Header Action Banner */}
           <div 
             className="scroll-reveal bg-[#112521] text-white rounded-3xl p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
             style={{ '--reveal-delay': '40ms' } as React.CSSProperties}
           >
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#F5B85C]">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#F5B85C]">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>{activePlan.dateFormatted}</span>
                 <span>•</span>
                 <span>Vaqt: {activePlan.input.availableTime}</span>
+                {planSource === 'gemini' && (
+                  <span className="px-2 py-0.5 rounded-full bg-[#F5B85C]/20 border border-[#F5B85C]/40 text-[#F5B85C] text-[10px] font-semibold">
+                    Gemini AI {planModel ? `(${planModel})` : ''}
+                  </span>
+                )}
               </div>
               <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 text-[#F6F8F7]">
                 Bugungi amaliy ishlar rejasi
@@ -751,6 +882,48 @@ Tekshiruv savoli: ${activePlan.endOfDaySuccessMetrics.verificationQuestion}
                 <span className="font-bold text-[#112521] block mb-1">🛡️ Reja to'liq bajarilmagandagi tahlil:</span>
                 <p className="text-[#52796F]">{activePlan.endOfDaySuccessMetrics.fallbackAssessment}</p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Plan Confirmation Modal */}
+      {isResetConfirmOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-[#251A14]/50 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsResetConfirmOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-modal border border-[#E0ECE8] space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#112521]">Yangi kun rejasi</h3>
+              <button
+                type="button"
+                onClick={() => setIsResetConfirmOpen(false)}
+                className="p-1.5 rounded-lg text-[#52796F] hover:text-[#112521]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs sm:text-sm text-[#52796F] leading-relaxed">
+              Yangi kun uchun rejalashtirishni xohlaysizmi? Hozirgi faol reja va bajarilgan qadamlar tozalanadi.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsResetConfirmOpen(false)}
+                className="min-h-[44px] px-4 py-2 text-xs font-medium text-[#52796F] border border-[#E0ECE8] hover:bg-[#F6F8F7] rounded-xl transition-colors"
+              >
+                Bekor qilish
+              </button>
+              <button
+                type="button"
+                onClick={executeResetForNewDay}
+                className="min-h-[44px] px-4 py-2 text-xs font-semibold text-white bg-[#112521] hover:bg-[#173B35] rounded-xl transition-colors"
+              >
+                Yangilash
+              </button>
             </div>
           </div>
         </div>

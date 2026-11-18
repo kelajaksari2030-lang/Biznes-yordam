@@ -7,6 +7,18 @@
  */
 
 import { TodayNavigatorInput, TodayNavigatorPlan, TodayTaskStep } from '../types';
+import { BackendAdError, BackendAiEnvelope, requestAiFromBackend } from './adBackendService';
+
+export async function requestTodayPlanFromBackend(
+  input: TodayNavigatorInput & { simulatedTier?: string },
+  onStatusMessage?: (status: string) => void
+): Promise<{ data?: BackendAiEnvelope<TodayNavigatorPlan>; error?: BackendAdError }> {
+  return requestAiFromBackend<typeof input, BackendAiEnvelope<TodayNavigatorPlan>>(
+    '/api/ai/today-navigator',
+    input,
+    onStatusMessage
+  );
+}
 
 export function generateTodayPlan(input: TodayNavigatorInput): TodayNavigatorPlan {
   const business = (input.businessType || '').trim();

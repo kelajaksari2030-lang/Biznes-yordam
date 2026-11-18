@@ -8,6 +8,18 @@
  */
 
 import { AdLabInput, AdLabResult, AdLabStrategy, AdLabMetricComparison } from '../types';
+import { BackendAdError, BackendAiEnvelope, requestAiFromBackend } from './adBackendService';
+
+export async function requestAdLabFromBackend(
+  input: AdLabInput & { simulatedTier?: string },
+  onStatusMessage?: (status: string) => void
+): Promise<{ data?: BackendAiEnvelope<AdLabResult>; error?: BackendAdError }> {
+  return requestAiFromBackend<typeof input, BackendAiEnvelope<AdLabResult>>(
+    '/api/ai/ad-lab',
+    input,
+    onStatusMessage
+  );
+}
 
 export function runAdLabExperiment(input: AdLabInput): AdLabResult {
   const {

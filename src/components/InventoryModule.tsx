@@ -39,6 +39,7 @@ import { formatUzbekSom, formatNumber } from '../utils/numberFormat';
 import { getBusinessProfile } from '../services/businessService';
 import { ModuleHelpGuide, HelpGuideButton, HelpStep } from './ModuleHelpGuide';
 import { ProductCsvImportModal } from './ProductCsvImportModal';
+import { writeScopedCache } from '../utils/userCache';
 
 export const InventoryModule: React.FC = () => {
   const { user } = useAuth();
@@ -120,11 +121,7 @@ export const InventoryModule: React.FC = () => {
       .then((data) => {
         if (isMounted) {
           setProducts(data);
-          try {
-            localStorage.setItem('biznes_inventory_cache', JSON.stringify(data));
-          } catch {
-            // ignore
-          }
+          writeScopedCache('inventory', user.uid, data);
         }
       })
       .catch((err) => {
@@ -222,11 +219,7 @@ export const InventoryModule: React.FC = () => {
         const updated = editingProduct
           ? prev.map((p) => (p.id === saved.id ? saved : p))
           : [saved, ...prev];
-        try {
-          localStorage.setItem('biznes_inventory_cache', JSON.stringify(updated));
-        } catch {
-          // ignore
-        }
+        writeScopedCache('inventory', user.uid, updated);
         return updated;
       });
 
@@ -278,11 +271,7 @@ export const InventoryModule: React.FC = () => {
             p.sku !== prod.id &&
             (prod.sku ? p.sku.toLowerCase() !== prod.sku.toLowerCase() && p.id.toLowerCase() !== prod.sku.toLowerCase() : true)
         );
-        try {
-          localStorage.setItem('biznes_inventory_cache', JSON.stringify(updated));
-        } catch {
-          // ignore
-        }
+        writeScopedCache('inventory', user.uid, updated);
         return updated;
       });
       setFeedbackMessage({
@@ -928,12 +917,13 @@ export const InventoryModule: React.FC = () => {
                   </label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     step="any"
                     value={purchasePrice}
                     onChange={(e) => setPurchasePrice(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="Masalan: 120000"
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                     required
                   />
                 </div>
@@ -944,12 +934,13 @@ export const InventoryModule: React.FC = () => {
                   </label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     step="any"
                     value={sellingPrice}
                     onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="Masalan: 210000"
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                     required
                   />
                 </div>
@@ -963,11 +954,12 @@ export const InventoryModule: React.FC = () => {
                   </label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     min="0"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="Masalan: 50"
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                     required
                   />
                 </div>
@@ -979,7 +971,7 @@ export const InventoryModule: React.FC = () => {
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value as ProductUnit)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
+                    className="w-full px-3 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm text-[#112521] bg-[#F6F8F7]"
                   >
                     {PRODUCT_UNITS.map((u) => (
                       <option key={u.id} value={u.id}>
@@ -995,11 +987,12 @@ export const InventoryModule: React.FC = () => {
                   </label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     min="0"
                     value={minStockAlert}
                     onChange={(e) => setMinStockAlert(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="5"
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E0ECE8] focus:border-[#112521] outline-none text-sm font-mono text-[#112521] bg-[#F6F8F7]"
                     required
                   />
                 </div>
@@ -1256,6 +1249,7 @@ export const InventoryModule: React.FC = () => {
           if (user) {
             getProducts(user.uid).then((data) => {
               setProducts(data);
+              writeScopedCache('inventory', user.uid, data);
             });
           }
         }}

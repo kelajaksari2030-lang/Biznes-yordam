@@ -115,7 +115,7 @@ export function printReceipt(
   order: Order,
   companyName: string = 'BESTO Market',
   config: PrinterConfig = DEFAULT_PRINTER_CONFIG
-): void {
+): { success: boolean; error?: string } {
   const widthClass = config.receiptWidth === '58mm' ? 'max-w-[58mm]' : 'max-w-[80mm]';
   const formattedItems = order.items
     .map(
@@ -130,8 +130,10 @@ export function printReceipt(
 
   const printWindow = window.open('', '_blank', 'width=400,height=600');
   if (!printWindow) {
-    alert("Printer oynasini ochishga blokirovka o'rnatilgan. Brauzerda pop-up ga ruxsat bering.");
-    return;
+    return {
+      success: false,
+      error: "Printer oynasini ochish brauzer tomonidan bloklandi. Brauzerda pop-up oynalarga ruxsat bering.",
+    };
   }
 
   const htmlContent = `
@@ -193,4 +195,5 @@ export function printReceipt(
 
   printWindow.document.write(htmlContent);
   printWindow.document.close();
+  return { success: true };
 }

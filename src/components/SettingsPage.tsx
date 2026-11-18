@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { AppSettings } from '../types/modules';
 import { getAppSettings, saveAppSettings, exportUserDataBundle } from '../services/settingsService';
-import { sendTelegramMessage } from '../services/telegramService';
+import { sendTelegramMessage, saveTelegramConfig } from '../services/telegramService';
 import { BestoTelegramBotCard } from './BestoTelegramBotCard';
 import {
   User,
@@ -42,15 +42,13 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [activeSection, setActiveSection] = useState<
     'profile' | 'subscription' | 'appearance' | 'telegram' | 'security' | 'business' | 'data' | 'help'
   >('profile');
 
   // Telegram test state
   const [testStatus, setTestStatus] = useState<string | null>(null);
-  // Delete account confirmation modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -62,14 +60,19 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
   const handleSaveSettings = async (updates: Partial<AppSettings>) => {
     if (!user || !settings) return;
     setSubmitting(true);
-    setMessage(null);
+    setFeedback(null);
     try {
       const updated = await saveAppSettings(user.uid, updates);
+      if (updates.telegramConfig) {
+        await saveTelegramConfig(user.uid, updates.telegramConfig).catch(() => {
+          // Non-blocking sync to dedicated telegramConfig doc
+        });
+      }
       setSettings(updated);
-      setMessage("Sozlamalar muvaffaqiyatli saqlandi!");
-      setTimeout(() => setMessage(null), 3000);
+      setFeedback({ type: 'success', text: "Sozlamalar muvaffaqiyatli saqlandi!" });
+      setTimeout(() => setFeedback(null), 3000);
     } catch (err: any) {
-      setMessage(err.message);
+      setFeedback({ type: 'error', text: err?.message || "Sozlamalarni saqlashda xatolik yuz berdi" });
     } finally {
       setSubmitting(false);
     }
@@ -95,6 +98,7 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
 
   const handleExportData = async () => {
     if (!user) return;
+    setFeedback(null);
     try {
       const bundle = await exportUserDataBundle(user.uid);
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(bundle, null, 2));
@@ -104,8 +108,9 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+      setFeedback({ type: 'success', text: "Barcha ma'lumotlaringiz JSON fayl sifatida yuklab olindi." });
     } catch (err: any) {
-      alert(`Ma'lumotlarni eksport qilishda xatolik: ${err.message}`);
+      setFeedback({ type: 'error', text: `Ma'lumotlarni eksport qilishda xatolik: ${err?.message || 'Noma\'lum xato'}` });
     }
   };
 
@@ -137,25 +142,59 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
         </div>
       </div>
 
-      {message && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center space-x-2">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span>{message}</span>
+      {feedback && (
+        <div
+          className={`p-4 rounded-xl border text-sm flex items-center space-x-2 ${
+            feedback.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          {feedback.type === 'success' ? (
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+          ) : (
+            <AlertCircle className="w-5 h-5 shrink-0" />
+          )}
+          <span>{feedback.text}</span>
         </div>
       )}
 
+      {/* Mobile Horizontal Quick Section Bar */}
+      <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeSection === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setActiveSection(item.id)}
+              className={`shrink-0 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition ${
+                isActive
+                  ? 'bg-[#173B35] text-white border-[#173B35] shadow-xs'
+                  : 'bg-white text-gray-700 border-[#E0ECE8] hover:bg-[#F6F8F7]'
+              }`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? 'text-[#F5B85C]' : 'text-gray-500'}`} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Main Settings Layout: Left Nav + Right Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Navigation Menu */}
-        <div className="bg-white p-3 rounded-2xl border border-[#E0ECE8] shadow-sm space-y-1 h-fit">
+        {/* Desktop Left Navigation Menu */}
+        <div className="hidden lg:block bg-white p-3 rounded-2xl border border-[#E0ECE8] shadow-sm space-y-1 h-fit">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
             return (
               <button
                 key={item.id}
+                type="button"
                 onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl text-xs font-semibold transition ${
+                className={`w-full flex items-center justify-between p-3 min-h-[44px] rounded-xl text-xs font-semibold transition ${
                   isActive
                     ? 'bg-[#173B35] text-white shadow-sm'
                     : 'text-gray-700 hover:bg-[#F6F8F7]'
@@ -172,7 +211,7 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
         </div>
 
         {/* Right Section Content */}
-        <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-[#E0ECE8] shadow-sm space-y-6">
+        <div className="lg:col-span-3 bg-white p-5 sm:p-6 rounded-2xl border border-[#E0ECE8] shadow-sm space-y-6">
           {/* SECTION 1: Profile */}
           {activeSection === 'profile' && (
             <div className="space-y-5">
@@ -305,6 +344,7 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Telegram Chat ID</label>
                   <input
                     type="text"
+                    inputMode="numeric"
                     value={settings.telegramConfig.chatId}
                     onChange={(e) =>
                       setSettings((prev) =>
@@ -317,12 +357,12 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
                       )
                     }
                     placeholder="987654321"
-                    className="w-full px-3 py-2 border rounded-xl font-mono text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] border rounded-xl font-mono text-xs"
                   />
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700">
+                  <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 min-h-[36px] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={settings.telegramConfig.enabled}
@@ -348,20 +388,21 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
                   </div>
                 )}
 
-                <div className="flex space-x-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                   <button
                     type="button"
                     onClick={handleTestTelegram}
-                    className="px-4 py-2 border border-[#173B35] text-[#173B35] text-xs font-bold rounded-xl hover:bg-[#D7F0E5]/50"
+                    className="px-4 py-2.5 min-h-[44px] border border-[#173B35] text-[#173B35] text-xs font-bold rounded-xl hover:bg-[#D7F0E5]/50"
                   >
                     Aloqani Sinash (Test Message)
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSaveSettings({ telegramConfig: settings.telegramConfig })}
-                    className="px-4 py-2 bg-[#173B35] text-white text-xs font-bold rounded-xl"
+                    disabled={submitting}
+                    className="px-4 py-2.5 min-h-[44px] bg-[#173B35] text-white text-xs font-bold rounded-xl disabled:opacity-50"
                   >
-                    Saqlash
+                    {submitting ? 'Saqlanmoqda...' : 'Saqlash'}
                   </button>
                 </div>
               </div>
@@ -410,9 +451,13 @@ export function SettingsPage({ onOpenPricing, onOpenBusinessProfile }: SettingsP
                   <label className="block text-xs font-semibold text-gray-600 mb-1">QQS / Soliq Foizi (%)</label>
                   <input
                     type="number"
+                    inputMode="numeric"
+                    min="0"
+                    max="100"
+                    step="0.5"
                     value={settings.taxPercent}
                     onChange={(e) => handleSaveSettings({ taxPercent: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border rounded-xl text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] border rounded-xl text-xs"
                   />
                 </div>
               </div>

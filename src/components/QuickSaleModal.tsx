@@ -591,13 +591,14 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                className="w-7 h-7 rounded-lg bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] flex items-center justify-center font-bold text-sm text-[#173B35] btn-tactile"
+                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] flex items-center justify-center font-bold text-sm text-[#173B35] btn-tactile"
                                 aria-label="Kamaytirish"
                               >
                                 -
                               </button>
                               <input
                                 type="number"
+                                inputMode="decimal"
                                 min="1"
                                 value={item.quantity || ''}
                                 onChange={(e) => {
@@ -624,12 +625,12 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                                     updateQuantity(item.product.id, 1);
                                   }
                                 }}
-                                className="w-12 text-center font-mono font-bold text-xs py-1 border border-[#E0ECE8] rounded-lg"
+                                className="w-14 text-center font-mono font-bold text-xs py-1.5 border border-[#E0ECE8] rounded-lg"
                               />
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                className="w-7 h-7 rounded-lg bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] flex items-center justify-center font-bold text-sm text-[#173B35] btn-tactile"
+                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg bg-[#F6F8F7] hover:bg-[#E0ECE8] border border-[#E0ECE8] flex items-center justify-center font-bold text-sm text-[#173B35] btn-tactile"
                                 aria-label="Ko'paytirish"
                               >
                                 +
@@ -752,7 +753,7 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({
                       type="button"
                       onClick={handleFinalizeSale}
                       disabled={isSubmitting || cart.length === 0 || stockErrors.length > 0}
-                      className="w-full py-3 rounded-2xl bg-[#173B35] hover:bg-[#112521] text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 btn-tactile cursor-pointer"
+                      className="w-full min-h-[44px] py-3 rounded-2xl bg-[#173B35] hover:bg-[#112521] text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 btn-tactile cursor-pointer"
                     >
                       {isSubmitting ? (
                         <>
