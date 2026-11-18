@@ -10,6 +10,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { initializeApp, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { resolveActivePaidPlan } from './subscriptionAuthorization';
 import {
   getTashkentDateKey,
   PLAN_DAILY_LIMITS,
@@ -89,11 +90,13 @@ export const generateAd = onCall(
         if (userSnap.exists) {
           const profileData = userSnap.data();
           const plan = profileData?.currentPlan;
-          if (
-            (plan === 'pro' || plan === 'ultra') &&
-            profileData?.subscriptionStatus !== 'expired'
-          ) {
-            userPlan = plan;
+          const activePaidPlan = resolveActivePaidPlan(
+            plan,
+            profileData?.subscriptionStatus,
+            profileData?.planExpiresAt
+          );
+          if (activePaidPlan) {
+            userPlan = activePaidPlan;
           }
         }
 

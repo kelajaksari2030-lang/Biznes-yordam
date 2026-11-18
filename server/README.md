@@ -54,10 +54,11 @@ Xuddi shu sahifada yoki ochilgan xizmatning **Environment** bo'limida quyidagi o
 | :--- | :--- | :--- |
 | `NODE_ENV` | `production` | Ha |
 | `PORT` | `10000` (Render o'zi avtomatik ham o'rnatadi) | Ha |
-| `CORS_ORIGIN` | `*` (yoki frontend domeningiz manzili) | Ha |
+| `CORS_ORIGIN` | Frontend domen(lar)i, vergul bilan ajratiladi; `*` ishlatmang | Ha |
 | `FIREBASE_PROJECT_ID` | `gen-lang-client-0498548617` | Ha |
 | `FIRESTORE_DATABASE_ID` | `ai-studio-biznesyordam-e0d6389f-9af4-4469-a3e0-1826035a54fd` | Ha |
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | 1-qadamda yuklab olingan `.json` fayl ichidagi barcha matn | **Ha (A varianti)** |
+| `ADMIN_UIDS` | Backend admin huquqi uchun Firebase Auth UID(lar), vergul bilan ajratiladi | Yo'q (ixtiyoriy) |
 
 *(Agar telefoningizda butun JSON ni nusxalash qiyin bo'lsa, JSON ichidagi `client_email` ni `FIREBASE_CLIENT_EMAIL`, va `private_key` ni `FIREBASE_PRIVATE_KEY` o'zgaruvchilariga alohida ham kiritishingiz mumkin).*
 
@@ -87,3 +88,13 @@ Shundan so'ng frontenddagi "Reklama matnini yaratish" tugmasi avtomatik tarzda R
 - **Uyqu rejimi**: Render'ning bepul veb-xizmatlari 15 daqiqa davomida hech kim kirmasa, resurs tejash uchun avtomatik "uyqu" (spin down) holatiga o'tadi.
 - **Uyg'onish vaqti**: 15 daqiqadan so'ng kimdir birinchi marta reklama yaratmoqchi bo'lsa, server uyg'onishi uchun taxminan **30-50 soniya** vaqt oladi.
 - BiznesYordam frontendida ushbu holat uchun maxsus qulay bildirishnoma tayyorlangan — mijoz kutib tursa, server uyg'ongach so'rov muvaffaqiyatli bajariladi va keyingi barcha so'rovlar soniyaning ulushlarida tez ishlaydi.
+
+
+### Admin huquqlarini xavfsiz sozlash
+
+Admin vakolati endi email manziliga qarab berilmaydi. Firestore qoidalarida faqat Firebase Admin SDK tomonidan serverda berilgan `admin: true` custom claim qabul qilinadi. Backenddagi `ADMIN_UIDS` vergul bilan ajratilgan Firebase Authentication UID'lari orqali backend kvota/simulyatsiya huquqini beradi. `FIREBASE_ADMIN_CLAIM_UIDS` esa faqat server operatori belgilagan UID'larga backend ishga tushganda `admin: true` custom claim beradi va mavjud boshqa claim'larni saqlaydi. Bu ro'yxatni faqat ishonchli administrator UID'lari bilan to'ldiring; ro'yxatdan UID olib tashlash avval berilgan claim'ni avtomatik bekor qilmaydi. `SUBSCRIPTION_AUDIT_ON_BOOT=true` esa mavjud Pro/Ultra profillarini faqat o'qib, muddati yo'q/noto'g'ri/o'tgan yozuvlar sonini UID va shaxsiy ma'lumotlarni chiqarmasdan Render logiga chiqaradi. Tekshiruvdan keyin ushbu o'zgaruvchini o'chiring. UID'ni Firebase Console → Authentication → Users bo'limidan olish mumkin. Hech qachon email yoki client-editable Firestore profil maydonidan admin huquqi sifatida foydalanmang.
+
+
+### CORS ruxsat etilgan domenlari
+
+`CORS_ORIGIN` qiymatiga frontendning aniq origin manzilini kiriting (masalan, `https://sizning-frontend.onrender.com`). Bir nechta domen bo'lsa, vergul bilan ajrating. Brauzer so'rovlari ro'yxatda bo'lmagan originlardan CORS orqali ruxsat olmaydi. Render va AI Studio Preview domenlari o'zgarsa, ularni alohida ro'yxatga kiriting.

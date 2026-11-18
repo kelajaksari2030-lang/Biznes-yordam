@@ -23,23 +23,33 @@ import {
   NAMED_DATABASE_ID,
   PROJECT_ID,
   adminDb,
+  adminAuth,
   serviceAccountEmail,
 } from './firebaseAdmin.js';
 
 import { AdFormData } from './adGenerator.js';
+import { provisionAdminClaims } from './adminClaimProvisioning.js';
+import { auditPaidSubscriptionProfiles } from './subscriptionDataAudit.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+const ALLOWED_CORS_ORIGINS = new Set(
+  (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
 
 // Middlewares
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow all requesting origins (AI Studio Preview, Render Static Site, etc.)
-      return callback(null, true);
+      // Requests without an Origin header are typically server-to-server or local health checks.
+      if (!origin) return callback(null, true);
+      // Browser origins must be explicitly allowlisted in CORS_ORIGIN (comma-separated).
+      return callback(null, ALLOWED_CORS_ORIGINS.has(origin));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -175,7 +185,7 @@ app.post(
     };
 
     try {
-      const result = await enforceQuotaAndGenerateAd(userId, formData);
+      const result = await enforceQuotaAndGenerateAd(userId, formData, req.user?.admin === true);
 
       return res.status(200).json({
         success: true,
@@ -231,6 +241,28 @@ app.post(
     }
   }
 );
+
+if (isFirebaseAdminInitialized) {
+  void provisionAdminClaims(adminAuth, process.env.FIREBASE_ADMIN_CLAIM_UIDS)
+    .then(({ updated, unchanged }) => {
+      if (updated || unchanged) {
+        console.log(`[Admin Claim Provisioning] updated=${updated}, unchanged=${unchanged}`);
+      }
+    })
+    .catch((error) => {
+      console.error('[Admin Claim Provisioning] Failed to provision configured admin claims:', error);
+    });
+}
+
+if (isFirebaseAdminInitialized && process.env.SUBSCRIPTION_AUDIT_ON_BOOT === 'true') {
+  void auditPaidSubscriptionProfiles(adminDb)
+    .then((summary) => {
+      console.log(`[Subscription Data Audit] ${JSON.stringify(summary)}`);
+    })
+    .catch((error) => {
+      console.error('[Subscription Data Audit] Read-only audit failed:', error);
+    });
+}
 
 app.listen(PORT, () => {
   console.log(`[BiznesYordam Backend] Server listening on port ${PORT}`);

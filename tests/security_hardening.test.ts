@@ -1,11 +1,13 @@
+import { isAdminUser, parseAdminUids } from '../server/src/adminAuthorization.js';
+
 /**
  * BiznesYordam - Security Hardening Test Suite (SEC-01 & SEC-02)
  *
  * Verifies:
  * 1. SEC-01: Custom claim `admin == true` grants plan update privileges in security rule logic.
- * 2. SEC-01: Legacy admin email `kelajaksari2030@gmail.com` fallback remains supported during migration.
+ * 2. SEC-01: Email claims alone never grant admin privileges.
  * 3. SEC-01: Non-admin users cannot write or escalate plan/subscription fields.
- * 4. SEC-01: Client-side spoof attempts without admin claims or admin email fail authorization checks.
+ * 4. SEC-01: Client-side spoof attempts without a server-assigned admin claim fail authorization checks.
  * 5. SEC-02: Connection probe `/test/connection` denies unauthenticated reads.
  * 6. SEC-02: Connection probe `/test/connection` allows authenticated reads.
  */
@@ -45,10 +47,7 @@ function isOwner(req: MockRequest, userId: string): boolean {
 function isAdmin(req: MockRequest): boolean {
   if (!isSignedIn(req) || !req.auth) return false;
   const token = req.auth;
-  const hasCustomClaim = token.admin === true;
-  const isFallbackAdminEmail =
-    token.email != null && token.email.toLowerCase() === 'kelajaksari2030@gmail.com';
-  return hasCustomClaim || isFallbackAdminEmail;
+  return token.admin === true;
 }
 
 function canReadTestConnection(req: MockRequest): boolean {
@@ -115,13 +114,10 @@ assert(
 // ----------------------------------------------------
 // 2. SEC-01: Admin Privilege & Custom Claims Authorization
 // ----------------------------------------------------
-console.log('\n--- 2. SEC-01: Custom Claims & Legacy Email Fallback Authorization ---');
+console.log('\n--- 2. SEC-01: Custom Claims-Only Admin Authorization ---');
 
-const legacyAdminEmailReq: MockRequest = {
-  auth: { uid: 'usr_legacy_admin', email: 'kelajaksari2030@gmail.com' },
-};
-const uppercaseLegacyAdminEmailReq: MockRequest = {
-  auth: { uid: 'usr_legacy_admin2', email: 'KELAJAKSARI2030@GMAIL.COM' },
+const emailOnlyAdminReq: MockRequest = {
+  auth: { uid: 'usr_email_only', email: 'kelajaksari2030@gmail.com' },
 };
 const spoofedEmailReq: MockRequest = {
   auth: { uid: 'usr_hacker', email: 'fake_kelajaksari2030@gmail.com' },
@@ -132,12 +128,30 @@ assert(
   'User with custom claim admin == true is authorized as admin'
 );
 assert(
-  isAdmin(legacyAdminEmailReq) === true,
-  'User with legacy admin email is authorized as admin during migration'
+  isAdmin(emailOnlyAdminReq) === false,
+  'A matching email address without the admin custom claim is NOT authorized'
+);
+
+// Production backend authorization helper regression tests.
+assert(
+  isAdminUser('uid_admin_claim', true, new Set()) === true,
+  'Production backend helper accepts a server-assigned admin custom claim'
 );
 assert(
-  isAdmin(uppercaseLegacyAdminEmailReq) === true,
-  'Legacy admin email check is case-insensitive'
+  isAdminUser('uid_email_only', false, new Set()) === false,
+  'Production backend helper does not grant admin access based on email/profile data'
+);
+assert(
+  isAdminUser('uid_allowlisted', false, parseAdminUids(' uid_other, uid_allowlisted , ')) === true,
+  'Production backend helper accepts an exact UID from the server-side allowlist'
+);
+assert(
+  isAdminUser('uid_other', false, parseAdminUids(' uid_allowlisted, ')) === false,
+  'Production backend helper rejects UIDs absent from the allowlist'
+);
+assert(
+  isAdminUser(undefined, true, new Set()) === false,
+  'Production backend helper rejects missing UID even when a claim flag is supplied'
 );
 assert(
   isAdmin(regularUserReq) === false,
@@ -232,16 +246,6 @@ assert(
     { uid: 'usr_admin', currentPlan: 'ultra', subscriptionStatus: 'active' }
   ) === true,
   'Admin with custom claim CAN update currentPlan'
-);
-
-assert(
-  canUpdateUserProfile(
-    legacyAdminEmailReq,
-    'usr_legacy_admin',
-    { uid: 'usr_legacy_admin', currentPlan: 'free', subscriptionStatus: 'active' },
-    { uid: 'usr_legacy_admin', currentPlan: 'pro', subscriptionStatus: 'active' }
-  ) === true,
-  'Legacy admin email user CAN update currentPlan during migration'
 );
 
 console.log('\n====================================================');

@@ -260,7 +260,7 @@ export async function handleClickPrepare(body: ClickPrepareRequestBody): Promise
   );
 
   if (!signString || signString.toLowerCase() !== expectedSign.toLowerCase()) {
-    console.warn('[Click Prepare] Signature mismatch. Received:', signString, 'Expected:', expectedSign);
+    console.warn('[Click Prepare] Signature mismatch.');
     return {
       click_trans_id: clickTransId,
       merchant_trans_id: merchantTransId,
@@ -394,7 +394,7 @@ export async function handleClickComplete(body: ClickCompleteRequestBody): Promi
   );
 
   if (!signString || signString.toLowerCase() !== expectedSign.toLowerCase()) {
-    console.warn('[Click Complete] Signature mismatch. Received:', signString, 'Expected:', expectedSign);
+    console.warn('[Click Complete] Signature mismatch.');
     return {
       click_trans_id: clickTransId,
       merchant_trans_id: merchantTransId,

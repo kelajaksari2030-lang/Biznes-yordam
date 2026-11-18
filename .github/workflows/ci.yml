@@ -1,0 +1,41 @@
+name: BiznesYordam CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "security/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run Firestore Security Rules emulator tests
+        run: npx --yes firebase-tools@latest --project demo-biznesyordam-rules emulators:exec --only firestore "npm run test:rules"
+
+      - name: Type-check frontend and shared code
+        run: npm run lint
+
+      - name: Build backend
+        run: npm run build:server
+
+      - name: Build frontend
+        run: npm run build
