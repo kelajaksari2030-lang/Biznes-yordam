@@ -5,29 +5,7 @@
 
 import { adminDb } from './firebaseAdmin.js';
 import { AdFormData, generateAdText } from './adGenerator.js';
-
-/**
- * Admin access is based only on a server-assigned Firebase custom claim or
- * an explicit server-side UID allowlist. Client-editable profile fields and
- * email addresses are never authorization sources.
- */
-export function parseAdminUids(rawValue: string | undefined): Set<string> {
-  return new Set(
-    (rawValue || '')
-      .split(',')
-      .map((uid) => uid.trim())
-      .filter(Boolean)
-  );
-}
-
-export function isAdminUser(
-  uid?: string | null,
-  hasAdminClaim = false,
-  adminUids: Set<string> = parseAdminUids(process.env.ADMIN_UIDS)
-): boolean {
-  if (!uid) return false;
-  return hasAdminClaim === true || adminUids.has(uid);
-}
+import { isAdminUser } from './adminAuthorization.js';
 
 export const TIMEZONE = 'Asia/Tashkent';
 
