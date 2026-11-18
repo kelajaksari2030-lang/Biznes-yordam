@@ -32,14 +32,21 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+const ALLOWED_CORS_ORIGINS = new Set(
+  (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
 
 // Middlewares
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow all requesting origins (AI Studio Preview, Render Static Site, etc.)
-      return callback(null, true);
+      // Requests without an Origin header are typically server-to-server or local health checks.
+      if (!origin) return callback(null, true);
+      // Browser origins must be explicitly allowlisted in CORS_ORIGIN (comma-separated).
+      return callback(null, ALLOWED_CORS_ORIGINS.has(origin));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
