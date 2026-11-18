@@ -6,11 +6,27 @@
 import { adminDb } from './firebaseAdmin.js';
 import { AdFormData, generateAdText } from './adGenerator.js';
 
-export const ADMIN_EMAIL = 'kelajaksari2030@gmail.com';
+/**
+ * Admin access is based only on a server-assigned Firebase custom claim or
+ * an explicit server-side UID allowlist. Client-editable profile fields and
+ * email addresses are never authorization sources.
+ */
+export function parseAdminUids(rawValue: string | undefined): Set<string> {
+  return new Set(
+    (rawValue || '')
+      .split(',')
+      .map((uid) => uid.trim())
+      .filter(Boolean)
+  );
+}
 
-export function isAdminUser(email?: string | null): boolean {
-  if (!email || typeof email !== 'string') return false;
-  return email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+export function isAdminUser(
+  uid?: string | null,
+  hasAdminClaim = false,
+  adminUids: Set<string> = parseAdminUids(process.env.ADMIN_UIDS)
+): boolean {
+  if (!uid) return false;
+  return hasAdminClaim === true || adminUids.has(uid);
 }
 
 export const TIMEZONE = 'Asia/Tashkent';
@@ -68,7 +84,8 @@ export interface QuotaGenerationResult {
  */
 export async function enforceQuotaAndGenerateAd(
   userId: string,
-  formData: AdFormData & { simulatedTier?: string }
+  formData: AdFormData & { simulatedTier?: string },
+  hasAdminClaim = false
 ): Promise<QuotaGenerationResult> {
   const dateKey = getTashkentDateKey(new Date());
   const userDocRef = adminDb.collection('users').doc(userId);
@@ -83,16 +100,15 @@ export async function enforceQuotaAndGenerateAd(
 
     if (userSnap.exists) {
       const profile = userSnap.data();
-      const email = profile?.email;
       const plan = profile?.currentPlan;
-      const isAdmin = isAdminUser(email);
+      const isAdminAccount = isAdminUser(userId, hasAdminClaim);
       const requestedSimulatedTier = formData?.simulatedTier;
 
-      if (isAdmin && ['free', 'pro', 'ultra'].includes(requestedSimulatedTier || '')) {
+      if (isAdminAccount && ['free', 'pro', 'ultra'].includes(requestedSimulatedTier || '')) {
         userPlan = requestedSimulatedTier as PlanType;
         limit = PLAN_DAILY_LIMITS[userPlan];
         targetUsageDateKey = `simulated_${requestedSimulatedTier}_${dateKey}`;
-      } else if (isAdmin) {
+      } else if (isAdminAccount) {
         userPlan = 'ultra';
         limit = 999999;
       } else if (
