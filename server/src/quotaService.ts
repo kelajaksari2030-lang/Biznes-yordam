@@ -6,6 +6,7 @@
 import { adminDb } from './firebaseAdmin.js';
 import { AdFormData, generateAdText } from './adGenerator.js';
 import { isAdminUser } from './adminAuthorization.js';
+import { resolveActivePaidPlan } from './subscriptionAuthorization.js';
 
 export const TIMEZONE = 'Asia/Tashkent';
 
@@ -35,9 +36,6 @@ export class QuotaExceededError extends Error {
   }
 }
 
-/**
- * Derives the calendar date in Asia/Tashkent (UTC+5) as YYYY-MM-DD.
- */
 export function getTashkentDateKey(date: Date = new Date()): string {
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: TIMEZONE,
@@ -57,9 +55,6 @@ export interface QuotaGenerationResult {
   date: string;
 }
 
-/**
- * Executes authoritative atomic quota check and ad generation against Firestore.
- */
 export async function enforceQuotaAndGenerateAd(
   userId: string,
   formData: AdFormData & { simulatedTier?: string },
@@ -69,7 +64,6 @@ export async function enforceQuotaAndGenerateAd(
   const userDocRef = adminDb.collection('users').doc(userId);
 
   const quotaResult = await adminDb.runTransaction(async (transaction) => {
-    // 1. Authoritative User Profile read (single source of truth)
     const userSnap = await transaction.get(userDocRef);
 
     let userPlan: PlanType = 'free';
@@ -78,7 +72,6 @@ export async function enforceQuotaAndGenerateAd(
 
     if (userSnap.exists) {
       const profile = userSnap.data();
-      const plan = profile?.currentPlan;
       const isAdminAccount = isAdminUser(userId, hasAdminClaim);
       const requestedSimulatedTier = formData?.simulatedTier;
 
@@ -89,27 +82,27 @@ export async function enforceQuotaAndGenerateAd(
       } else if (isAdminAccount) {
         userPlan = 'ultra';
         limit = 999999;
-      } else if (
-        (plan === 'pro' || plan === 'ultra') &&
-        profile?.subscriptionStatus !== 'expired'
-      ) {
-        userPlan = plan;
-        limit = PLAN_DAILY_LIMITS[userPlan];
+      } else {
+        const activePaidPlan = resolveActivePaidPlan(
+          profile?.currentPlan,
+          profile?.subscriptionStatus,
+          profile?.planExpiresAt
+        );
+        if (activePaidPlan) {
+          userPlan = activePaidPlan;
+          limit = PLAN_DAILY_LIMITS[userPlan];
+        }
       }
     }
 
     const usageDocRef = userDocRef.collection('usage').doc(targetUsageDateKey);
-
-    // 2. Authoritative Usage Document read
     const usageSnap = await transaction.get(usageDocRef);
     const currentCount = usageSnap.exists ? usageSnap.data()?.adCount || 0 : 0;
 
-    // 3. Quota check
     if (currentCount >= limit) {
       throw new QuotaExceededError(currentCount, limit, userPlan, targetUsageDateKey);
     }
 
-    // 4. Atomic Increment
     const newCount = currentCount + 1;
     const nowIso = new Date().toISOString();
 
@@ -137,11 +130,6 @@ export async function enforceQuotaAndGenerateAd(
     };
   });
 
-  // 5. Deterministic Ad Generation executed authoritatively on server
   const adText = generateAdText(formData);
-
-  return {
-    adText,
-    ...quotaResult,
-  };
+  return { adText, ...quotaResult };
 }
