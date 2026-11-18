@@ -92,7 +92,7 @@ Shundan so'ng frontenddagi "Reklama matnini yaratish" tugmasi avtomatik tarzda R
 
 ### Admin huquqlarini xavfsiz sozlash
 
-Admin vakolati endi email manziliga qarab berilmaydi. Firestore qoidalarida faqat Firebase Admin SDK tomonidan serverda berilgan `admin: true` custom claim qabul qilinadi. Backenddagi ixtiyoriy `ADMIN_UIDS` o'zgaruvchisi vergul bilan ajratilgan Firebase Authentication UID'lari orqali faqat backend kvota/simulyatsiya huquqini beradi; u Firestore Security Rules o'rnini bosmaydi. UID'ni Firebase Console → Authentication → Users bo'limidan olish mumkin. Hech qachon email yoki client-editable Firestore profil maydonidan admin huquqi sifatida foydalanmang.
+Admin vakolati endi email manziliga qarab berilmaydi. Firestore qoidalarida faqat Firebase Admin SDK tomonidan serverda berilgan `admin: true` custom claim qabul qilinadi. Backenddagi `ADMIN_UIDS` vergul bilan ajratilgan Firebase Authentication UID'lari orqali backend kvota/simulyatsiya huquqini beradi. `FIREBASE_ADMIN_CLAIM_UIDS` esa faqat server operatori belgilagan UID'larga backend ishga tushganda `admin: true` custom claim beradi va mavjud boshqa claim'larni saqlaydi. Bu ro'yxatni faqat ishonchli administrator UID'lari bilan to'ldiring; ro'yxatdan UID olib tashlash avval berilgan claim'ni avtomatik bekor qilmaydi. UID'ni Firebase Console → Authentication → Users bo'limidan olish mumkin. Hech qachon email yoki client-editable Firestore profil maydonidan admin huquqi sifatida foydalanmang.
 
 
 ### CORS ruxsat etilgan domenlari
