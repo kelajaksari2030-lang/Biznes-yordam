@@ -28,6 +28,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Run Firestore Security Rules emulator tests
+        run: npx --yes firebase-tools@latest emulators:exec --only firestore "npm run test:rules" --project demo-biznesyordam-rules
+
       - name: Type-check frontend and shared code
         run: npm run lint
 
