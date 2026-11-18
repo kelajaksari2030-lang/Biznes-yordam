@@ -10,7 +10,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { initializeApp, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { resolveActivePaidPlan } from './subscriptionAuthorization';
+import { resolveAuthorizedQuota } from './subscriptionAuthorization';
 import {
   getTashkentDateKey,
   PLAN_DAILY_LIMITS,
@@ -47,6 +47,7 @@ export const generateAd = onCall(
     }
 
     const userId = request.auth.uid;
+    const isAdmin = request.auth.token.admin === true;
     const rawData = request.data as Partial<AdFormData>;
 
     // 2. Validate input
@@ -86,21 +87,15 @@ export const generateAd = onCall(
         // Read user profile strictly from Firestore (server-side single source of truth)
         const userSnap = await transaction.get(userDocRef);
 
-        let userPlan: PlanType = 'free';
-        if (userSnap.exists) {
-          const profileData = userSnap.data();
-          const plan = profileData?.currentPlan;
-          const activePaidPlan = resolveActivePaidPlan(
-            plan,
-            profileData?.subscriptionStatus,
-            profileData?.planExpiresAt
-          );
-          if (activePaidPlan) {
-            userPlan = activePaidPlan;
-          }
-        }
-
-        const limit = PLAN_DAILY_LIMITS[userPlan];
+        const profileData = userSnap.exists ? userSnap.data() : undefined;
+        const quota = resolveAuthorizedQuota(
+          profileData?.currentPlan,
+          profileData?.subscriptionStatus,
+          profileData?.planExpiresAt,
+          isAdmin
+        );
+        const userPlan: PlanType = quota.plan;
+        const limit = quota.dailyLimit;
 
         // Read usage record for today (Asia/Tashkent date)
         const usageSnap = await transaction.get(usageDocRef);
